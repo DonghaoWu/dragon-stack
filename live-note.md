@@ -1,3 +1,4 @@
+第一阶段：设定结构， OOP 设计概念。
 1. 前期设定
 
     1. create a repo in github.
@@ -86,7 +87,7 @@
 第一阶段总结：
 
 1. OOP 的方式。
-2. object 中 get 的方式。
+2. object 中 get 的关键字。
 3. 定义 class 后使用 constrctuor 和 定义 function
 4. 几个关于时间的函数：
 
@@ -101,3 +102,29 @@
 5. 给 setTimeout 赋值在一个变量上面。
 6. 使用默认参数建立 class。
 7. class 之间的嵌套，这个是一直以来都欠缺的。
+
+第二阶段：express
+
+1. install express.js
+
+    ```bash
+    $ npm i express
+    ```
+
+2. code organization.
+
+3. change file require path and package.json script
+
+4. clean up code
+
+5. 共享动态生成的全局类
+
+    ```js
+    app.locals.engine = engine;
+    ```
+
+    ```js
+    router.get('/new', (req, res) => {
+        res.json({ dragon: req.app.locals.engine.generation.newDragon() });
+    });
+    ```

@@ -1,9 +1,4 @@
-// const DEFAULT_PORPERTIES = {
-//     nickname: 'unnamed',
-//     birthdate: new Date()
-// }
-
-const TRAITS = require('./traits.json');
+const TRAITS = require('../data/traits.json');
 
 const DEFAULT_PORPERTIES = {
     nickname: 'unnamed',
