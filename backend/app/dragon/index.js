@@ -1,7 +1,9 @@
-const TRAITS = require('../data/traits.json');
+const TRAITS = require('../../data/traits.json');
 
 const DEFAULT_PORPERTIES = {
+    dragonId: undefined,
     nickname: 'unnamed',
+    generationId: undefined,
     get birthdate() {
         return new Date();
     },
@@ -18,10 +20,12 @@ const DEFAULT_PORPERTIES = {
 }
 
 class Dragon {
-    constructor({ birthdate, nickname, traits } = {}) {
+    constructor({ dragonId, birthdate, nickname, traits, generationId } = {}) {
+        this.dragonId = dragonId || DEFAULT_PORPERTIES.dragonId;
         this.birthdate = birthdate || DEFAULT_PORPERTIES.birthdate;
         this.nickname = nickname || DEFAULT_PORPERTIES.nickname;
         this.traits = traits || DEFAULT_PORPERTIES.randomTraits;
+        this.generationId = generationId || DEFAULT_PORPERTIES.generationId;
     }
 }
 
