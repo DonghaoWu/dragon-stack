@@ -31,15 +31,13 @@ class DragonTraitTable {
                 [dragonId],
                 (error, response) => {
                     if (error) return reject(error);
+                    console.log('======>', response.rows);
                     resolve(response.rows);
                 }
             )
         })
     }
 }
-
-// DragonTraitTable.storeDragonTrait({ dragonId: 1, traitType: "backgroundColor", traitValue: "blue" })
-//     .then(({ dragonId }) => console.log(dragonId));
 
 module.exports = DragonTraitTable;
 

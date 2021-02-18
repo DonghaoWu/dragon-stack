@@ -5,8 +5,8 @@ const getDragonWithTraits = require('../dragon/helper');
 const router = new Router();
 
 router.get('/new', (req, res, next) => {
-
     const dragon = req.app.locals.engine.generation.newDragon();
+    
     DragonTable.storeDragon(dragon)
         .then(({ dragonId }) => {
             dragon.dragonId = dragonId;

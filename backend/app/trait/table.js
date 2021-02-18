@@ -16,8 +16,5 @@ class TraitTable {
     };
 }
 
-// TraitTable.getTraitId({ traitType: "backgroundColor", traitValue: "blue" })
-//     .then(({ traitId }) => console.log(traitId));
-
 module.exports = TraitTable;
 

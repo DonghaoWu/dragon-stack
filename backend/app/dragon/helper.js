@@ -1,11 +1,11 @@
 const pool = require("../../databasePool");
 const DragonTable = require("./table");
-const DragonTraitTable = require('../dragonTrait/table')
+const DragonTraitTable = require('../dragonTrait/table');
 const Dragon = require('./index');
 
 const getDragonWithTraits = ({ dragonId }) => {
     return Promise.all([
-        DragonTable.getDragon({ dragonId }),
+        DragonTable.getDragonWithoutTraits({ dragonId }),
         DragonTraitTable.getDragonTraits({ dragonId })
     ])
         .then(([dragon, dragonTraits]) => {
