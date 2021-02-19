@@ -1112,6 +1112,9 @@ DragonTable.storeDragon(dragon)
 
     ```bash
     $ npx create-react-app frontend
-    $ git
-    $
+    $ git add .
+    $ git commit -m'working on front-end'
+    $ git push
     ```
+
+2. `按这个顺序建立：github repo => git clone local => git init => npm init => backend folder => npx create-react-app frontend，没有出现 git file 冲突的情况`.
