@@ -1118,3 +1118,265 @@ DragonTable.storeDragon(dragon)
     ```
 
 2. `按这个顺序建立：github repo => git clone local => git init => npm init => backend folder => npx create-react-app frontend，没有出现 git file 冲突的情况`.
+
+
+3. install dependencies
+
+    ```bash
+    $ cd frontend
+    $ npm i react-bootstrap redux react-redux react-router-dom redux-thunk
+    $ 
+    ```
+
+4. set up a proxy, change backend port, install concurrently, add new scripts in root directory.
+
+```json
+    "client": "npm start --prefix frontend",
+    "server": "npm run configure-dev --prefix backend",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+```
+
+5. 
+```bash
+$ cd ..
+$ npm run dev
+```
+
+6. 基本的 functional component：
+```js
+import React, { useState, useEffect } from 'react';
+
+const Generation = () => {
+    useEffect(() => {
+        fetchGeneration();
+    }, [])
+
+    const [generation, setGeneration] = useState({
+        generationId: 0,
+        expiration: ''
+    });
+
+    const fetchGeneration = () => {
+        fetch('/generation')
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                setGeneration(data.generation);
+            })
+            .catch(error => console.log(error));
+    }
+
+    return (
+        <div>
+            <h3>Generation Id: {generation.generationId}</h3>
+            <h4>Expires on: {new Date(generation.expiration).toString()}</h4>
+        </div>
+    )
+}
+
+export default Generation;
+```
+
+- async/await 版本
+
+```js
+import React, { useState, useEffect } from 'react';
+
+const Generation = () => {
+    useEffect(() => {
+        fetchNextGeneration();
+
+        return clearTimeout(timer)
+    }, [])
+
+    const [generation, setGeneration] = useState({
+        generationId: '',
+        expiration: ''
+    });
+
+    const [timer, setTimer] = useState(null)
+
+    const fetchGeneration = async () => {
+        try {
+            const res = await fetch('generation');
+            const data = await res.json();
+            setGeneration(data.generation);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const fetchNextGeneration = () => {
+        fetchGeneration();
+
+        let delay = new Date(generation.expiration).getTime() - new Date().getTime();
+
+        delay = Math.max(delay, 3000)
+
+        setTimer(setTimeout(() => {
+            fetchNextGeneration();
+        }, delay))
+    }
+
+    return (
+        <div>
+            <h3>Generation Id: {generation.generationId}</h3>
+            <h4>Expires on: {new Date(generation.expiration).toString()}</h4>
+        </div>
+    )
+}
+
+export default Generation;
+```
+
+7. useEffect + setTimeout 的操作不知道是不是好，但这也是处理间隔时间发起请求的一种方案。同时这里也实现了 useEffect = componentDidMount + componentDidUpdate + componentWillUnmount 的功能。
+
+8. Dragon component
+
+```js
+import React, { useState, useEffect } from 'react';
+
+const Dragon = () => {
+    useEffect(() => {
+        fetchDragon();
+    }, []);
+
+    const [dragon, setDragon] = useState({
+        dragonId: '',
+        generationId: '',
+        nickname: '',
+        birthdate: '',
+        traits: []
+    });
+
+    const { dragonId, generationId, nickname, birthdate, traits } = dragon;
+
+    const fetchDragon = async () => {
+        try {
+            const res = await fetch('/dragon/new');
+            const data = await res.json();
+            setDragon(data.dragon);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    return (
+        <div>
+            <span>Dragon ID: {dragonId}</span>
+            <br />
+            <span>Generation ID: {generationId}</span>
+            <br />
+            <span>Nickname: {nickname}</span>
+            <br />
+            <span>Birthdate: {birthdate}</span>
+            <br />
+
+            {
+                traits.map((trait,index) => {
+                    return (
+                        <div key={index}>
+                            <span>{`${trait.traitType}: ${trait.traitValue}`}</span>
+                            <br />
+                        </div>
+                    )
+                })
+            }
+        </div>
+    )
+}
+
+export default Dragon;
+```
+
+9. 将 Dragon component 拆开。
+
+```js
+import React, { useState, useEffect } from 'react';
+
+const DragonAvatar = ({ dragon }) => {
+    const { dragonId, generationId, nickname, birthdate, traits } = dragon;
+
+    return (
+        <div>
+            <span>Dragon ID: {dragonId}</span>
+            <br />
+            <span>Generation ID: {generationId}</span>
+            <br />
+            <span>Nickname: {nickname}</span>
+            <br />
+            <span>Birthdate: {birthdate}</span>
+            <br />
+
+            {
+                traits.map((trait, index) => {
+                    return (
+                        <div key={index}>
+                            <span>{`${trait.traitType}: ${trait.traitValue}`}</span>
+                            <br />
+                        </div>
+                    )
+                })
+            }
+        </div>
+    )
+}
+
+export default DragonAvatar;
+```
+
+10. 安装 react-bootstrap，在 Dragon component 中加入 button。
+
+```js
+import React, { useState, useEffect } from 'react';
+import {Button} from 'react-bootstrap';
+import DragonAvatar from './DragonAvatar';
+
+const Dragon = () => {
+
+    const [dragon, setDragon] = useState({
+        dragonId: '',
+        generationId: '',
+        nickname: '',
+        birthdate: '',
+        traits: []
+    });
+
+    const { dragonId, generationId, nickname, birthdate, traits } = dragon;
+
+    const fetchDragon = async () => {
+        try {
+            const res = await fetch('/dragon/new');
+            const data = await res.json();
+            setDragon(data.dragon);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    return (
+        <div>
+            <DragonAvatar dragon={dragon} />
+            <Button onClick={fetchDragon}>Create a new dragon</Button>
+        </div>
+    )
+}
+
+export default Dragon;
+```
+
+11. 小知识点，上面代码中，无参数情况下两者效果一样的。
+
+```js
+<Button onClick={fetchDragon}>Create a new dragon</Button>
+
+<Button onClick={()=>fetchDragon()}>Create a new dragon</Button>
+```
+
+12. Working on Dragon avatar image.
+
+```js
+
+```
