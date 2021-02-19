@@ -632,6 +632,17 @@ const getDragonWithTraits = ({ dragonId }) => {
 module.exports = getDragonWithTraits;
 ```
 
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+
+
+
 第三阶段总结： postgreSQL 的使用与设计，最重点的地方。
 
 1. 本章从设计 generation 出发，到 dragon， 到 trait， 到 dragonTrait
@@ -894,7 +905,7 @@ DragonTable.storeDragon(dragon)
 
             traitValues.forEach(traitValue => {
                 pool.query(
-                    `INSERT INTO TRAIT("traitType", "traitValue") VALUES($1, $2) RETURNING id`,
+                    `INSERT INTO trait("traitType", "traitValue") VALUES($1, $2) RETURNING id`,
                     [traitType, traitValue],
                     (error, response) => {
                         if(error) console.error(error);
@@ -1084,10 +1095,23 @@ DragonTable.storeDragon(dragon)
     ]
     ```
 
-    - 对应的 sql 语句
+    - 对应的 sql 语句。
     ```sql
     SELECT "traitType", "traitValue"
     FROM trait
     INNER JOIN dragonTrait ON trait.id = dragonTrait."traitId"
     WHERE dragonTrait."dragonId" = $1
+    ```
+
+9. `主要是复习 table 和 sql 的写法。`
+
+
+第四阶段：frontend
+
+1. 使用 CRA：
+
+    ```bash
+    $ npx create-react-app frontend
+    $ git
+    $
     ```
