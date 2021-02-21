@@ -1868,3 +1868,540 @@ module.exports = app;
 $ psql -U noah dragonstackdb
 # select * from account;
 ```
+
+7. 对 password 和 username 加密。
+
+- 方法： sha256
+- npm i crypto-js
+- 代码：
+
+- /app/account/helper.js
+
+```js
+const SHA256 = require('crypto-js/sha256');
+
+const {APP_SECRET} = require('../../secrets/index.js')
+
+const hash = (string)=>{
+    return SHA256(`${APP_SECRET}${string}${APP_SECRET}`).toString();
+}
+
+module.exports = {hash};
+```
+
+- 转变 sql 的定义
+```sql
+CREATE TABLE account(
+    id              SERIAL PRIMARY KEY,
+    "usernameHash"  CHARACTER(64),
+    "passwordHash"  CHARACTER(64)
+);
+```
+
+- 转变输入数据：
+```js
+const pool = require('../../databasePool');
+
+class AccountTable {
+    static storeAccount({ usernameHash, passwordHash }) {
+        return new Promise((resolve, reject) => {
+            pool.query(`INSERT INTO account('usernameHash', 'passwordHash') 
+                        VALUES($1, $2) RETURNING id`,
+                [usernameHash, passwordHash],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    const userId = response.rows[0].id;
+
+                    resolve({ userId })
+                }
+            )
+        })
+    };
+}
+
+module.exports = AccountTable;
+```
+
+```js
+const { Router } = require('express');
+const AccountTable = require('../account/table');
+const {hash} = require('../account/helper.js')
+
+const router = new Router();
+
+router.post('/signup', (req, res, next) => {
+    const { username, password } = req.body;
+    const usernameHash = hash(username);
+    const passwordHash = hash(password);
+
+    AccountTable.storeAccount({ usernameHash, passwordHash })
+        .then(() => res.json({ message: 'sigh up success.' }))
+        .catch(error => next(error))
+});
+
+module.exports = router;
+```
+
+- 在 postman 中创建用户，得到：
+
+ id |                           usernameHash                           |                           passwordHash
+----+------------------------------------------------------------------+------------------------------------------------------------------
+  1 | f5ff206f9bc4ea4c15ffa4c587b0a1efb21f8868610d9c7bb42d8286fd2b023b | 9269d6322d226fdbaafe19ffce32b83f8c8474cc3ecfed18b5703713324094f3
+(1 row)
+
+8. 防止重复用户名：
+
+```js
+const pool = require('../../databasePool');
+
+class AccountTable {
+    static storeAccount({ usernameHash, passwordHash }) {
+        return new Promise((resolve, reject) => {
+            pool.query(`INSERT INTO account("usernameHash", "passwordHash") 
+                        VALUES($1, $2) RETURNING id`,
+                [usernameHash, passwordHash],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    const userId = response.rows[0].id;
+
+                    resolve({ userId })
+                }
+            )
+        })
+    };
+
+    static getAccount({ usernameHash }) {
+        return new Promise((resolve, reject) => {
+            pool.query(`SELECT id, "passwordHash" FROM account
+            WHERE "usernameHash" = $1`,
+                [usernameHash],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    resolve({ account: response.rows[0] })
+                }
+            )
+        })
+    }
+}
+
+module.exports = AccountTable;
+```
+
+- 未修改 promise chain
+```js
+const { Router } = require('express');
+const AccountTable = require('../account/table');
+const { hash } = require('../account/helper.js')
+
+const router = new Router();
+
+router.post('/signup', (req, res, next) => {
+    const { username, password } = req.body;
+    const usernameHash = hash(username);
+    const passwordHash = hash(password);
+
+    AccountTable.getAccount({ usernameHash })
+        .then(({ account }) => {
+            if (!account) {
+                AccountTable.storeAccount({ usernameHash, passwordHash })
+                    .then(() => res.json({ message: 'sigh up success.' }))
+                    .catch(error => next(error))
+            }
+            else {
+                const error = new Error('This username has already been taken.');
+                error.statrsCode = 409;
+                next(error);
+            }
+        })
+        .catch(error => next(error))
+});
+
+module.exports = router;
+```
+
+- 修改了 promise chain 版
+```js
+const { Router } = require('express');
+const AccountTable = require('../account/table');
+const { hash } = require('../account/helper.js')
+
+const router = new Router();
+
+router.post('/signup', (req, res, next) => {
+    const { username, password } = req.body;
+    const usernameHash = hash(username);
+    const passwordHash = hash(password);
+
+    AccountTable.getAccount({ usernameHash })
+        .then(({ account }) => {
+            if (!account) {
+                return AccountTable.storeAccount({ usernameHash, passwordHash })
+            }
+            else {
+                const error = new Error('This username has already been taken.');
+                error.statrsCode = 409;
+                throw (error);
+            }
+        })
+        .then(() => res.json({ message: 'sigh up success.' }))
+        .catch(error => next(error))
+});
+
+module.exports = router;
+```
+
+8. account session, 将对话内容暂存
+
+- keep the account authenticated through a session cookie.
+
+- 之前的 app 是使用 jWT 将 userId 转化成 token 然后存在session，用 bcryptjs 修改 password 形态。
+
+- 这个方案是把 username 使用 crypto 变形，配合 uuid 后存在 cookie，同时也适用 crypto 加密 password。
+
+- npm i uuid;
+- session.js, generate a session String and verify
+```js
+const { v4: uuidv4 } = require('uuid');
+const { hash } = require('./helper');
+
+const SEPARATOR = '|';
+
+class Session {
+    constructor({ username }) {
+        this.username = username;
+        this.id = uuidv4();
+    }
+
+    toString() {
+        const { username, id } = this;
+        return Session.sessionString({ username, id });
+    }
+
+    static parse(sessionString) {
+        const sessionData = sessionString.split(SEPARATOR);
+        return {
+            username: sessionData[0],
+            id: sessionData[1],
+            sessionHash: sessionData[2]
+        };
+    }
+
+    static verify(sessionString) {
+        const { username, id, sessionHash } = Session.parse(sessionString);
+
+        const accountData = Session.accountData({ username, id });
+
+        return hash(accountData) === sessionHash;
+    }
+
+    static accountData({ username, id }) {
+        return `${username}${SEPARATOR}${id}`;
+    }
+
+    static sessionString({ username, id }) {
+        const accountData = Session.accountData({ username, id });
+
+        return `${accountData}${SEPARATOR}${hash(accountData)}`;
+    }
+}
+
+const foo = new Session({ username: 'foo' });
+
+const str = foo.toString();
+
+console.log('parse', Session.parse(str))
+console.log('parse', Session.verify(str))
+
+module.exports = Session;
+```
+
+- 只使用 jst 对 信息进行加密，那么最关键的地方在于 secret，使用上述方法进行加密，除了 secret 之外，uuid 还有 解密逻辑都是关键,而且这里不对回传的 id 进行加密，所以这里的唯一性建立在 username 上。
+
+- 在api 层面进行 session 操作
+
+```js
+const { Router } = require('express');
+const AccountTable = require('../account/table');
+const { hash } = require('../account/helper.js');
+const Session = require('../account/session.js');
+
+const router = new Router();
+
+router.post('/signup', (req, res, next) => {
+    const { username, password } = req.body;
+    const usernameHash = hash(username);
+    const passwordHash = hash(password);
+
+    AccountTable.getAccount({ usernameHash })
+        .then(({ account }) => {
+            if (!account) {
+                return AccountTable.storeAccount({ usernameHash, passwordHash })
+            }
+            else {
+                const error = new Error('This username has already been taken.');
+                error.statrsCode = 409;
+                throw (error);
+            }
+        })
+        .then(() =>{
+            const session = new Session({username});
+            const sessionString = session.toString();
+
+            res.cookie('sessionString', sessionString,{
+                expire: Date.now() + 3600000,
+                httpOnly:true,
+                // secure:true // use with https
+            });
+
+            res.json({ message: 'sigh up success.' }))
+
+        } 
+        .catch(error => next(error))
+});
+
+module.exports = router;
+```
+
+- 关于 cookie 的语句
+```js
+res.cookie('sessionString', sessionString,{
+    expire: Date.now() + 3600000,
+    httpOnly:true,
+    // secure:true // use with https
+});
+```
+
+9. 注册后把 session 的 ID，也即对应的 uuid 写入 account table
+
+- 修改 sql 文件
+
+```sql
+CREATE TABLE account(
+    id              SERIAL PRIMARY KEY,
+    "usernameHash"  CHARACTER(64),
+    "passwordHash"  CHARACTER(64),
+    "sessionId"     CHARACTER(36)
+);
+```
+
+- api 逻辑
+```js
+router.post('/signup', (req, res, next) => {
+    const { username, password } = req.body;
+    const usernameHash = hash(username);
+    const passwordHash = hash(password);
+
+    AccountTable.getAccount({ usernameHash })
+        .then(({ account }) => {
+            if (!account) {
+                return AccountTable.storeAccount({ usernameHash, passwordHash })
+            }
+            else {
+                const error = new Error('This username has already been taken.');
+                error.statrsCode = 409;
+                throw (error);
+            }
+        })
+        .then(() => {
+            return setSession({ username, res })
+        })
+        .then((message) => {
+            res.json(message)
+        })
+        .catch(error => next(error))
+});
+```
+
+- setSession
+```js
+const setSession = ({ username, res }) => {
+    return new Promise((resolve, reject) => {
+
+        const session = new Session({ username });
+        const sessionString = session.toString();
+
+        AccountTable.updateSessionId(
+            {
+                sessionId: session.id,
+                usernameHash: hash(username)
+            }
+        )
+            .then(() => {
+                res.cookie('sessionString', sessionString, {
+                    expire: Date.now() + 3600000,
+                    httpOnly: true,
+                    // secure:true // use with https
+                });
+                resolve({ message: 'session created.' })
+            })
+            .catch(error => reject(error));
+
+    })
+}
+```
+
+- updateSessionId
+```js
+static updateSessionId({ sessionId, usernameHash }) {
+    return new Promise((resolve, reject) => {
+        pool.query(`UPDATE account SET "sessionId"=$1 WHERE "usernameHash" = $2`,
+            [sessionId, usernameHash],
+            (error, response) => {
+                if (error) return reject(error);
+
+                resolve();
+            }
+        )
+    })
+}
+```
+
+10. 关于 log in，不是关于提取 session。
+
+```js
+router.post('/login', (req, res, next) => {
+    const { username, password } = req.body;
+    AccountTable.getAccount({ usernameHash: hash(username) })
+        .then(({ account }) => {
+            if (!account || account.passwordHash !== hash(password)) {
+                const error = new Error('Incorrect username / password');
+                error.statusCode = 409;
+                throw error;
+            }
+            else if (account && account.passwordHash === hash(password)) {
+                console.log('account exists.')
+                return setSession({ username, res });
+            }
+        })
+        .then((message) => {
+            res.json(message)
+        })
+        .catch(error => next(error))
+});
+```
+
+
+11. 关于 getAccount 的修改, 使多设备登录的时候共用一个 sessionId，而不是每一个设备登陆都创建新的 sessionId。
+
+- table query 层面, 增加获得 sessionId
+```js
+static getAccount({ usernameHash }) {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT id, "passwordHash", "sessionId" FROM account
+        WHERE "usernameHash" = $1`,
+            [usernameHash],
+            (error, response) => {
+                if (error) return reject(error);
+
+                resolve({ account: response.rows[0] })
+            }
+        )
+    })
+}
+```
+
+- api 层面， 获得 sessionId
+```js
+router.post('/login', (req, res, next) => {
+    const { username, password } = req.body;
+    AccountTable.getAccount({ usernameHash: hash(username) })
+        .then(({ account }) => {
+            if (!account || account.passwordHash !== hash(password)) {
+                const error = new Error('Incorrect username / password');
+                error.statusCode = 409;
+                throw error;
+            }
+            else if (account && account.passwordHash === hash(password)) {
+                const {sessionId} = account;
+
+                return setSession({ username, res, sessionId });
+            }
+        })
+        .then((message) => {
+            res.json(message)
+        })
+        .catch(error => next(error))
+});
+```
+
+- helper setSession 层面， 使用 sessionId。
+
+```js
+const setSession = ({ username, res, sessionId }) => {
+    return new Promise((resolve, reject) => {
+        let session, sessionString;
+
+        if (sessionId) {
+            sessionString = Session.sessionString({ username, id: sessionId });
+            setSessionCookie({ sessionString, res });
+            resolve({ message: 'session restored.' })
+        }
+        else {
+            const session = new Session({ username });
+            const sessionString = session.toString();
+
+            AccountTable.updateSessionId(
+                {
+                    sessionId: session.id,
+                    usernameHash: hash(username)
+                }
+            )
+                .then(() => {
+                    setSessionCookie({ sessionString, res });
+                    resolve({ message: 'session created.' })
+                })
+                .catch(error => reject(error));
+        }
+    })
+}
+
+const setSessionCookie = ({ sessionString, res }) => {
+    res.cookie('sessionString', sessionString, {
+        expire: Date.now() + 3600000,
+        httpOnly: true,
+        // secure:true // use with https
+    });
+}
+```
+
+12. 本部分遗留问题，如何解决 session 过期，目前为止都是只讲述如何在注册和登陆的过程中存储 session，但没有讲述如何提取和使用 session。
+
+```js
+
+```
+
+13. Log out
+
+- npm i cookie-parser
+- 这个 middleware 可以实现用 `req.cookies` 获得 cookie 的值
+```js
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+```
+
+```js
+const Session = require('../account/session');
+
+router.get('/logout', (req, res, next) => {
+    const { username } = Session.parse(req.cookies.sessionString);
+
+    AccountTable.updateSessionId({
+        sessionId: null,
+        usernameHash: hash(username)
+    })
+        .then(() => {
+            res.clearCookie('sessionString');
+
+            res.json({ message: 'Successful logout.' })
+        })
+        .catch(error => next(error));
+});
+```
+
+- 注意，整个 logout 过程都是不需要参数，只针对当前在 cookie 的数据进行提取，然后根据提取的数据更改 account table。
+
+- 这个后台 cookie 的多功能是新内容，包括多设备登陆，sessioinId 的设定都是新内容。
+

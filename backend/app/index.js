@@ -4,6 +4,7 @@ const GenerationEngine = require('./generation/engine');
 const dragonRouter = require('./api/dragon');
 const generationRouter = require('./api/generation');
 const accountRouter = require('./api/account');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const engine = new GenerationEngine();
@@ -11,6 +12,7 @@ const engine = new GenerationEngine();
 app.locals.engine = engine;
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use('/account', accountRouter);
 app.use('/dragon', dragonRouter);
