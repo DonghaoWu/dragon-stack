@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-    skinny,
-    sporty,
-    spotted,
-    slender,
-    patchy,
-    plain,
-    stocky,
-    striped
-} from '../assets/index.js';
+import { skinny, sporty, spotted, slender, patchy, plain, stocky, striped } from '../assets/index.js';
 
 const propertyMap = {
     backgroundColor: {
@@ -47,7 +38,7 @@ const DragonAvatar = ({ dragon }) => {
 
     let image = dragonImage();
 
-    if(!dragon.dragonId) return <div></div>
+    if (!dragon.dragonId) return <div></div>
 
     return (
         <div>

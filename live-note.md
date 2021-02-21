@@ -1755,3 +1755,116 @@ export default connect(mapStateToProps, mapDispatchToProps)(Generation);
 
     export default connect(mapStateToProps, mapDispatchToProps)(Dragon);
     ```
+
+第六阶段：在现有框架下添加新的数据库 account table，先完成后端，然后是前端。
+
+第六阶段后端部分：
+
+- 目标: account table
+- 步骤:
+
+1. sql table 文件
+```sql
+CREATE TABLE account(
+    id       SERIAL PRIMARY KEY,
+    username CHARACTER(64),
+    password CHARACTER(64)
+);
+```
+2. 执行 sql 文件，confugure_db.sh
+3. 设定 query function
+```js
+const pool = require('../../databasePool');
+
+class AccountTable {
+    static storeAccount(user) {
+        const { username, password } = user;
+
+        return new Promise((resolve, reject) => {
+            pool.query(`INSERT INTO account(username, password) 
+                        VALUES($1, $2) RETURNING id`,
+                [username, password],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    const userId = response.rows[0].id;
+
+                    resolve({ userId })
+                }
+            )
+        })
+    };
+}
+
+module.exports = AccountTable;
+```
+4. 设定 API,
+- 安装 dependecy `(好像现在 express 自带 body-parser)`
+
+```bash
+$ cd backend
+$ npm i body-parser
+```
+- app/index.js
+
+```js
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+```
+
+```js
+const { Router } = require('express');
+const AccountTable = require('../account/table');
+
+const router = new Router();
+
+router.post('/signup', (req, res, next) => {
+    const { username, password } = req.body;
+    AccountTable.storeAccount({ username, password })
+        .then(() => res.json({ message: 'sigh up success.' }))
+        .catch(error => next(error))
+});
+
+module.exports = router;
+```
+
+```js
+const express = require('express');
+const bodyParser = require('body-parser');
+const GenerationEngine = require('./generation/engine');
+const dragonRouter = require('./api/dragon');
+const generationRouter = require('./api/generation');
+const accountRouter = require('./api/account');
+
+const app = express();
+const engine = new GenerationEngine();
+
+app.locals.engine = engine;
+
+app.use(bodyParser.json());
+
+app.use('/account', accountRouter);
+app.use('/dragon', dragonRouter);
+app.use('/generation', generationRouter);
+
+app.use((err, req, res, next) => {
+
+    const statusCode = err.statusCode || 500;
+
+    res.status(statusCode).json({
+        type: 'error',
+        message: err.message
+    })
+})
+
+engine.start();
+
+module.exports = app;
+```
+
+5. test in postman, content-type:application/json
+6. check in sql
+```bash
+$ psql -U noah dragonstackdb
+# select * from account;
+```
