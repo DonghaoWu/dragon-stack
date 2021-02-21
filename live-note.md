@@ -1124,7 +1124,7 @@ DragonTable.storeDragon(dragon)
 
     ```bash
     $ cd frontend
-    $ npm i react-bootstrap redux react-redux react-router-dom redux-thunk
+    $ npm i react-bootstrap redux react-redux redux-thunk react-router-dom
     $ 
     ```
 
@@ -1378,5 +1378,380 @@ export default Dragon;
 12. Working on Dragon avatar image.
 
 ```js
+import React, { useState, useEffect } from 'react';
+import {
+    skinny,
+    sporty,
+    spotted,
+    slender,
+    patchy,
+    plain,
+    stocky,
+    striped
+} from '../assets/index.js';
 
+const propertyMap = {
+    backgroundColor: {
+        black: '#263238',
+        white: '#cfd8dc',
+        green: '#a5d6a7',
+        blue: '#0277bd'
+    },
+    build: { slender, stocky, sporty, skinny },
+    pattern: { plain, striped, spotted, patchy },
+    size: { small: 100, medium: 200, large: 300, enormous: 400 }
+}
+
+const DragonAvatar = ({ dragon }) => {
+
+    const { dragonId, generationId, nickname, birthdate, traits } = dragon;
+
+    const dragonPropertyMap = {};
+
+    traits.forEach(trait => {
+        const { traitType, traitValue } = trait;
+        dragonPropertyMap[traitType] = propertyMap[traitType][traitValue];
+    });
+
+    const sizing = { width: dragonPropertyMap.size, height: dragonPropertyMap.size }
+
+    const dragonImage = () => {
+        return (
+            <div className='dragon-avatar-image-wrapper'>
+                <div className='dragon-avatar-image-background' style={{ backgroundColor: dragonPropertyMap.backgroundColor, ...sizing }}></div>
+                <img src={dragonPropertyMap.pattern} className='dragon-avatar-image-pattern' style={{ ...sizing }} />
+                <img src={dragonPropertyMap.build} className='dragon-avatar-image' style={{ ...sizing }} />
+            </div>
+        )
+    }
+
+    let image = dragonImage();
+
+    return (
+        <div>
+            <span>Dragon ID: {dragonId}</span>
+            <br />
+            <span>Generation ID: {generationId}</span>
+            <br />
+            <span>Nickname: {nickname}</span>
+            <br />
+            <span>Birthdate: {birthdate}</span>
+            <br />
+
+            {
+                traits.map((trait, index) => {
+                    return (
+                        <div key={index}>
+                            <span>{`${trait.traitType}: ${trait.traitValue}`}</span>
+                            <br />
+                        </div>
+                    )
+                })
+            }
+            {image}
+        </div>
+    )
+}
+
+export default DragonAvatar;
 ```
+
+
+第五阶段：redux
+
+1. redux 的设置可以参考这个 repo：[https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/React%2BRedux%2Bwebpack/Redux-Readme.md](https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/React%2BRedux%2Bwebpack/Redux-Readme.md)
+
+2. 关于 redux thunk，可以参考这个：[https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/React%2BRedux%2Bwebpack/Dispatch-Thunk.md](https://github.com/DonghaoWu/WebDev-tools-demo/blob/master/React%2BRedux%2Bwebpack/Dispatch-Thunk.md)
+
+3. 重大修复，加入限制条件停止无限 fetch。
+
+```js
+import React, { useState, useEffect } from 'react';
+
+const Generation = () => {
+    const [generation, setGeneration] = useState({
+        generationId: '',
+        expiration: ''
+    });
+
+    useEffect(() => {
+        console.log('run useEffect 1', generation.generationId)
+        fetchNextGeneration();
+
+        return clearTimeout(timer)
+    }, [generation.generationId])
+
+    const [timer, setTimer] = useState(null)
+
+    const fetchGeneration = async () => {
+        console.log('fetch 3');
+        try {
+            const res = await fetch('generation');
+            const data = await res.json();
+            setGeneration(data.generation);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const fetchNextGeneration = () => {
+        console.log('run next 2');
+        fetchGeneration();
+
+        let delay = new Date(generation.expiration).getTime() - new Date().getTime();
+        delay = Math.max(delay, 3000)
+
+        setTimer(setTimeout(() => {
+            fetchNextGeneration();
+        }, delay))
+    }
+
+    return (
+        <div>
+            <h3>Generation Id: {generation.generationId}</h3>
+            <h4>Expires on: {new Date(generation.expiration).toString()}</h4>
+        </div>
+    )
+}
+
+export default Generation;
+```
+
+4. 加入 redux之后
+```js
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { generationActionCreator } from '../actions/generationActions'
+
+const Generation = ({ generation, dispatchGeneration }) => {
+    useEffect(() => {
+        console.log(new Date())
+        fetchNextGeneration();
+        return clearTimeout(timer);
+    }, [generation.generationId])
+
+    const [timer, setTimer] = useState(null);
+
+    const fetchGeneration = async () => {
+        try {
+            const res = await fetch('generation');
+            const data = await res.json();
+            dispatchGeneration(data.generation);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const fetchNextGeneration = () => {
+        fetchGeneration();
+
+        setTimer(setTimeout(() => {
+            fetchNextGeneration();
+        }, 3000))
+    }
+
+    return (
+        <div>
+            <h3>Generation Id: {generation.generationId}</h3>
+            <h4>Expires on: {new Date(generation.expiration).toString()}</h4>
+        </div>
+    )
+}
+
+const mapStateToProps = state => {
+    return {
+        generation: state.generation
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatchGeneration: (generation) => dispatch(generationActionCreator(generation))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Generation);
+```
+
+5. redux-thunk 就是 dispatch 一个含有 dispatch 为参数的函数如下：
+
+```js
+// 一个含有 dispatch 为参数的函数
+export const fetchGeneration = dispatch => {
+    return fetch('/generation')
+        .then(response => response.json())
+        .then((data => {
+            dispatch(generationActionCreator(data.generation))
+        }))
+        .catch(error => console.log(error))
+}
+
+// dispatch 这个函数，并包装为另外一个函数：
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatchGeneration: () => dispatch(fetchGeneration)
+    }
+}
+```
+
+6. 加入 redux-thunk 之后
+
+```js
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { generationActionCreator, fetchGeneration } from '../actions/generationActions'
+
+const Generation = ({ generation, dispatchGeneration }) => {
+    useEffect(() => {
+        fetchNextGeneration();
+        return clearTimeout(timer);
+    }, [generation.generationId])
+
+    const [timer, setTimer] = useState(null);
+
+    const fetchNextGeneration = () => {
+        dispatchGeneration();
+
+        setTimer(setTimeout(() => {
+            fetchNextGeneration();
+        }, 3000))
+    }
+
+    return (
+        <div>
+            <h3>Generation Id: {generation.generationId}</h3>
+            <h4>Expires on: {new Date(generation.expiration).toString()}</h4>
+        </div>
+    )
+}
+
+const mapStateToProps = state => {
+    return {
+        generation: state.generation
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatchGeneration: () => dispatch(fetchGeneration)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Generation);
+```
+
+7. 加入 dragon reducer
+
+    1. 加入 types
+    ```js
+    export const DRAGON_FETCH_BEGIN = 'DRAGON_FETCH_BEGIN';
+    export const DRAGON_FETCH_SUCCESS = 'DRAGON_FETCH_SUCCESS';
+    export const DRAGON_FETCH_FAILURE = 'DRAGON_FETCH_FAILURE';
+    ```
+
+    2. 加入 actions
+    ```js
+    import { DRAGON_FETCH_BEGIN, DRAGON_FETCH_SUCCESS, DRAGON_FETCH_FAILURE } from '../types/dragonTypes';
+
+    export const fetchDragon = dispatch => {
+        dispatch({ type: DRAGON_FETCH_BEGIN });
+
+        fetch('/dragon/new')
+            .then(response => response.json())
+            .then((data => {
+                if (data.type === 'error') {
+                    return dispatch({
+                        type: DRAGON_FETCH_FAILURE,
+                        payload: data.message
+                    })
+                }
+                else {
+                    dispatch({
+                        type: DRAGON_FETCH_SUCCESS,
+                        payload: data.dragon
+                    })
+                }
+            }))
+            .catch(error => {
+                dispatch({
+                    type: DRAGON_FETCH_FAILURE,
+                    payload: error.message
+                })
+            })
+    }
+    ```
+
+    3. 加入 reducer
+    ```js
+    import { DRAGON_FETCH_BEGIN, DRAGON_FETCH_SUCCESS, DRAGON_FETCH_FAILURE } from '../types/dragonTypes';
+
+    const initialState = {
+        dragonId: '',
+        generationId: '',
+        nickname: '',
+        birthdate: '',
+        traits: [],
+        fetchSuccess: false
+    }
+
+    const dragonReducer = (state = initialState, action) => {
+        switch (action.type) {
+            case DRAGON_FETCH_BEGIN:
+                return { ...state, fetchSuccess: false };
+            case DRAGON_FETCH_SUCCESS:
+                return { ...state, fetchSuccess: true, ...action.payload };
+            case DRAGON_FETCH_FAILURE:
+                return { ...state, fetchSuccess: false, message: action.payload };
+            default:
+                return state;
+        }
+    }
+
+    export default dragonReducer;
+    ```
+
+    4. 引入到 rootReducer
+    ```js
+    import dragonReducer from './dragonReducer';
+    import generationReducer from './generationReducer';
+    import { combineReducers } from 'redux';
+
+    const rootReducer = combineReducers({
+        generation: generationReducer,
+        dragon: dragonReducer
+    });
+
+    export default rootReducer;
+    ```
+
+    5. 连接 reducer 到 component
+    ```js
+    import React, { useState, useEffect } from 'react';
+    import { Button } from 'react-bootstrap';
+    import DragonAvatar from './DragonAvatar';
+    import { connect } from 'react-redux';
+    import { fetchDragon } from '../actions/dragonActions'
+
+    const Dragon = ({ dragon, dispatchDragon }) => {
+        return (
+            <div>
+                <Button onClick={dispatchDragon}>Create a new dragon in current generation</Button>
+                <DragonAvatar dragon={dragon} />
+            </div>
+        )
+    }
+
+    const mapStateToProps = state => {
+        return {
+            dragon: state.dragon
+        }
+    }
+
+    const mapDispatchToProps = dispatch => {
+        return {
+            dispatchDragon: () => dispatch(fetchDragon)
+        }
+    }
+
+    export default connect(mapStateToProps, mapDispatchToProps)(Dragon);
+    ```

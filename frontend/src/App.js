@@ -1,6 +1,6 @@
 import './App.css';
 import Generation from './components/Generation';
-import Dragon from './components/Dragon'
+import Dragon from './components/Dragon';
 
 function App() {
   return (

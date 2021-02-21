@@ -1,39 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { generationActionCreator, fetchGeneration } from '../actions/generationActions'
 
-const Generation = () => {
+const Generation = ({ generation, dispatchGeneration }) => {
     useEffect(() => {
         fetchNextGeneration();
+        return clearTimeout(timer);
+    }, [generation.generationId])
 
-        return clearTimeout(timer)
-    }, [])
-
-    const [generation, setGeneration] = useState({
-        generationId: '',
-        expiration: ''
-    });
-
-    const [timer, setTimer] = useState(null)
-
-    const fetchGeneration = async () => {
-        try {
-            const res = await fetch('generation');
-            const data = await res.json();
-            setGeneration(data.generation);
-        } catch (error) {
-            console.error(error);
-        }
-    }
+    const [timer, setTimer] = useState(null);
 
     const fetchNextGeneration = () => {
-        fetchGeneration();
-
-        let delay = new Date(generation.expiration).getTime() - new Date().getTime();
-
-        delay = Math.max(delay, 3000)
+        dispatchGeneration();
 
         setTimer(setTimeout(() => {
             fetchNextGeneration();
-        }, delay))
+        }, 3000))
     }
 
     return (
@@ -44,4 +26,16 @@ const Generation = () => {
     )
 }
 
-export default Generation;
+const mapStateToProps = state => {
+    return {
+        generation: state.generation
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatchGeneration: () => dispatch(fetchGeneration)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Generation);

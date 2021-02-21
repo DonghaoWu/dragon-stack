@@ -47,6 +47,8 @@ const DragonAvatar = ({ dragon }) => {
 
     let image = dragonImage();
 
+    if(!dragon.dragonId) return <div></div>
+
     return (
         <div>
             <span>Dragon ID: {dragonId}</span>
