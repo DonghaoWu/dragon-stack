@@ -2403,5 +2403,5 @@ router.get('/logout', (req, res, next) => {
 
 - 注意，整个 logout 过程都是不需要参数，只针对当前在 cookie 的数据进行提取，然后根据提取的数据更改 account table。
 
-- 这个后台 cookie 的多功能是新内容，包括多设备登陆，sessioinId 的设定都是新内容。
+- 这个后台 cookie 的多功能是新内容，包括多设备登陆，sessioinId 的设定都是新内容。还有包括 Session class 的多个设定都是有理解的难度。
 
