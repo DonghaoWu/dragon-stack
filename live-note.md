@@ -2405,3 +2405,5 @@ router.get('/logout', (req, res, next) => {
 
 - 这个后台 cookie 的多功能是新内容，包括多设备登陆，sessioinId 的设定都是新内容。还有包括 Session class 的多个设定都是有理解的难度。
 
+2/23 will work on front end authentication tomorrow.
+
