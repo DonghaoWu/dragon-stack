@@ -2407,3 +2407,5 @@ router.get('/logout', (req, res, next) => {
 
 2/23 will work on front end authentication tomorrow.
 
+2/24 will work on front end authentication tomorrow.
+
