@@ -2405,3 +2405,140 @@ router.get('/logout', (req, res, next) => {
 
 - 这个后台 cookie 的多功能是新内容，包括多设备登陆，sessioinId 的设定都是新内容。还有包括 Session class 的多个设定都是有理解的难度。
 
+
+2/26: working on frontend authentication part.
+
+- Root.js
+
+```js
+import React ,{Component} from 'react';
+import Home from '/Home';
+import AuthForm from './AuthForm';
+import {connect} from 'react-redux';
+
+class App extends Component {
+    render(){
+        return(
+            this.props.account.loggedIn ? <Home /> : <AuthForm />
+        )
+    }
+}
+
+const mapStateToProps = state => {
+    return{
+        account: state.account
+    }
+}
+
+export default connect(mapStateToProps, null)(App);
+```
+
+```js
+import React ,{Component} from 'react';
+import Generation from './Generation';
+import Dragon from './Dragon';
+
+class Home extends Component {
+    render(){
+        return(
+            <div>
+                <h2> Dragon Stack</h2>
+                <Generation />
+                <Dragon />
+            </div>
+        )
+    }
+}
+
+export default Home;
+```
+
+```js
+import React ,{Component} from 'react';
+import {Button, FormGroup, FormControl} from 'react-bootstrap';
+import {signup} from '../actions/account';
+import {connect} from 'react-redux';
+
+class AuthForm extends Component {
+    state = {username:'', password:''};
+
+    updateUsername = e =>{
+        this.setState({username: e.target.value})
+    };
+
+    updatePassword = e =>{
+        this.setState({password: e.target.value})
+    };
+
+    signup = ()=>{
+        console.log('click sign up', this.state);
+
+        const {username, password} = this.state;
+        this.props.signup({username, password});
+    }
+
+    login = ()=>{
+        console.log('click log in', this.state);
+    }
+
+    render(){
+        return(
+            <div>
+                <h2>Dragon Stack</h2>
+                <FormGroup>
+                    <FromControl
+                        type='text'
+                        value='this.state.username'
+                        placeholder='username'
+                        onChange={this.updateUsername}
+                    />
+                    <FromControl
+                        type='password'
+                        value='this.state.password'
+                        placeholder='password'
+                        onChange={this.updatePassword}
+                    />
+                    <div>
+                    <Button onClick={this.logn}>Log In</Button>
+                    <span> / </span>
+                    <Button onClick={this.signup}>Sign up</Button>
+                    </div>
+                </FormGroup>
+                {
+                    this.props.account.message ?
+                    <div>{this.props.account.message}</div>
+                    :
+                    null
+                }
+            </div>
+        )
+    }
+}
+
+const mapStateToProps = state =>{
+    return {
+        account: state.account
+    }
+}
+
+const mapDispatch = dispatch =>{
+    return{
+        signup: ({username, password})=>dispatch(signup({username, password}))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthForm);
+```
+
+- 修改 root 名字为 App
+
+- 修改 server.js
+
+```js
+app.use(cors({ origin:'http://localhost:1234', credentials : true}))
+```
+
+- 目前在browser 中写 document.cookie 会显示 “”；
+- 需要修改 setSessionCookie 中删除 httpOnly。
+- 
+
