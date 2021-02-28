@@ -33,5 +33,5 @@ export const signup = ({ username, password }) => dispatch => {
 }
 
 export const logout = dispatch => {
-    
+    // do something in session part
 }   
