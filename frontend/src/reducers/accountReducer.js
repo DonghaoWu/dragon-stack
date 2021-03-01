@@ -1,8 +1,16 @@
-import { ACCOUNT_FETCH_BEGIN, ACCOUNT_FETCH_SUCCESS, ACCOUNT_FETCH_FAILURE, ACCOUNT_LOGOUT_SUCCESS } from '../types/accountTypes';
+import {
+    ACCOUNT_FETCH_BEGIN,
+    ACCOUNT_FETCH_SUCCESS,
+    ACCOUNT_FETCH_FAILURE,
+    ACCOUNT_LOGOUT_SUCCESS,
+    ACCOUNT_AUTHENTICATED_SUCCESS,
+    ACCOUNT_AUTHENTICATED_FAILURE
+} from '../types/accountTypes';
 
 const initialState = {
     loggedIn: false,
-    message: ''
+    message: '',
+    isAuthenticated: false
 }
 
 const accountReducer = (state = initialState, action) => {

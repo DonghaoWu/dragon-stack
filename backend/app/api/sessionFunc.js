@@ -18,7 +18,7 @@ const setSession = ({ username, res, sessionId }) => {
             AccountTable.updateSessionId(
                 {
                     sessionId: session.id,
-                    usernameHash: hash(username)
+                    usernameHash: hash(session.username)
                 }
             )
                 .then(() => {

@@ -13,7 +13,7 @@ export const fetchDragon = dispatch => {
                 })
             }
             else {
-                dispatch({
+                return dispatch({
                     type: DRAGON_FETCH_SUCCESS,
                     payload: data.dragon
                 })

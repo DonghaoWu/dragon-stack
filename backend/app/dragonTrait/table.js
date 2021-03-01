@@ -31,7 +31,6 @@ class DragonTraitTable {
                 [dragonId],
                 (error, response) => {
                     if (error) return reject(error);
-                    console.log('======>', response.rows);
                     resolve(response.rows);
                 }
             )

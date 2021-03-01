@@ -3,7 +3,7 @@ const DragonTable = require("./table");
 const DragonTraitTable = require('../dragonTrait/table');
 const Dragon = require('./index');
 
-const getDragonWithTraits = ({ dragonId }) => {
+const getWholeDragon = ({ dragonId }) => {
     return Promise.all([
         DragonTable.getDragonWithoutTraits({ dragonId }),
         DragonTraitTable.getDragonTraits({ dragonId })
@@ -20,4 +20,4 @@ const getDragonWithTraits = ({ dragonId }) => {
         .catch(error => console.error(error));
 }
 
-module.exports = getDragonWithTraits;
+module.exports = getWholeDragon;

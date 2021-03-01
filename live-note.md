@@ -2456,7 +2456,7 @@ export default Home;
 ```js
 import React ,{Component} from 'react';
 import {Button, FormGroup, FormControl} from 'react-bootstrap';
-import {signup} from '../actions/account';
+import {signup, login} from '../actions/account';
 import {connect} from 'react-redux';
 
 class AuthForm extends Component {
@@ -2478,7 +2478,10 @@ class AuthForm extends Component {
     }
 
     login = ()=>{
-        console.log('click log in', this.state);
+        console.log('click login', this.state);
+
+        const {username, password} = this.state;
+        this.props.login({username, password});
     }
 
     render(){
@@ -2523,7 +2526,8 @@ const mapStateToProps = state =>{
 
 const mapDispatch = dispatch =>{
     return{
-        signup: ({username, password})=>dispatch(signup({username, password}))
+        signup: ({username, password})=>dispatch(signup({username, password})),
+        login: ({username, password})=>dispatch(login({username, password}))
     }
 }
 
@@ -2542,3 +2546,129 @@ app.use(cors({ origin:'http://localhost:1234', credentials : true}))
 - 需要修改 setSessionCookie 中删除 httpOnly。
 - 
 
+2/28
+
+1. 在这里觉得统一前后端信息借口很重要，这需要总结的时候前后端一起对接审视。
+
+2. logout button
+
+```js
+import React ,{Component} from 'react';
+import Generation from './Generation';
+import Dragon from './Dragon';
+import {Button} from 'react-bootstrap';
+import {logout} from '../actions/account';
+import {connect} from 'react-redux';
+
+class Home extends Component {
+    render(){
+        return(
+            <div>
+            <Button className='logout-button' onClick={this.props.logout}>Log out</Button>
+                <h2> Dragon Stack</h2>
+                <Generation />
+                <Dragon />
+            </div>
+        )
+    }
+}
+
+const mapDispatchToProps = dispatch=>{
+    logout:()=>dispatch(logout)
+}
+
+export default connect(null, mapDispatchToProps)Home;
+```
+
+```css
+.logout-button{
+    position:absolute;
+    right:30px;
+    top:30px;
+}
+```
+
+3. get authenticated request
+
+```js
+router.get('/authenticated', (req, res, next) => {
+    const { sessionString } = req.cookies;
+    if (!sessionString || !Session.verify(sessionString)) {
+        const error = new Error('Invalid session');
+        error.statusCode = 400;
+        return next(error);
+    }
+    else {
+        const { username, password } = Session.parse(sessionString);
+        AccountTable.getAccount({ usernameHash: hash(username) })
+            .then(({ account }) => {
+                const authenticated = account.sessionId === id;
+                res.json({ authenticated })
+            })
+            .catch(error => next(error));
+    }
+})
+```
+
+4. Guard renderibng behind authenticated check
+
+```js
+export const fetchAuthenticated = dispatch => {
+
+    fetch('/account/authenticated', {
+        credential: 'include'
+    })
+        .then(response => response.json())
+        .then((data => {
+            if (data.type === 'error') {
+                return dispatch({
+                    type: ACCOUNT_AUTHENTICATED_FAILURE,
+                    payload: data.message
+                })
+            }
+            else {
+                dispatch({
+                    type: ACCOUNT_AUTHENTICATED_SUCCESS,
+                })
+            }
+        }))
+        .catch(error => {
+            dispatch({
+                type: ACCOUNT_AUTHENTICATED_FAILURE,
+                payload: error.message
+            })
+        })
+}
+```
+
+5. invoke the function.
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import { Provider } from 'react-redux';
+import store from './store';
+import {fetchAuthenticated} from './actions/account';
+
+stroe.dispatch(fetchAuthenticated())
+.then(()=>{
+ReactDOM.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+})
+
+
+```
+
+6. frontend button clicked to hide error in AuthForm
+
+```js
+
+```

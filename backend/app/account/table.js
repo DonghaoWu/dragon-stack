@@ -9,9 +9,9 @@ class AccountTable {
                 (error, response) => {
                     if (error) return reject(error);
 
-                    const userId = response.rows[0].id;
+                    const accountId = response.rows[0].id;
 
-                    resolve({ userId })
+                    resolve({ accountId });
                 }
             )
         })
@@ -25,7 +25,9 @@ class AccountTable {
                 (error, response) => {
                     if (error) return reject(error);
 
-                    resolve({ account: response.rows[0] })
+                    const account = response.rows[0];
+
+                    resolve({ account });
                 }
             )
         })
