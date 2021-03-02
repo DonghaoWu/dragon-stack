@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const AccountTable = require('../account/table');
-const { hash } = require('../account/helper.js');
+const { hash } = require('../account/hashFunc');
 const setSession = require('./sessionFunc');
 const Session = require('../account/session');
 
@@ -25,8 +25,8 @@ router.post('/signup', (req, res, next) => {
         .then(() => {
             return setSession({ username, res })
         })
-        .then(({ message }) => {
-            res.json({ message })
+        .then(({ username }) => {
+            res.json({ username })
         })
         .catch(error => next(error))
 });
@@ -48,25 +48,10 @@ router.post('/login', (req, res, next) => {
                 return setSession({ username, res, sessionId });
             }
         })
-        .then(({ message }) => {
-            res.json({ message })
+        .then(({ username }) => {
+            res.json({ username })
         })
         .catch(error => next(error))
-});
-
-router.get('/logout', (req, res, next) => {
-    const { username } = Session.parse(req.cookies.sessionString);
-
-    AccountTable.updateSessionId({
-        sessionId: null,
-        usernameHash: hash(username)
-    })
-        .then(() => {
-            res.clearCookie('sessionString');
-
-            res.json({ message: 'Successful logout.' })
-        })
-        .catch(error => next(error));
 });
 
 router.get('/authenticated', (req, res, next) => {
@@ -81,10 +66,31 @@ router.get('/authenticated', (req, res, next) => {
         AccountTable.getAccount({ usernameHash: hash(username) })
             .then(({ account }) => {
                 const authenticated = account.sessionId === id;
-                res.json({ authenticated })
+                if(authenticated){
+                    return res.json({ username });
+                }
+                else{
+                    const error = new Error('Session expired or has logout by other device.');
+                    error.statusCode = 440;
+                    return next(error);
+                }
             })
             .catch(error => next(error));
     }
-})
+});
+
+router.get('/logout', (req, res, next) => {
+    const { username } = Session.parse(req.cookies.sessionString);
+
+    AccountTable.updateSessionId({
+        sessionId: null,
+        usernameHash: hash(username)
+    })
+        .then(() => {
+            res.clearCookie('sessionString');
+            res.json({ message: 'Successful logout.' })
+        })
+        .catch(error => next(error));
+});
 
 module.exports = router;

@@ -1,4 +1,5 @@
-import { DRAGON_FETCH_BEGIN, DRAGON_FETCH_SUCCESS, DRAGON_FETCH_FAILURE } from '../types/dragonTypes';
+import { DRAGON_CREATE_BEGIN, DRAGON_CREATE_SUCCESS, DRAGON_CREATE_FAILURE } from '../types/dragonTypes';
+import { ACCOUNT_LOGOUT_SUCCESS } from '../types/accountTypes';
 
 const initialState = {
     dragonId: '',
@@ -6,18 +7,19 @@ const initialState = {
     nickname: '',
     birthdate: '',
     traits: [],
-    fetchSuccess: false,
+    createSuccess: false,
     message: ''
 }
 
 const dragonReducer = (state = initialState, action) => {
     switch (action.type) {
-        case DRAGON_FETCH_BEGIN:
-            return { ...state, fetchSuccess: false, message: '' };
-        case DRAGON_FETCH_SUCCESS:
-            return { ...state, fetchSuccess: true, ...action.payload, message: '' };
-        case DRAGON_FETCH_FAILURE:
-            return { ...state, fetchSuccess: false, message: action.payload };
+        case DRAGON_CREATE_BEGIN:
+        case ACCOUNT_LOGOUT_SUCCESS:
+            return { ...state, ...initialState };
+        case DRAGON_CREATE_SUCCESS:
+            return { ...state, createSuccess: true, ...action.payload, message: '' };
+        case DRAGON_CREATE_FAILURE:
+            return { ...state, ...initialState, message: action.payload };
         default:
             return state;
     }

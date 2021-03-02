@@ -1,15 +1,20 @@
-import './App.css';
-import Generation from './components/Generation';
-import Dragon from './components/Dragon';
+import React, { Component } from 'react';
+import Home from './components/Home';
+import AuthForm from './components/AuthForm';
+import { connect } from 'react-redux';
 
-function App() {
-  return (
-    <div className="App">
-      <h2>Dragon Stack from React</h2>
-      <Generation />
-      <Dragon />
-    </div>
-  );
+class App extends Component {
+  render() {
+    return (
+      this.props.account.loggedIn ? <Home /> : <AuthForm />
+    )
+  }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    account: state.account
+  }
+}
+
+export default connect(mapStateToProps, null)(App);

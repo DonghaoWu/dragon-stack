@@ -3,9 +3,10 @@ import { GENERATION_FETCH_BEGIN, GENERATION_FETCH_SUCCESS, GENERATION_FETCH_FAIL
 export const fetchGeneration = dispatch => {
     dispatch({ type: GENERATION_FETCH_BEGIN });
 
-    fetch('/generation')
+    return fetch('/generation')
         .then(response => response.json())
         .then((data => {
+            // error from backend error handler
             if (data.type === 'error') {
                 return dispatch({
                     type: GENERATION_FETCH_FAILURE,
@@ -20,6 +21,7 @@ export const fetchGeneration = dispatch => {
             }
         }))
         .catch(error => {
+            // error not from backend
             dispatch({
                 type: GENERATION_FETCH_FAILURE,
                 payload: error.message

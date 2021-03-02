@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { skinny, sporty, spotted, slender, patchy, plain, stocky, striped } from '../assets/index.js';
 
 const propertyMap = {

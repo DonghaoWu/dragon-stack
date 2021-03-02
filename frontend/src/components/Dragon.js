@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import DragonAvatar from './DragonAvatar';
 import { connect } from 'react-redux';
-import { fetchDragon } from '../actions/dragonActions'
+import { createDragon } from '../actions/dragonActions'
 
-const Dragon = ({ dragon, dispatchDragon }) => {
+const Dragon = ({ dragon, createDragon }) => {
     return (
         <div>
-            <Button onClick={dispatchDragon}>Create a new dragon in current generation</Button>
-            <DragonAvatar dragon={dragon} />
+            <Button onClick={createDragon}>Create a new dragon in current generation</Button>
+            {
+                dragon.createSuccess ?
+                    <DragonAvatar dragon={dragon} />
+                    : <div>{dragon.message}</div>}
         </div>
     )
 }
@@ -21,7 +24,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchDragon: () => dispatch(fetchDragon)
+        createDragon: () => dispatch(createDragon)
     }
 }
 

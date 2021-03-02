@@ -4,9 +4,9 @@ import './index.css';
 import App from './App';
 import { Provider } from 'react-redux';
 import store from './store';
-import { fetchAuthenticated } from './actions/account';
+import { fetchAuthenticated } from './actions/accountActions';
 
-stroe.dispatch(fetchAuthenticated())
+store.dispatch(fetchAuthenticated)
   .then(() => {
     ReactDOM.render(
       <React.StrictMode>

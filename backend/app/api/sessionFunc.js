@@ -1,5 +1,5 @@
 const AccountTable = require('../account/table');
-const { hash } = require('../account/helper');
+const { hash } = require('../account/hashFunc');
 const Session = require('../account/session');
 
 const setSession = ({ username, res, sessionId }) => {
@@ -23,7 +23,7 @@ const setSession = ({ username, res, sessionId }) => {
             )
                 .then(() => {
                     setSessionCookie({ sessionString, res });
-                    resolve({ message: 'session created.' })
+                    resolve({ username })
                 })
                 .catch(error => reject(error));
         }
@@ -33,7 +33,7 @@ const setSession = ({ username, res, sessionId }) => {
 const setSessionCookie = ({ sessionString, res }) => {
     res.cookie('sessionString', sessionString, {
         expire: Date.now() + 3600000,
-        httpOnly: true,
+        httpOnly: true,// use for check cookie in chrome
         // secure:true // use with https
     });
 }

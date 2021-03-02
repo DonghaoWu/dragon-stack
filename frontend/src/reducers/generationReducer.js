@@ -10,9 +10,9 @@ const initialState = {
 const generationReducer = (state = initialState, action) => {
     switch (action.type) {
         case GENERATION_FETCH_BEGIN:
-            return { ...state, fetchSuccess: false };
+            return { ...state, fetchSuccess: false, message: '' };
         case GENERATION_FETCH_SUCCESS:
-            return { ...state, fetchSuccess: true, generationId: action.payload.generationId, expiration: action.payload.expiration };
+            return { ...state, fetchSuccess: true, ...action.payload, message: '' };
         case GENERATION_FETCH_FAILURE:
             return { ...state, fetchSuccess: false, message: action.payload };
         default:

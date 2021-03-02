@@ -1,32 +1,41 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  margin: 10%;
+  font-size: 20px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.logout-button {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 30px;
+  top: 30px;
 }
 
+.username{
+  margin-right: 50px;
+}
 
-.dragon-avatar-image-wrapper{
+.account-dragon-row-input {
+  width: 100px;
+  height: 20px;
+  margin-right: 15px;
+}
+
+.dragon-avatar-image-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.dragon-avatar-image-pattern{
+.dragon-avatar-image-pattern {
   position: absolute;
 }
 
-.dragon-avatar-image-background{
+.dragon-avatar-image-background {
   position: absolute;
 }
 
-.dragon-avatar-image{
+.dragon-avatar-image {
   z-index: 0;
 }

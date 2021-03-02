@@ -5,7 +5,7 @@ import { generationActionCreator, fetchGeneration } from '../actions/generationA
 const Generation = ({ generation, dispatchGeneration }) => {
     useEffect(() => {
         fetchNextGeneration();
-        return clearTimeout(timer);
+        return () => clearTimeout(timer);
     }, [generation.generationId])
 
     const [timer, setTimer] = useState(null);
@@ -22,6 +22,7 @@ const Generation = ({ generation, dispatchGeneration }) => {
         <div>
             <h3>Generation Id: {generation.generationId}</h3>
             <h4>Expires on: {new Date(generation.expiration).toString()}</h4>
+            <h4>Time now: {new Date().toString()}</h4>
         </div>
     )
 }
