@@ -2673,8 +2673,618 @@ ReactDOM.render(
 
 ```
 
+- 3/5 Account dragons
 
-3/2 working on front end account dragon table.
-3/3 working on front end account dragon table.
-3/4 working on front end account dragon table.
-3/5 working on front end account dragon table.
+1. accountDragon.sql
+
+```sql
+CREATE TABLE accountDragon(
+    "accountId" INTEGER account(id),
+    "dragonId"  INTEGER dragon(id),
+    PRIMARY KEY ("accountId", "dragonId")
+);
+```
+
+2. run the sql file
+
+```diff
+#!/bin/bash
+
+export PGPASSWORD='12345'
+
+echo "Configuring dragonstackdb..."
+
+dropdb -U noah dragonstackdb
+createdb -U noah dragonstackdb
+
+psql -U noah dragonstackdb < ./bin/sql/account.sql
+psql -U noah dragonstackdb < ./bin/sql/generation.sql
+psql -U noah dragonstackdb < ./bin/sql/dragon.sql
+psql -U noah dragonstackdb < ./bin/sql/trait.sql
+psql -U noah dragonstackdb < ./bin/sql/dragonTrait.sql
++ psql -U noah dragonstackdb < ./bin/sql/accountDragon.sql
+
+node ./bin/insertTraits.js
+
+echo "dragonstackdb configured!"
+```
+
+3. add an insert function in the table
+
+```js
+const pool = require('../../databasePool');
+
+class AccountDragonTable{
+    static storeAccountDragon({accountId, dragonId}){
+        return new Promise((resolve, reject) =>{
+            pool.query(
+                `INSERT INTO accountDragon("accountId", ""dragonId) VALUES($1, $2)`,
+                [accountId, dragonId],
+                (error, response)=>{
+                    if(error) return reject(error);
+
+                    resolve()
+                }
+            )
+        })
+    }
+}
+module.exports = AccountDragonTable;
+```
+
+4. add a route to handle the store action.
+
+- 示范如何拆开一个 promise api
+
+- 原型：
+
+```js
+router.get('/authenticated', (req, res, next) => {
+    const { sessionString } = req.cookies;
+    if (!sessionString || !Session.verify(sessionString)) {
+        const error = new Error('Invalid session.');
+        error.statusCode = 400;
+        return next(error);
+    }
+    else {
+        const { username, id } = Session.parse(sessionString);
+        AccountTable.getAccount({ usernameHash: hash(username) })
+            .then(({ account }) => {
+                const authenticated = account.sessionId === id;
+                if(authenticated){
+                    return res.json({ username });
+                }
+                else{
+                    const error = new Error('Session expired or has logout by other device.');
+                    error.statusCode = 440;
+                    return next(error);
+                }
+            })
+            .catch(error => next(error));
+    }
+});
+```
+
+- 改造后：
+```js
+const {setSession,authenticatedAccount} = require('./sessionFunc');
+router.get('/authenticated', (req, res, next) => {
+    const { sessionString } = req.cookies;
+    authenticatedAccount({sessionString})
+    .then(({account})=>{
+        return res.json({account})
+    })
+    .catch(error => next(error))
+});
+```
+
+```js
+const authenticatedAccount = ({sessionString})=>{
+    return new Promise((resolve, reject) =>{
+        if (!sessionString || !Session.verify(sessionString)) {
+            const error = new Error('Invalid session.');
+            error.statusCode = 400;
+            return reject(error);
+        }
+        else {
+            const { username, id } = Session.parse(sessionString);
+            AccountTable.getAccount({ usernameHash: hash(username) })
+                .then(({ account }) => {
+                    const authenticated = account.sessionId === id;
+                    if(authenticated){
+                        return resolve({account})
+                    }
+                    else{
+                        const error = new Error('No valid session in database or session has logout by other device.');
+                        error.statusCode = 440;
+                        return reject(error);
+                    }
+                })
+                .catch(error => reject(error));
+        }
+    })
+}
+
+module.exports = {setSession, authenticatedAccount};
+```
+
+- 
+
+
+```js
+const {authenticatedAccount} = require('../');
+const AcountDragonTable = require('');
+
+router.get('/new', (req, res, next) => {
+    let accountId, dragon;
+
+    authenticatedAccount({session: req.cookies.sessionString})
+    .then(({account})=>{
+        accountId = account.id;
+        const dragon = req.app.locals.engine.generation.newDragon();
+
+        return DragonTable.storeDragon(dragon);
+    })
+    .then(({dragonId})=>{
+        dragon.dragonId = dragonId;
+
+        return AccountDragonTable.storeAccountDragon({accountId, dragonId});
+    })
+    .then(()=>{
+        return res.json({dragon})
+    })
+    .catch(error => next(error));;
+});
+```
+
+- add code in front end, credentials:'includes';允许传送 user session 到后端。
+
+```js
+export const createDragon = dispatch => {
+    dispatch({ type: DRAGON_CREATE_BEGIN });
+
+    return fetch('/dragon/new',{ credentials: 'include'})
+        .then(response => response.json())
+        .then((data => {
+            if (data.type === 'error') {
+                return dispatch({
+                    type: DRAGON_CREATE_FAILURE,
+                    payload: data.message
+                })
+            }
+            else {
+                return dispatch({
+                    type: DRAGON_CREATE_SUCCESS,
+                    payload: data.dragon
+                })
+            }
+        }))
+        .catch(error => {
+            dispatch({
+                type: DRAGON_CREATE_FAILURE,
+                payload: error.message
+            })
+        })
+}
+```
+
+5. get account dragon, 心得，new promise 中的 reject 和 resolve 都不需要加上 return 关键词。
+
+```js
+static getASccountDragon({accountId}){
+    return new Promise((resolve, reject)=>{
+        pool.query(
+            'SELECT "dragonId" FROM accountDragon WHERE "accountId" = $1',
+            [accountId],
+            (error, response)=>{
+                if(error) return reject(error);
+
+                resolve({accountDragons: response.rows})
+            }
+        )
+    })
+}
+```
+
+- build a api
+- 3/5 `对这个过程的建议： 1。 使用 rest API 2. 使用 authenticated middleware 3. 使用 proxy 4. 使用jwt 5. 使用更好格式的 redux 6. new promise 不用 return 在 reject 和 resolve 7. res.json 应该要使用 return。`
+
+```js
+route.get('/dragons', (req,res,next) =>{
+    authenticatedAccount({sessionString:req.cookies.sessionString})
+    .then(({account}=>{
+        return AccountDragonTable.getAccountDragons({accountId:account.id})
+    })
+    .then(({accountDragons})=>{
+        return res.json({accountDragons})
+    })
+    .catch(error=> next(error));
+})
+```
+
+6. get account dragon with traits
+
+```js
+const {getDragonWithTraits} = require('..');
+
+route.get('/dragons', (req,res,next) =>{
+    authenticatedAccount({sessionString:req.cookies.sessionString})
+    .then(({account}=>{
+        return AccountDragonTable.getAccountDragons({accountId:account.id})
+    })
+    .then(({accountDragons})=>{
+        return Promise.all(
+            accountDragons.map((accountDragon =>{
+                return getDragonWithTraits({dragonId: accountDragon.dragonId})
+            }))
+        )
+    })
+    .then((dragons)=>{
+        return res.json(dragons);
+    })
+    .catch(error=> next(error));
+})
+```
+
+7. front end fetch account dragon data
+
+- types
+```js
+export const ACCOUNT_DRAGON_FETCH_BEGIN = 'ACCOUNT_DRAGON_FETCH_BEGIN';
+export const ACCOUNT_DRAGON_FETCH_SUCCESS = 'ACCOUNT_DRAGON_FETCH_SUCCESS';
+export const ACCOUNT_DRAGON_FETCH_FAILURE = 'ACCOUNT_DRAGON_FETCH_FAILURE';
+```
+
+- actions
+```js
+import {} from './types';
+
+import {fetchFromAccount} from './account';
+
+export const fetchAccountDragons = dispatch => {
+    dispatch({ type: ACCOUNT_DRAGON_FETCH_BEGIN });
+
+    return fetch('/dragon/dragons', {credentials: 'include'})
+        .then(response => response.json())
+        .then((data => {
+            if (data.type === 'error') {
+                return dispatch({
+                    type: ACCOUNT_DRAGON_FETCH_FAILURE,
+                    payload: data.message
+                })
+            }
+            else {
+                return dispatch({
+                    type: ACCOUNT_DRAGON_FETCH_SUCCESS,
+                    payload: data.dragons
+                })
+            }
+        }))
+        .catch(error => {
+            dispatch({
+                type: ACCOUNT_DRAGON_FETCH_FAILURE,
+                payload: error.message
+            })
+        })
+}
+```
+
+- `为什么原作中会有一个 fetchState，个人认为是作者为了统一管理所有 fetch action 的状态而设定的`
+- reducers
+```js
+const initialState = {
+    dragons:[],
+    message:''
+}
+
+const accountDragonReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case ACCOUNT_DRAGON_FETCH_BEGIN:
+            return {...state}
+        case ACCOUNT_DRAGON_FETCH_FAILURE:
+            return {...state, message:action.payload}
+        case ACCOUNT_DRAGON_FETCH_SUCCESS:
+            return {...state, dragons:action.payload}
+        default:
+            return state;
+    }
+}
+
+export default accountDragonReducer;
+```
+
+```js
+import dragonReducer from './dragonReducer';
+import generationReducer from './generationReducer';
+import accountReducer from './accountReducer';
+import accountDragonReducer from './accountDragonReducer';
+import { combineReducers } from 'redux';
+
+const accountDragonReducer = combineReducers({
+    account: accountReducer,
+    generation: generationReducer,
+    dragon: dragonReducer,
+    accountDragon: accountDragonReducer
+});
+
+export default rootReducer;
+```
+
+8. display account dragons in frontend
+
+```js
+import {Link} from 'react-router-dom';
+class Home extends Component {
+    render() {
+        return (
+            <div>
+                <div className='logout-button'>
+                    <span className='username'>Hello, {this.props.account.username}</span>
+                    <Button onClick={this.props.logout}>Log out</Button>
+                </div>
+                <h2> Dragon Stack</h2>
+                <Generation />
+                <Dragon />
+                <hr />
+                <Link to='/account-dragon'>Account Dragon</Link>
+                <br />
+            </div>
+        )
+    }
+}
+```
+
+```js
+import React, {Component} from 'react';
+import {connect} from 'react-router';
+import {fetchAccountDragon} from '../actions/accountDragonsActions';
+import AccountDragonRow from './AccountDragonRow';
+import {Link} from 'react-router-dom';
+
+class AccountDragons extends Component{
+
+    componentDidMount(){
+        this.props.fetchAccountDragons();
+    }
+    render(){
+        return(
+            <div>
+                <Link to='/'>Home</Link>
+                <h3>Account Dragons</h3>
+                {
+                    this.props.accountDragons.map(dragon =>{
+                        return 
+                        <div key = {dragon.dragonId}>
+                            <AccountDragonRow dragon={dragon} />
+                            <hr />
+                        </div>
+                    })
+                }
+            </div>
+        )
+    }
+}
+
+const mapStateToProps = state =>{
+    return {
+        accountDragons:state.accountDragons
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return {
+        fetchAccountDragons:dispatch(fetchAccountDragons)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AccountDragons);
+```
+
+- render account dragons in row
+```js
+import React, {compnent} from 'react';
+import DragonAvatar from './DragonAvatar';
+
+class AccountDragonRow extends Component{
+    render(){
+        return(
+            <div>
+                <span>{this.props.dragon.nickname}</span>
+                <br />
+                <DragonAvartar dragon={this.props.dragons} />
+            </div>
+        )
+    }
+}
+
+export default AccountDragonRow;
+```
+
+9. react-router, 使用 Link 而不使用 a tag
+
+- install deps
+
+```bash
+$ npm i history react-router
+```
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import { Provider } from 'react-redux';
+import store from './store';
+import { fetchAuthenticated } from './actions/accountActions';
+import {Router, Switch, Route} from 'react-router-dom';
+import AccountDragons from './components/AccountDragons';
+import createBrowserHistory from 'history/createBrowserHistory';
+
+const history = createBrowserHistory();
+
+store.dispatch(fetchAuthenticated)
+  .then(() => {
+    ReactDOM.render(
+      <React.StrictMode>
+        <Provider store={store}>
+        <Router history={history}>
+            <Switch>
+                <Route exact path='/' component={App}/>
+                <Route path='/account-dragons' component={AccountDragons}/>
+            </Switch>
+        </Provider>
+        </Router>
+      </React.StrictMode>,
+      document.getElementById('root')
+    );
+  })
+```
+
+9. front end Auth-route
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import { Provider } from 'react-redux';
+import store from './store';
+import { fetchAuthenticated } from './actions/accountActions';
+import {Router, Switch, Route, Redirect} from 'react-router-dom';
+import AccountDragons from './components/AccountDragons';
+import createBrowserHistory from 'history/createBrowserHistory';
+
+const history = createBrowserHistory();
+
+const AuthRoute = (props)=>{
+    if(!store.getState().account.loggedIn){
+        return <Redirect to={{pathname:'/'}} />
+    }
+    const {component, path} = props;
+
+    return <Route path={path} component={component} />
+}
+
+store.dispatch(fetchAuthenticated)
+  .then(() => {
+    ReactDOM.render(
+      <React.StrictMode>
+        <Provider store={store}>
+        <Router history={history}>
+            <Switch>
+                <Route exact path='/' component={App}/>
+                <AuthRoute path='/account-dragons' component={AccountDragons}/>
+            </Switch>
+        </Provider>
+        </Router>
+      </React.StrictMode>,
+      document.getElementById('root')
+    );
+  })
+```
+
+10. Update Dragon nickname, database part
+
+```js
+static updateDragon({dragonId, nickname}){
+    return new Promise((resolve, reject)=>{
+        pool.query(
+            `UPDATE dragon SET nickname = S1 WHERE id = $2`,
+            [nickname, dragonId],
+            (error, response)=>{
+                if(error) reject(error);
+
+                resolve();
+            }
+        )
+    })
+}
+```
+
+- api part
+```js
+route.put('/update',(req, res, next)=>{
+    const {dragonId, nickname} = req.body;
+
+    DragonTable.updateDragon({dragonId, nickname})
+    .then(()=>{
+        res.json({message:`successfully updated dragon's nickname`})
+    })
+    .catch(error=>next(error));
+})
+```
+
+- front end form
+
+```js
+import React, {compnent} from 'react';
+import DragonAvatar from './DragonAvatar';
+
+class AccountDragonRow extends Component{
+    state={
+        nickname:this.props.dragon.nickname,
+        edit:false
+    }
+
+    handleChange = e =>{
+        this.setState({nickname: e.target.value});
+    }
+
+    openEditMode = () =>{
+        this.setState({edit: true});
+    }
+
+    saveChange = () =>{
+        fetch(`/dragon/update`, {
+            method:'PUT',
+            header:{'Content-Type': 'application/json'},
+            body:JSON.stringfy(
+                {
+                    dragonId: this.props.dragon.dragonId,
+                    nickname: this.state.nickname
+                }
+            )
+        })
+        .then(response => response.json())
+        .then(data =>{
+            if(data.type === 'error'){
+                alert(data.message);
+            }
+            else{
+                this.setState({edit: false});
+            }
+        })
+        .catch(error=>{
+            alert(error.message)
+        })
+    }
+
+    render(){
+        return(
+            <div>
+                <input
+                    type='text'
+                    value={this.state.nickname}
+                    onChange={this.handleChange}
+                    disabled={!this.state.edit}
+                />
+                <br />
+                <DragonAvartar dragon={this.props.dragons} />
+                {
+                    this.state.edit ? 
+                    <button onClick={this.saveChange}>Save</button>
+                    :
+                    <button onClick={this.openEditMode}>Edit</button>
+                }
+            </div>
+        )
+    }
+}
+
+export default AccountDragonRow;
+```
+
+- action/reducer/type
+```js
+
+```
