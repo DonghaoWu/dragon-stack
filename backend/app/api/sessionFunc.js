@@ -1,6 +1,6 @@
-const AccountTable = require('../account/table');
-const { hash } = require('../account/hashFunc');
-const Session = require('../account/session');
+const AccountTable = require('../models/account/table');
+const { hash } = require('../models/account/hashFunc');
+const Session = require('../models/account/session');
 
 const setSession = ({ username, res, sessionId }) => {
     return new Promise((resolve, reject) => {
@@ -38,4 +38,33 @@ const setSessionCookie = ({ sessionString, res }) => {
     });
 }
 
-module.exports = setSession;
+const authenticatedAccount = ({ sessionString }) => {
+    // console.log(sessionString, 'method authenticatedAccount');
+    return new Promise((resolve, reject) => {
+        if (!sessionString || !Session.verify(sessionString)) {
+            const error = new Error('Invalid session.');
+            error.statusCode = 400;
+            return reject(error);
+        }
+        else {
+            const { username, id } = Session.parse(sessionString);
+            // console.log(username, id, '========>username');
+            AccountTable.getAccount({ usernameHash: hash(username) })
+                .then(({ account }) => {
+                    // console.log(account, '====<<<<<<<')
+                    const authenticated = account.sessionId === id;
+                    if (authenticated) {
+                        resolve({ username, currentAccountId: account.id })
+                    }
+                    else {
+                        const error = new Error('No valid session in database or session has logout by other device.');
+                        error.statusCode = 440;
+                        reject(error);
+                    }
+                })
+                .catch(error => reject(error));
+        }
+    })
+}
+
+module.exports = { setSession, authenticatedAccount };

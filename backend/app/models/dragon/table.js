@@ -1,4 +1,4 @@
-const pool = require('../../databasePool');
+const pool = require('../../../databasePool');
 const DragonTraitTable = require('../dragonTrait/table');
 const Dragon = require('./index');
 
@@ -36,6 +36,21 @@ class DragonTable {
                     if (response.rows.length === 0) return reject(new Error('no dragon in this id.'))
 
                     resolve(response.rows[0]);
+                }
+            )
+        })
+    }
+
+    static updateDragonNickname({ dragonId, nickname }) {
+        // console.log(dragonId, nickname);
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `UPDATE dragon SET nickname = $1 WHERE id = $2`,
+                [nickname, dragonId],
+                (error, response) => {
+                    if (error) reject(error);
+
+                    resolve();
                 }
             )
         })

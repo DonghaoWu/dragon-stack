@@ -27,6 +27,7 @@ const accountReducer = (state = initialState, action) => {
             return { ...state, loggedIn: false, message: '' };
         case ACCOUNT_SIGNUP_SUCCESS:
         case ACCOUNT_SIGNIN_SUCCESS:
+            return { ...state, loggedIn: true, message: '', username: action.payload };
         case ACCOUNT_AUTHENTICATED_SUCCESS:
             return { ...state, loggedIn: true, message: '', username: action.payload };
         case ACCOUNT_SIGNUP_FAILURE:

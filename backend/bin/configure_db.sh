@@ -12,6 +12,7 @@ psql -U noah dragonstackdb < ./bin/sql/generation.sql
 psql -U noah dragonstackdb < ./bin/sql/dragon.sql
 psql -U noah dragonstackdb < ./bin/sql/trait.sql
 psql -U noah dragonstackdb < ./bin/sql/dragonTrait.sql
+psql -U noah dragonstackdb < ./bin/sql/accountDragon.sql
 
 node ./bin/insertTraits.js
 

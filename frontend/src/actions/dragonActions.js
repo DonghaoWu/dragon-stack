@@ -3,7 +3,7 @@ import { DRAGON_CREATE_BEGIN, DRAGON_CREATE_SUCCESS, DRAGON_CREATE_FAILURE } fro
 export const createDragon = dispatch => {
     dispatch({ type: DRAGON_CREATE_BEGIN });
 
-    return fetch('/dragon/new')
+    return fetch('/dragon/new', { credentials: 'include' })
         .then(response => response.json())
         .then((data => {
             if (data.type === 'error') {

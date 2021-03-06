@@ -1,4 +1,4 @@
-const pool = require('../../databasePool');
+const pool = require('../../../databasePool');
 
 class TraitTable {
     static getTraitId({ traitType, traitValue }) {

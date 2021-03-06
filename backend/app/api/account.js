@@ -1,8 +1,8 @@
 const { Router } = require('express');
-const AccountTable = require('../account/table');
-const { hash } = require('../account/hashFunc');
-const setSession = require('./sessionFunc');
-const Session = require('../account/session');
+const AccountTable = require('../models/account/table');
+const { hash } = require('../models/account/hashFunc');
+const { setSession, authenticatedAccount } = require('./sessionFunc');
+const Session = require('../models/account/session');
 
 const router = new Router();
 
@@ -56,27 +56,11 @@ router.post('/login', (req, res, next) => {
 
 router.get('/authenticated', (req, res, next) => {
     const { sessionString } = req.cookies;
-    if (!sessionString || !Session.verify(sessionString)) {
-        const error = new Error('Invalid session.');
-        error.statusCode = 400;
-        return next(error);
-    }
-    else {
-        const { username, id } = Session.parse(sessionString);
-        AccountTable.getAccount({ usernameHash: hash(username) })
-            .then(({ account }) => {
-                const authenticated = account.sessionId === id;
-                if(authenticated){
-                    return res.json({ username });
-                }
-                else{
-                    const error = new Error('Session expired or has logout by other device.');
-                    error.statusCode = 440;
-                    return next(error);
-                }
-            })
-            .catch(error => next(error));
-    }
+    authenticatedAccount({ sessionString })
+        .then(({ username }) => {
+            return res.json({ username })
+        })
+        .catch(error => next(error))
 });
 
 router.get('/logout', (req, res, next) => {

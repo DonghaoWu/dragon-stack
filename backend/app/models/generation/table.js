@@ -1,4 +1,4 @@
-const pool = require('../../databasePool');
+const pool = require('../../../databasePool');
 
 class GenerationTable {
     static storeGeneration(generation) {

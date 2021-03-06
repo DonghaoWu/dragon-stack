@@ -39,3 +39,27 @@ body {
 .dragon-avatar-image {
   z-index: 0;
 }
+
+.dragon-container{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.dragon-card{
+  border:1px solid black;
+  margin:5px 5px;
+  height: 600px;
+  width:400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.dragon-image-container{
+  display: flex;
+  height: 330px;
+  justify-content: center;
+  width:350px;
+}

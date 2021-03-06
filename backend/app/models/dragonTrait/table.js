@@ -1,4 +1,4 @@
-const pool = require('../../databasePool');
+const pool = require('../../../databasePool');
 const TraitTable = require('../trait/table');
 
 class DragonTraitTable {

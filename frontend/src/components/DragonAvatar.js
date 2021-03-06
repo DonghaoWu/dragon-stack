@@ -10,7 +10,7 @@ const propertyMap = {
     },
     build: { slender, stocky, sporty, skinny },
     pattern: { plain, striped, spotted, patchy },
-    size: { small: 100, medium: 200, large: 300, enormous: 400 }
+    size: { small: 80, medium: 160, large: 240, enormous: 320 }
 }
 
 const DragonAvatar = ({ dragon }) => {
@@ -42,6 +42,9 @@ const DragonAvatar = ({ dragon }) => {
 
     return (
         <div>
+            <div className='dragon-image-container'>
+                {image}
+            </div>
             <span>Dragon ID: {dragonId}</span>
             <br />
             <span>Generation ID: {generationId}</span>
@@ -61,7 +64,6 @@ const DragonAvatar = ({ dragon }) => {
                     )
                 })
             }
-            {image}
         </div>
     )
 }

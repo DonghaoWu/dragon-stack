@@ -2672,6 +2672,9 @@ ReactDOM.render(
 ```js
 
 ```
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+--------------------------------------------------------------
+//////////////////////////////////////////////////////////////
 
 - 3/5 Account dragons
 
@@ -2679,9 +2682,9 @@ ReactDOM.render(
 
 ```sql
 CREATE TABLE accountDragon(
-    "accountId" INTEGER account(id),
-    "dragonId"  INTEGER dragon(id),
-    PRIMARY KEY ("accountId", "dragonId")
+  "accountId" INTEGER REFERENCES account(id),
+  "dragonId"  INTEGER REFERENCES dragon(id),
+  PRIMARY KEY ("accountId", "dragonId")
 );
 ```
 
@@ -2871,7 +2874,7 @@ export const createDragon = dispatch => {
 5. get account dragon, 心得，new promise 中的 reject 和 resolve 都不需要加上 return 关键词。
 
 ```js
-static getASccountDragon({accountId}){
+static getAccountDragon({accountId}){
     return new Promise((resolve, reject)=>{
         pool.query(
             'SELECT "dragonId" FROM accountDragon WHERE "accountId" = $1',
@@ -3026,7 +3029,7 @@ class Home extends Component {
                 <Generation />
                 <Dragon />
                 <hr />
-                <Link to='/account-dragon'>Account Dragon</Link>
+                <Link to='/account-dragon'>My Dragons List</Link>
                 <br />
             </div>
         )
@@ -3108,6 +3111,16 @@ export default AccountDragonRow;
 $ npm i history react-router
 ```
 
+- 备注， 使用了 
+
+```diff
++ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+
+- import { createBrowserHistory } from 'history';
+- const history = createBrowserHistory();
+- <Router history={history}>
+```
+
 ```js
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -3186,7 +3199,7 @@ store.dispatch(fetchAuthenticated)
 10. Update Dragon nickname, database part
 
 ```js
-static updateDragon({dragonId, nickname}){
+static updateDragonNickname({dragonId, nickname}){
     return new Promise((resolve, reject)=>{
         pool.query(
             `UPDATE dragon SET nickname = S1 WHERE id = $2`,
@@ -3238,7 +3251,7 @@ class AccountDragonRow extends Component{
         fetch(`/dragon/update`, {
             method:'PUT',
             header:{'Content-Type': 'application/json'},
-            body:JSON.stringfy(
+            body:JSON.stringify(
                 {
                     dragonId: this.props.dragon.dragonId,
                     nickname: this.state.nickname

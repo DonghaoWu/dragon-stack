@@ -8,6 +8,8 @@ const Dragon = ({ dragon, createDragon }) => {
     return (
         <div>
             <Button onClick={createDragon}>Create a new dragon in current generation</Button>
+            <br />
+            <br />
             {
                 dragon.createSuccess ?
                     <DragonAvatar dragon={dragon} />
