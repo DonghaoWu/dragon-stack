@@ -14,13 +14,14 @@ class Home extends Component {
                     <span className='username'>Hello, {this.props.account.username}</span>
                     <Button onClick={this.props.logout}>Log out</Button>
                 </div>
-                <h2> Dragon Stack</h2>
-                <Generation />
-                <Link to='/account-dragons'>My Dragons List</Link>
-                <br />
-                <br />
-                <Dragon />
-                <br />
+                <div className='home-container'>
+                    <h2> Dragon Stack</h2>
+                    <Generation />
+                    <Link to='/account-dragons'>My Dragons List</Link>
+                    <br />
+                    <Dragon />
+                    <br />
+                </div>
             </div>
         )
     }

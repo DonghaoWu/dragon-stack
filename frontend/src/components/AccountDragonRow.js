@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
 
 class AccountDragonRow extends Component {
     state = {
@@ -17,7 +19,6 @@ class AccountDragonRow extends Component {
     }
 
     saveChange = () => {
-        console.log(this.props.dragon.dragonId, this.state.nickname)
         fetch(`/dragon/update`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -34,9 +35,12 @@ class AccountDragonRow extends Component {
                     alert(data.message);
                 }
                 else {
-                    alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
-                    this.setState({ edit: false });
+                    return this.props.fetchAccountDragons();
                 }
+            })
+            .then(() => {
+                this.setState({ edit: false });
+                alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
             })
             .catch(error => {
                 alert(error.message)
@@ -67,4 +71,10 @@ class AccountDragonRow extends Component {
     }
 }
 
-export default AccountDragonRow;
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchAccountDragons: () => dispatch(fetchAccountDragons)
+    }
+}
+
+export default connect(null, mapDispatchToProps)(AccountDragonRow);

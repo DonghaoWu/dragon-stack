@@ -3297,7 +3297,35 @@ class AccountDragonRow extends Component{
 export default AccountDragonRow;
 ```
 
-- action/reducer/type
-```js
+- 修改 dragon name 之后加入一个 fetch dragon 动作
 
+```js
+    saveChange = () => {
+        fetch(`/dragon/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
+                {
+                    dragonId: this.props.dragon.dragonId,
+                    nickname: this.state.nickname
+                }
+            )
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.type === 'error') {
+                    alert(data.message);
+                }
+                else {
+                    return this.props.fetchAccountDragons();
+                }
+            })
+            .then(() => {
+                this.setState({ edit: false });
+                alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
+            })
+            .catch(error => {
+                alert(error.message)
+            })
+    }
 ```

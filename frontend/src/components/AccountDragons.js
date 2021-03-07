@@ -15,7 +15,7 @@ class AccountDragons extends Component {
             <div>
                 <Link to='/'>Back Home</Link>
                 <h3>My Dragons List</h3>
-                <div className='dragon-container'>
+                <div className='dragons-container'>
                     {
                         this.props.accountDragons.dragons.map(dragon => {
                             return (
