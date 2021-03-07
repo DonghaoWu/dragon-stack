@@ -42,11 +42,4 @@ class Session {
     }
 }
 
-// const foo = new Session({ username: 'foo' });
-
-// const str = foo.toString();
-
-// console.log('parse', Session.parse(str))
-// console.log('parse', Session.verify(str))
-
 module.exports = Session;

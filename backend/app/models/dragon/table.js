@@ -42,7 +42,6 @@ class DragonTable {
     }
 
     static updateDragonNickname({ dragonId, nickname }) {
-        // console.log(dragonId, nickname);
         return new Promise((resolve, reject) => {
             pool.query(
                 `UPDATE dragon SET nickname = $1 WHERE id = $2`,

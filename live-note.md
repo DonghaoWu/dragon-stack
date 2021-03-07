@@ -2715,18 +2715,31 @@ echo "dragonstackdb configured!"
 3. add an insert function in the table
 
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../../databasePool');
 
-class AccountDragonTable{
-    static storeAccountDragon({accountId, dragonId}){
-        return new Promise((resolve, reject) =>{
+class AccountDragonTable {
+    static storeAccountDragon({ accountId, dragonId }) {
+        return new Promise((resolve, reject) => {
             pool.query(
-                `INSERT INTO accountDragon("accountId", ""dragonId) VALUES($1, $2)`,
+                `INSERT INTO accountDragon("accountId", "dragonId") VALUES($1, $2)`,
                 [accountId, dragonId],
-                (error, response)=>{
-                    if(error) return reject(error);
+                (error, response) => {
+                    if (error) reject(error);
 
                     resolve()
+                }
+            )
+        })
+    }
+    static getAccountDragons({ accountId }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                'SELECT "dragonId" FROM accountDragon WHERE "accountId" = $1',
+                [accountId],
+                (error, response) => {
+                    if (error) reject(error);
+
+                    resolve({ accountDragons: response.rows })
                 }
             )
         })
@@ -2771,19 +2784,20 @@ router.get('/authenticated', (req, res, next) => {
 - 改造后：
 ```js
 const {setSession,authenticatedAccount} = require('./sessionFunc');
+
 router.get('/authenticated', (req, res, next) => {
     const { sessionString } = req.cookies;
-    authenticatedAccount({sessionString})
-    .then(({account})=>{
-        return res.json({account})
-    })
-    .catch(error => next(error))
+    authenticatedAccount({ sessionString })
+        .then(({ username }) => {
+            return res.json({ username })
+        })
+        .catch(error => next(error))
 });
 ```
 
 ```js
-const authenticatedAccount = ({sessionString})=>{
-    return new Promise((resolve, reject) =>{
+const authenticatedAccount = ({ sessionString }) => {
+    return new Promise((resolve, reject) => {
         if (!sessionString || !Session.verify(sessionString)) {
             const error = new Error('Invalid session.');
             error.statusCode = 400;
@@ -2794,13 +2808,13 @@ const authenticatedAccount = ({sessionString})=>{
             AccountTable.getAccount({ usernameHash: hash(username) })
                 .then(({ account }) => {
                     const authenticated = account.sessionId === id;
-                    if(authenticated){
-                        return resolve({account})
+                    if (authenticated) {
+                        resolve({ username, currentAccountId: account.id })
                     }
-                    else{
+                    else {
                         const error = new Error('No valid session in database or session has logout by other device.');
                         error.statusCode = 440;
-                        return reject(error);
+                        reject(error);
                     }
                 })
                 .catch(error => reject(error));
@@ -2808,45 +2822,45 @@ const authenticatedAccount = ({sessionString})=>{
     })
 }
 
-module.exports = {setSession, authenticatedAccount};
+module.exports = { setSession, authenticatedAccount };
 ```
-
-- 
 
 
 ```js
-const {authenticatedAccount} = require('../');
-const AcountDragonTable = require('');
+const { authenticatedAccount } = require('./sessionFunc');
+const AccountDragonTable = require('../models/accountDragon/table');
+
+const router = new Router();
 
 router.get('/new', (req, res, next) => {
     let accountId, dragon;
-
-    authenticatedAccount({session: req.cookies.sessionString})
-    .then(({account})=>{
-        accountId = account.id;
-        const dragon = req.app.locals.engine.generation.newDragon();
-
-        return DragonTable.storeDragon(dragon);
-    })
-    .then(({dragonId})=>{
-        dragon.dragonId = dragonId;
-
-        return AccountDragonTable.storeAccountDragon({accountId, dragonId});
-    })
-    .then(()=>{
-        return res.json({dragon})
-    })
-    .catch(error => next(error));;
+    const { sessionString } = req.cookies;
+    authenticatedAccount({ sessionString })
+        .then(({ currentAccountId }) => {
+            accountId = currentAccountId;
+            dragon = req.app.locals.engine.generation.newDragon();
+            return DragonTable.storeDragon(dragon);
+        })
+        .then(({ dragonId }) => {
+            dragon.dragonId = dragonId;
+            return AccountDragonTable.storeAccountDragon({ accountId, dragonId });
+        })
+        .then(() => {
+            return res.json({ dragon })
+        })
+        .catch(error => next(error));;
 });
 ```
 
 - add code in front end, credentials:'includes';允许传送 user session 到后端。
 
 ```js
+import { DRAGON_CREATE_BEGIN, DRAGON_CREATE_SUCCESS, DRAGON_CREATE_FAILURE } from '../types/dragonTypes';
+
 export const createDragon = dispatch => {
     dispatch({ type: DRAGON_CREATE_BEGIN });
 
-    return fetch('/dragon/new',{ credentials: 'include'})
+    return fetch('/dragon/new', { credentials: 'include' })
         .then(response => response.json())
         .then((data => {
             if (data.type === 'error') {
@@ -2874,60 +2888,47 @@ export const createDragon = dispatch => {
 5. get account dragon, 心得，new promise 中的 reject 和 resolve 都不需要加上 return 关键词。
 
 ```js
-static getAccountDragon({accountId}){
-    return new Promise((resolve, reject)=>{
-        pool.query(
-            'SELECT "dragonId" FROM accountDragon WHERE "accountId" = $1',
-            [accountId],
-            (error, response)=>{
-                if(error) return reject(error);
+    static getAccountDragons({ accountId }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                'SELECT "dragonId" FROM accountDragon WHERE "accountId" = $1',
+                [accountId],
+                (error, response) => {
+                    if (error) reject(error);
 
-                resolve({accountDragons: response.rows})
-            }
-        )
-    })
-}
+                    resolve({ accountDragons: response.rows })
+                }
+            )
+        })
+    }
 ```
 
 - build a api
 - 3/5 `对这个过程的建议： 1。 使用 rest API 2. 使用 authenticated middleware 3. 使用 proxy 4. 使用jwt 5. 使用更好格式的 redux 6. new promise 不用 return 在 reject 和 resolve 7. res.json 应该要使用 return。`
 
 ```js
-route.get('/dragons', (req,res,next) =>{
-    authenticatedAccount({sessionString:req.cookies.sessionString})
-    .then(({account}=>{
-        return AccountDragonTable.getAccountDragons({accountId:account.id})
-    })
-    .then(({accountDragons})=>{
-        return res.json({accountDragons})
-    })
-    .catch(error=> next(error));
-})
+const getWholeDragon = require('../models/dragon/getDragon');
+
+router.get('/dragons', (req, res, next) => {
+    authenticatedAccount({ sessionString: req.cookies.sessionString })
+        .then(({ currentAccountId }) => {
+            return AccountDragonTable.getAccountDragons({ accountId: currentAccountId })
+        })
+        .then(({ accountDragons }) => {
+            return Promise.all(
+                accountDragons.map(accountDragon => {
+                    return getWholeDragon({ dragonId: accountDragon.dragonId });
+                })
+            );
+        })
+        .then(dragons => {
+            return res.json({ dragons });
+        })
+        .catch(error => next(error));
+});
 ```
 
-6. get account dragon with traits
-
-```js
-const {getDragonWithTraits} = require('..');
-
-route.get('/dragons', (req,res,next) =>{
-    authenticatedAccount({sessionString:req.cookies.sessionString})
-    .then(({account}=>{
-        return AccountDragonTable.getAccountDragons({accountId:account.id})
-    })
-    .then(({accountDragons})=>{
-        return Promise.all(
-            accountDragons.map((accountDragon =>{
-                return getDragonWithTraits({dragonId: accountDragon.dragonId})
-            }))
-        )
-    })
-    .then((dragons)=>{
-        return res.json(dragons);
-    })
-    .catch(error=> next(error));
-})
-```
+6. 上面使用到的是复合使用 `promise.all`，也就是说在 promise.all 中的 map 中还有一个 promise.all
 
 7. front end fetch account dragon data
 
@@ -2940,14 +2941,12 @@ export const ACCOUNT_DRAGON_FETCH_FAILURE = 'ACCOUNT_DRAGON_FETCH_FAILURE';
 
 - actions
 ```js
-import {} from './types';
-
-import {fetchFromAccount} from './account';
+import { ACCOUNT_DRAGON_FETCH_BEGIN, ACCOUNT_DRAGON_FETCH_FAILURE, ACCOUNT_DRAGON_FETCH_SUCCESS } from '../types/accountDragonTypes';
 
 export const fetchAccountDragons = dispatch => {
     dispatch({ type: ACCOUNT_DRAGON_FETCH_BEGIN });
 
-    return fetch('/dragon/dragons', {credentials: 'include'})
+    return fetch('/dragon/dragons', { credentials: 'include' })
         .then(response => response.json())
         .then((data => {
             if (data.type === 'error') {
@@ -2975,19 +2974,21 @@ export const fetchAccountDragons = dispatch => {
 - `为什么原作中会有一个 fetchState，个人认为是作者为了统一管理所有 fetch action 的状态而设定的`
 - reducers
 ```js
+import { ACCOUNT_DRAGON_FETCH_BEGIN, ACCOUNT_DRAGON_FETCH_FAILURE, ACCOUNT_DRAGON_FETCH_SUCCESS } from '../types/accountDragonTypes';
+
 const initialState = {
-    dragons:[],
-    message:''
+    dragons: [],
+    message: ''
 }
 
 const accountDragonReducer = (state = initialState, action) => {
     switch (action.type) {
         case ACCOUNT_DRAGON_FETCH_BEGIN:
-            return {...state}
+            return { ...state }
         case ACCOUNT_DRAGON_FETCH_FAILURE:
-            return {...state, message:action.payload}
+            return { ...state, message: action.payload }
         case ACCOUNT_DRAGON_FETCH_SUCCESS:
-            return {...state, dragons:action.payload}
+            return { ...state, dragons: action.payload }
         default:
             return state;
     }
@@ -3003,11 +3004,11 @@ import accountReducer from './accountReducer';
 import accountDragonReducer from './accountDragonReducer';
 import { combineReducers } from 'redux';
 
-const accountDragonReducer = combineReducers({
+const rootReducer = combineReducers({
     account: accountReducer,
     generation: generationReducer,
     dragon: dragonReducer,
-    accountDragon: accountDragonReducer
+    accountDragons: accountDragonReducer
 });
 
 export default rootReducer;
@@ -3016,7 +3017,14 @@ export default rootReducer;
 8. display account dragons in frontend
 
 ```js
-import {Link} from 'react-router-dom';
+import React, { Component } from 'react';
+import Generation from './Generation';
+import Dragon from './Dragon';
+import { Button } from 'react-bootstrap';
+import { logout } from '../actions/accountActions';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+
 class Home extends Component {
     render() {
         return (
@@ -3025,58 +3033,77 @@ class Home extends Component {
                     <span className='username'>Hello, {this.props.account.username}</span>
                     <Button onClick={this.props.logout}>Log out</Button>
                 </div>
-                <h2> Dragon Stack</h2>
-                <Generation />
-                <Dragon />
-                <hr />
-                <Link to='/account-dragon'>My Dragons List</Link>
-                <br />
+                <div className='home-container'>
+                    <h2> Dragon Stack</h2>
+                    <Generation />
+                    <Link to='/account-dragons'>My Dragons List</Link>
+                    <br />
+                    <Dragon />
+                    <br />
+                </div>
             </div>
         )
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        account: state.account
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        logout: () => dispatch(logout)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
 ```
 
 ```js
-import React, {Component} from 'react';
-import {connect} from 'react-router';
-import {fetchAccountDragon} from '../actions/accountDragonsActions';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
 import AccountDragonRow from './AccountDragonRow';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-class AccountDragons extends Component{
+class AccountDragons extends Component {
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.fetchAccountDragons();
     }
-    render(){
-        return(
+
+    render() {
+        return (
             <div>
-                <Link to='/'>Home</Link>
-                <h3>Account Dragons</h3>
-                {
-                    this.props.accountDragons.map(dragon =>{
-                        return 
-                        <div key = {dragon.dragonId}>
-                            <AccountDragonRow dragon={dragon} />
-                            <hr />
-                        </div>
-                    })
-                }
+                <Link to='/'>Back Home</Link>
+                <h3>My Dragons List</h3>
+                <div className='dragons-container'>
+                    {
+                        this.props.accountDragons.dragons.map(dragon => {
+                            return (
+                                <div key={dragon.dragonId}>
+                                    <AccountDragonRow dragon={dragon} />
+                                </div>
+                            )
+                        })
+                    }
+                </div>
             </div>
         )
     }
 }
 
-const mapStateToProps = state =>{
+const mapStateToProps = state => {
     return {
-        accountDragons:state.accountDragons
+        accountDragons: state.accountDragons
     }
 }
 
-const mapDispatchToProps = dispatch =>{
+const mapDispatchToProps = dispatch => {
     return {
-        fetchAccountDragons:dispatch(fetchAccountDragons)
+        fetchAccountDragons: () => dispatch(fetchAccountDragons)
     }
 }
 
@@ -3085,22 +3112,86 @@ export default connect(mapStateToProps, mapDispatchToProps)(AccountDragons);
 
 - render account dragons in row
 ```js
-import React, {compnent} from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
 
-class AccountDragonRow extends Component{
-    render(){
-        return(
-            <div>
-                <span>{this.props.dragon.nickname}</span>
+class AccountDragonRow extends Component {
+    state = {
+        currentNickname: this.props.dragon.nickname,
+        nickname: this.props.dragon.nickname,
+        edit: false
+    }
+
+    handleChange = e => {
+        this.setState({ nickname: e.target.value });
+    }
+
+    openEditMode = () => {
+        this.setState({ edit: true });
+    }
+
+    saveChange = () => {
+        fetch(`/dragon/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
+                {
+                    dragonId: this.props.dragon.dragonId,
+                    nickname: this.state.nickname
+                }
+            )
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.type === 'error') {
+                    alert(data.message);
+                }
+                else {
+                    return this.props.fetchAccountDragons();
+                }
+            })
+            .then(() => {
+                this.setState({ edit: false });
+                alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
+            })
+            .catch(error => {
+                alert(error.message)
+            })
+    }
+
+    render() {
+        return (
+            <div className='dragon-card'>
+                <div className='edit-nickname'>
+                    <input
+                        type='text'
+                        value={this.state.nickname}
+                        onChange={this.handleChange}
+                        disabled={!this.state.edit}
+                    />
+                    {
+                        this.state.edit ?
+                            <button onClick={this.saveChange}>Save</button>
+                            :
+                            <button onClick={this.openEditMode}>Edit</button>
+                    }
+                </div>
                 <br />
-                <DragonAvartar dragon={this.props.dragons} />
+                <DragonAvatar dragon={this.props.dragon} />
             </div>
         )
     }
 }
 
-export default AccountDragonRow;
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchAccountDragons: () => dispatch(fetchAccountDragons)
+    }
+}
+
+export default connect(null, mapDispatchToProps)(AccountDragonRow);
 ```
 
 9. react-router, 使用 Link 而不使用 a tag
@@ -3111,7 +3202,7 @@ export default AccountDragonRow;
 $ npm i history react-router
 ```
 
-- 备注， 使用了 
+- 备注， 使用了 BrowserRouter as Router, 就不用安装 history 了。
 
 ```diff
 + import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
@@ -3129,53 +3220,17 @@ import App from './App';
 import { Provider } from 'react-redux';
 import store from './store';
 import { fetchAuthenticated } from './actions/accountActions';
-import {Router, Switch, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import AccountDragons from './components/AccountDragons';
-import createBrowserHistory from 'history/createBrowserHistory';
 
-const history = createBrowserHistory();
 
-store.dispatch(fetchAuthenticated)
-  .then(() => {
-    ReactDOM.render(
-      <React.StrictMode>
-        <Provider store={store}>
-        <Router history={history}>
-            <Switch>
-                <Route exact path='/' component={App}/>
-                <Route path='/account-dragons' component={AccountDragons}/>
-            </Switch>
-        </Provider>
-        </Router>
-      </React.StrictMode>,
-      document.getElementById('root')
-    );
-  })
-```
+const AuthRoute = (props) => {
+  if (!store.getState().account.loggedIn) {
+    return <Redirect to={{ pathname: '/' }} />
+  }
+  const { component, path } = props;
 
-9. front end Auth-route
-
-```js
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import { Provider } from 'react-redux';
-import store from './store';
-import { fetchAuthenticated } from './actions/accountActions';
-import {Router, Switch, Route, Redirect} from 'react-router-dom';
-import AccountDragons from './components/AccountDragons';
-import createBrowserHistory from 'history/createBrowserHistory';
-
-const history = createBrowserHistory();
-
-const AuthRoute = (props)=>{
-    if(!store.getState().account.loggedIn){
-        return <Redirect to={{pathname:'/'}} />
-    }
-    const {component, path} = props;
-
-    return <Route path={path} component={component} />
+  return <Route path={path} component={component} />
 }
 
 store.dispatch(fetchAuthenticated)
@@ -3183,13 +3238,13 @@ store.dispatch(fetchAuthenticated)
     ReactDOM.render(
       <React.StrictMode>
         <Provider store={store}>
-        <Router history={history}>
+          <Router>
             <Switch>
-                <Route exact path='/' component={App}/>
-                <AuthRoute path='/account-dragons' component={AccountDragons}/>
+              <AuthRoute path='/account-dragons' component={AccountDragons} />
+              <Route exact path='/' component={App} />
             </Switch>
+          </Router>
         </Provider>
-        </Router>
       </React.StrictMode>,
       document.getElementById('root')
     );
@@ -3199,102 +3254,117 @@ store.dispatch(fetchAuthenticated)
 10. Update Dragon nickname, database part
 
 ```js
-static updateDragonNickname({dragonId, nickname}){
-    return new Promise((resolve, reject)=>{
-        pool.query(
-            `UPDATE dragon SET nickname = S1 WHERE id = $2`,
-            [nickname, dragonId],
-            (error, response)=>{
-                if(error) reject(error);
+    static updateDragonNickname({ dragonId, nickname }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `UPDATE dragon SET nickname = $1 WHERE id = $2`,
+                [nickname, dragonId],
+                (error, response) => {
+                    if (error) reject(error);
 
-                resolve();
-            }
-        )
-    })
-}
+                    resolve();
+                }
+            )
+        })
+    }
 ```
 
 - api part
 ```js
-route.put('/update',(req, res, next)=>{
-    const {dragonId, nickname} = req.body;
+router.put('/update', (req, res, next) => {
+    const { dragonId, nickname } = req.body;
 
-    DragonTable.updateDragon({dragonId, nickname})
-    .then(()=>{
-        res.json({message:`successfully updated dragon's nickname`})
-    })
-    .catch(error=>next(error));
-})
+    DragonTable.updateDragonNickname({ dragonId, nickname })
+        .then(() => {
+            res.json({ message: `successfully updated dragon's nickname` })
+        })
+        .catch(error => next(error));
+});
 ```
 
 - front end form
 
 ```js
-import React, {compnent} from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
 
-class AccountDragonRow extends Component{
-    state={
-        nickname:this.props.dragon.nickname,
-        edit:false
+class AccountDragonRow extends Component {
+    state = {
+        currentNickname: this.props.dragon.nickname,
+        nickname: this.props.dragon.nickname,
+        edit: false
     }
 
-    handleChange = e =>{
-        this.setState({nickname: e.target.value});
+    handleChange = e => {
+        this.setState({ nickname: e.target.value });
     }
 
-    openEditMode = () =>{
-        this.setState({edit: true});
+    openEditMode = () => {
+        this.setState({ edit: true });
     }
 
-    saveChange = () =>{
+    saveChange = () => {
         fetch(`/dragon/update`, {
-            method:'PUT',
-            header:{'Content-Type': 'application/json'},
-            body:JSON.stringify(
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
                 {
                     dragonId: this.props.dragon.dragonId,
                     nickname: this.state.nickname
                 }
             )
         })
-        .then(response => response.json())
-        .then(data =>{
-            if(data.type === 'error'){
-                alert(data.message);
-            }
-            else{
-                this.setState({edit: false});
-            }
-        })
-        .catch(error=>{
-            alert(error.message)
-        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.type === 'error') {
+                    alert(data.message);
+                }
+                else {
+                    return this.props.fetchAccountDragons();
+                }
+            })
+            .then(() => {
+                this.setState({ edit: false });
+                alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
+            })
+            .catch(error => {
+                alert(error.message)
+            })
     }
 
-    render(){
-        return(
-            <div>
-                <input
-                    type='text'
-                    value={this.state.nickname}
-                    onChange={this.handleChange}
-                    disabled={!this.state.edit}
-                />
+    render() {
+        return (
+            <div className='dragon-card'>
+                <div className='edit-nickname'>
+                    <input
+                        type='text'
+                        value={this.state.nickname}
+                        onChange={this.handleChange}
+                        disabled={!this.state.edit}
+                    />
+                    {
+                        this.state.edit ?
+                            <button onClick={this.saveChange}>Save</button>
+                            :
+                            <button onClick={this.openEditMode}>Edit</button>
+                    }
+                </div>
                 <br />
-                <DragonAvartar dragon={this.props.dragons} />
-                {
-                    this.state.edit ? 
-                    <button onClick={this.saveChange}>Save</button>
-                    :
-                    <button onClick={this.openEditMode}>Edit</button>
-                }
+                <DragonAvatar dragon={this.props.dragon} />
             </div>
         )
     }
 }
 
-export default AccountDragonRow;
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchAccountDragons: () => dispatch(fetchAccountDragons)
+    }
+}
+
+export default connect(null, mapDispatchToProps)(AccountDragonRow);
 ```
 
 - 修改 dragon name 之后加入一个 fetch dragon 动作

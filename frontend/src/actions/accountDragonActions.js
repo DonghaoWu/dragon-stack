@@ -13,7 +13,6 @@ export const fetchAccountDragons = dispatch => {
                 })
             }
             else {
-                // console.log(data)
                 return dispatch({
                     type: ACCOUNT_DRAGON_FETCH_SUCCESS,
                     payload: data.dragons

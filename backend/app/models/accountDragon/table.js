@@ -15,7 +15,6 @@ class AccountDragonTable {
         })
     }
     static getAccountDragons({ accountId }) {
-        // console.log('==========>', accountId)
         return new Promise((resolve, reject) => {
             pool.query(
                 'SELECT "dragonId" FROM accountDragon WHERE "accountId" = $1',

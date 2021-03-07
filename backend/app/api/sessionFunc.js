@@ -39,7 +39,6 @@ const setSessionCookie = ({ sessionString, res }) => {
 }
 
 const authenticatedAccount = ({ sessionString }) => {
-    // console.log(sessionString, 'method authenticatedAccount');
     return new Promise((resolve, reject) => {
         if (!sessionString || !Session.verify(sessionString)) {
             const error = new Error('Invalid session.');
@@ -48,10 +47,8 @@ const authenticatedAccount = ({ sessionString }) => {
         }
         else {
             const { username, id } = Session.parse(sessionString);
-            // console.log(username, id, '========>username');
             AccountTable.getAccount({ usernameHash: hash(username) })
                 .then(({ account }) => {
-                    // console.log(account, '====<<<<<<<')
                     const authenticated = account.sessionId === id;
                     if (authenticated) {
                         resolve({ username, currentAccountId: account.id })

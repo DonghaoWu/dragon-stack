@@ -92,7 +92,6 @@ export const fetchAuthenticated = dispatch => {
                 })
             }
             else {
-                // console.log(data);
                 return dispatch({
                     type: ACCOUNT_AUTHENTICATED_SUCCESS,
                     payload: data.username

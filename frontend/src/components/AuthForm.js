@@ -15,15 +15,11 @@ class AuthForm extends Component {
     };
 
     signup = () => {
-        // console.log('click sign up', this.state);
-
         const { username, password } = this.state;
         this.props.signup({ username, password });
     }
 
     login = () => {
-        // console.log('click login', this.state);
-
         const { username, password } = this.state;
         this.props.login({ username, password });
     }
