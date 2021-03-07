@@ -3,9 +3,9 @@ const pool = require('../../../databasePool');
 class AccountTable {
     static storeAccount({ usernameHash, passwordHash }) {
         return new Promise((resolve, reject) => {
-            pool.query(`INSERT INTO account("usernameHash", "passwordHash") 
-                        VALUES($1, $2) RETURNING id`,
-                [usernameHash, passwordHash],
+            pool.query(`INSERT INTO account("usernameHash", "passwordHash", balance) 
+                        VALUES($1, $2, $3) RETURNING id`,
+                [usernameHash, passwordHash, ],
                 (error, response) => {
                     if (error) return reject(error);
 

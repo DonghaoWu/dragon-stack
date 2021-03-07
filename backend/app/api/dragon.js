@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const DragonTable = require('../models/dragon/table');
-const getWholeDragon = require('../models/dragon/getDragon');
+const getWholeDragon = require('../models/dragon/getWholeDragon');
 const { authenticatedAccount } = require('./sessionFunc');
 const AccountDragonTable = require('../models/accountDragon/table');
 

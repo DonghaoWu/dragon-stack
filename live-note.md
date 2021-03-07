@@ -2907,7 +2907,7 @@ export const createDragon = dispatch => {
 - 3/5 `对这个过程的建议： 1。 使用 rest API 2. 使用 authenticated middleware 3. 使用 proxy 4. 使用jwt 5. 使用更好格式的 redux 6. new promise 不用 return 在 reject 和 resolve 7. res.json 应该要使用 return。`
 
 ```js
-const getWholeDragon = require('../models/dragon/getDragon');
+const getWholeDragon = require('../models/dragon/getWholeDragon');
 
 router.get('/dragons', (req, res, next) => {
     authenticatedAccount({ sessionString: req.cookies.sessionString })
@@ -3397,5 +3397,760 @@ export default connect(null, mapDispatchToProps)(AccountDragonRow);
             .catch(error => {
                 alert(error.message)
             })
+    }
+```
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+--------------------------------------------------------------
+//////////////////////////////////////////////////////////////
+
+- 3/7 Dragon ecomony
+
+1. Feature 1:account balances and info
+
+- sql
+```sql
+CREATE TABLE account(
+    id              SERIAL PRIMARY KEY,
+    "usernameHash"  CHARACTER(64),
+    "passwordHash"  CHARACTER(64),
+    "sessionId"     CHARACTER(36),
+     balance        INTEGER NOT NULL,
+);
+```
+
+- config
+```js
+const SECONDS = 1000;
+const MINUTES = SECONDS * 60;
+const HOURS = MINUTES * 60;
+const DAYS = HOURS * 24;
+
+const REFRESH_RATE = 5;
+
+const STARTING_BALANCE = 50
+
+module.exports = {
+    SECONDS,
+    MINUTES,
+    HOURS,
+    DAYS,
+    REFRESH_RATE,
+    STARTING_BALANCE
+};
+```
+
+- table
+```js
+const {STARTING_BALANCE} = require('../config');
+
+    static storeAccount({ usernameHash, passwordHash }) {
+        return new Promise((resolve, reject) => {
+            pool.query(`INSERT INTO account("usernameHash", "passwordHash", balance) 
+                        VALUES($1, $2, $3) RETURNING id`,
+                [usernameHash, passwordHash, STARTING_BALANCE],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    const accountId = response.rows[0].id;
+
+                    resolve({ accountId });
+                }
+            )
+        })
+    };
+
+    static getAccount({ usernameHash }) {
+        return new Promise((resolve, reject) => {
+            pool.query(`SELECT id, "passwordHash", "sessionId", balance FROM account
+            WHERE "usernameHash" = $1`,
+                [usernameHash],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    const account = response.rows[0];
+
+                    resolve({ account });
+                }
+            )
+        })
+    }
+```
+
+- api
+```js
+router.get('/info',(req, res,next) =>{
+    authenticatedAccount({sessionString: req.cookie.sessionString});
+    .then(({account})=>{
+        res.json({info: {balance:account.balance, username}});
+    })
+    .catch(error=>next(error));
+})
+```
+
+```js
+const authenticatedAccount = ({ sessionString }) => {
+    return new Promise((resolve, reject) => {
+        if (!sessionString || !Session.verify(sessionString)) {
+            const error = new Error('Invalid session.');
+            error.statusCode = 400;
+            return reject(error);
+        }
+        else {
+            const { username, id } = Session.parse(sessionString);
+            AccountTable.getAccount({ usernameHash: hash(username) })
+                .then(({ account }) => {
+                    const authenticated = account.sessionId === id;
+                    if (authenticated) {
+                        resolve({ username, currentAccountId: account.id, account })
+                    }
+                    else {
+                        const error = new Error('No valid session in database or session has logout by other device.');
+                        error.statusCode = 440;
+                        reject(error);
+                    }
+                })
+                .catch(error => reject(error));
+        }
+    })
+}
+```
+
+- get info  这一步可以混合在 login 和 signup 还有 authenticatedAccount 中使用，相当于一个 loadUser 的操作。
+
+2. display account inbfo in frontend.
+
+- types
+
+```js
+export const ACCOUNT_INFO_FETCH_BEGIN = 'ACCOUNT_INFO_FETCH_BEGIN';
+export const ACCOUNT_INFO_FETCH_SUCCESS = 'ACCOUNT_INFO_FETCH_SUCCESS';
+export const ACCOUNT_INFO_FETCH_FAILURE = 'ACCOUNT_INFO_FETCH_FAILURE';
+```
+
+- actions
+```js
+import {} from 'types';
+
+export const fetchAccountInfo = dispatch=>{
+        dispatch({ type: ACCOUNT_INFO_FETCH_BEGIN });
+
+    return fetch('/account/info', {
+        credentials: 'include'
+    })
+        .then(response => response.json())
+        .then((data => {
+            if (data.type === 'error') {
+                return dispatch({
+                    type: ACCOUNT_INFO_FETCH_FAILURE,
+                    payload: data.message
+                })
+            }
+            else {
+                return dispatch({
+                    type: ACCOUNT_INFO_FETCH_SUCCESS,
+                    payload: data.info
+                })
+            }
+        }))
+        .catch(error => {
+            return dispatch({
+                type: ACCOUNT_INFO_FETCH_FAILURE,
+                payload: error.message
+            })
+        })
+}
+```
+
+- reducer
+```js
+import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETCH_SUCCESS } from '../types/accountDragonTypes';
+
+const initialState = {
+    info:{}
+    message:''
+}
+
+const accountInfoReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case ACCOUNT_INFO_FETCH_BEGIN:
+            return { ...state }
+        case ACCOUNT_INFO_FETCH_FAILURE:
+            return { ...state, message: action.payload }
+        case ACCOUNT_INFO_FETCH_SUCCESS:
+            return { ...state, info: action.payload }
+        default:
+            return state;
+    }
+}
+
+export default accountInfoReducer;
+```
+
+- root reducer
+```js
+import dragonReducer from './dragonReducer';
+import generationReducer from './generationReducer';
+import accountReducer from './accountReducer';
+import accountDragonReducer from './accountDragonReducer';
+import accountInfoReducer from './accountInfoReducer';
+import { combineReducers } from 'redux';
+
+const rootReducer = combineReducers({
+    account: accountReducer,
+    generation: generationReducer,
+    dragon: dragonReducer,
+    accountDragons: accountDragonReducer,
+    accountInfo:accountInfoReducer
+});
+
+export default rootReducer;
+```
+
+- component
+
+```js
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { fetchAccountInfo } from '../actions/accountInfoActions';
+import { Link } from 'react-router-dom';
+
+class AccountInfo extends Component {
+
+    componentDidMount() {
+        this.props.fetchAccountInfo();
+    }
+
+    render() {
+        return (
+            <div>
+                <h3>Account Info</h3>
+                <div>Username: {this.props.accountInfo.info.username}</div>
+                <div>Balance: {this.props.accountInfo.info.balance}</div>
+            </div>
+        )
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        accountInfo: state.accountInfo
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchAccountInfo: () => dispatch(fetchAccountInfo)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AccountInfo);
+```
+
+- parent component
+```js
+import AccountInfo from './AccountInfo';
+
+<AccountInfo />
+```
+
+
+2. Feature 2: Public and sellable dragon
+
+- sql
+
+- sql
+```sql
+CREATE TABLE dragon(
+    id              SERIAL PRIMARY KEY,
+    birthdate       TIMESTAMP NOT NULL,
+    nickname        VARCHAR(64),
+    "generationId"  INTEGER,
+    "isPublic"      BOOLEAN NOT NULL,
+    "saleValue"     INTEGER NOT NULL,
+    FOREIGN KEY     ("generationId") REFERENCES generation(id)
+);
+```
+
+- object model
+```js
+const TRAITS = require('../../../data/traits.json');
+
+const DEFAULT_PORPERTIES = {
+    dragonId: undefined,
+    nickname: 'unnamed',
+    generationId: undefined,
+    isPublic:false,
+    saleValue:0,
+    get birthdate() {
+        return new Date();
+    },
+    get randomTraits() {
+        const traits = [];
+        TRAITS.forEach(TRAIT => {
+            const traitType = TRAIT.type;
+            const traitValues = TRAIT.values;
+            const traitValue = traitValues[Math.floor(Math.random() * traitValues.length)];
+            traits.push({ traitType, traitValue })
+        });
+        return traits;
+    }
+}
+
+class Dragon {
+    constructor({ dragonId, birthdate, nickname, traits, generationId, isPublic, saleValue } = {}) {
+        this.dragonId = dragonId || DEFAULT_PORPERTIES.dragonId;
+        this.birthdate = birthdate || DEFAULT_PORPERTIES.birthdate;
+        this.nickname = nickname || DEFAULT_PORPERTIES.nickname;
+        this.traits = traits || DEFAULT_PORPERTIES.randomTraits;
+        this.generationId = generationId || DEFAULT_PORPERTIES.generationId;
+        this.isPublic = isPublic || DEFAULT_PORPERTIES.isPublic;
+        this.saleValue = saleValue || DEFAULT_PORPERTIES.saleValue;
+    }
+}
+
+module.exports = Dragon;
+```
+
+- table
+```js
+    static storeDragon(dragon) {
+        const { birthdate, nickname, generationId, isPublic, saleValue } = dragon;
+
+        return new Promise((resolve, reject) => {
+            pool.query(`INSERT INTO dragon(birthdate, nickname, "generationId","isPublic", "saleValue") 
+                        VALUES($1, $2, $3, $4, $5) RETURNING id`,
+                [birthdate, nickname, generationId, isPublic, saleValue],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    const dragonId = response.rows[0].id;
+
+                    Promise.all(dragon.traits.map(({ traitType, traitValue }) => {
+                        return DragonTraitTable.storeDragonTrait({ dragonId, traitType, traitValue })
+                    }))
+                        .then(() => resolve({ dragonId }))
+                        .catch(error => reject(error));
+                }
+            )
+        })
+    };
+
+    static getDragonWithoutTraits({ dragonId }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `SELECT birthdate, nickname, "generationId", "isPublic", "saleValue" FROM dragon WHERE dragon.id=$1`,
+                [dragonId],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    if (response.rows.length === 0) return reject(new Error('no dragon in this id.'))
+
+                    resolve(response.rows[0]);
+                }
+            )
+        })
+    }
+
+    static updateDragon({ dragonId, nickname, isPublic, saleValue }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `UPDATE dragon SET nickname = $1 "isPublic" = $2 "saleValue" = $3 WHERE id = $4`,
+                [nickname, isPublic, saleValue, dragonId],
+                (error, response) => {
+                    if (error) reject(error);
+
+                    resolve();
+                }
+            )
+        })
+    }
+```
+
+- update dragon with dynamic queries
+```js
+    static updateDragon({ dragonId, nickname, isPublic, saleValue }) {
+        const settingsMap = {nuckname, isPublic, saleValue};
+
+        const validQueries = Object.entries(settingMap).filter(([settingKey, settingValue])=>{
+            if(settingValue !== undefined){
+                return new Promise((resolve, reject)=>{
+                    pool.query(
+                        `UPDATE dragon SET "${settingKey}" = $1 WHERE id = $2`,
+                        [settingValue, dragonId],
+                        (error, response) => {
+                            if (error) reject(error);
+
+                            resolve();
+                        }
+                    )
+                })
+            }
+        });
+
+        return Promise.all(validQueries).
+    }
+```
+
+- api
+```js
+router.put('/update', (req, res, next) => {
+    const { dragonId, nickname, isPublic, saleValue } = req.body;
+
+    DragonTable.updateDragonNickname({ dragonId, nickname, isPublic, saleValue })
+        .then(() => {
+            res.json({ message: `successfully updated dragon` })
+        })
+        .catch(error => next(error));
+});
+```
+
+- component 
+
+```js
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import DragonAvatar from './DragonAvatar';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
+
+class AccountDragonRow extends Component {
+    state = {
+        currentNickname: this.props.dragon.nickname,
+        nickname: this.props.dragon.nickname,
+        isPublic: this.props.dragon.isPublic,
+        saleValue:this.props.dragon.saleValue,
+        edit: false
+    }
+
+    handleInputChange = e => {
+        this.setState({ [e.target.name]: e.target.value });
+    }
+
+    handleCheckBoxChange = e =>{
+        this.setState({ isPublic: e.target.checked })
+    }
+
+    openEditMode = () => {
+        this.setState({ edit: true });
+    }
+
+    saveChange = () => {
+        fetch(`/dragon/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
+                {
+                    dragonId: this.props.dragon.dragonId,
+                    nickname: this.state.nickname,
+                    isPublic: this.state.isPublic,
+                    saleValue: this.state.saleValue
+                }
+            )
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.type === 'error') {
+                    alert(data.message);
+                }
+                else {
+                    return this.props.fetchAccountDragons();
+                }
+            })
+            .then(() => {
+                this.setState({ edit: false });
+                alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
+            })
+            .catch(error => {
+                alert(error.message)
+            })
+    }
+
+    render() {
+        return (
+            <div className='dragon-card'>
+                <div className='edit-nickname'>
+                    <input
+                        type='text'
+                        name='nickname'
+                        value={this.state.nickname}
+                        onChange={this.handleInputChange}
+                        disabled={!this.state.edit}
+                    />
+                    <div>
+                        <span>Sale Value:{' '}
+                            <input
+                                type='number'
+                                name='saleValue'
+                                value={this.state.saleVale}
+                                onChange={this.handleCheckboxChange}
+                                disabled={!this.state.edit}
+                            />
+                        </span>
+                        <span>Public:{' '}
+                            <input
+                                type='checkbox'
+                                name='isPublic'
+                                value={this.state.isPublic}
+                                onChange={this.handleInputChange}
+                                disabled={!this.state.edit}
+                            />
+                        </span>
+                        {
+                            this.state.edit ?
+                                <button onClick={this.saveChange}>Save</button>
+                                :
+                                <button onClick={this.openEditMode}>Edit</button>
+                        }
+                    <div>
+                </div>
+                <br />
+                <DragonAvatar dragon={this.props.dragon} />
+            </div>
+        )
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchAccountDragons: () => dispatch(fetchAccountDragons)
+    }
+}
+
+export default connect(null, mapDispatchToProps)(AccountDragonRow);
+```
+
+2. get public dragons
+
+- table
+
+```js
+const getPublicDragons = () => {
+    return new Promise((resolve, reject)=>{
+        pool.query(
+            `SELECT id FROM dragon WHERE "isPublic" = TRUE`,
+            (error, response)=>{
+                if(error) reject(error);
+                else{
+                    const publicDragonRows = response.rows;
+
+                    Promise.all(
+                        publicDragonRows.map(({id}) =>{
+                            return getWholeDragon({dragonId: id})
+                        })
+                    )
+                    .then((dragons)=>{
+                        resolve({dragons})
+                    })
+                    .catch(error=> reject(error));
+                }
+            }
+        )
+    })
+}
+```
+
+- api
+
+```js
+const getPublicDragons = require('..');
+
+router.get('/public-dragons', (req, res, next)=>{
+    getPublicDragons()
+    .then(({dragons})=> res.json({dragons}))
+    .catch(error=> next(error));
+});
+```
+
+- types
+
+```js
+export const PUBLIC_DRAGONS_FETCH_BEGIN = 'PUBLIC_DRAGONS_FETCH_BEGIN';
+export const PUBLIC_DRAGONS_FETCH_SUCCESS = 'PUBLIC_DRAGONS_FETCH_SUCCESS';
+export const PUBLIC_DRAGONS_FETCH_FAILURE = 'PUBLIC_DRAGONS_FETCH_FAILURE';
+```
+
+- actions
+```js
+import {} from 'types';
+
+export const fetchPublicDragons = dispatch=>{
+    dispatch({ type: PUBLIC_DRAGONS_FETCH_BEGIN });
+
+    return fetch('/dragon/public-dragons', {
+        credentials: 'include'
+    })
+        .then(response => response.json())
+        .then((data => {
+            if (data.type === 'error') {
+                return dispatch({
+                    type: PUBLIC_DRAGONS_FETCH_FAILURE,
+                    payload: data.message
+                })
+            }
+            else {
+                return dispatch({
+                    type: PUBLIC_DRAGONS_FETCH_SUCCESS,
+                    payload: data.dragons
+                })
+            }
+        }))
+        .catch(error => {
+            return dispatch({
+                type: PUBLIC_DRAGONS_FETCH_FAILURE,
+                payload: error.message
+            })
+        })
+}
+```
+
+- reducer
+```js
+import { PUBLIC_DRAGONS_FETCH_BEGIN, PUBLIC_DRAGONS_FETCH_FAILURE, PUBLIC_DRAGONS_FETCH_SUCCESS } from '../types/accountDragonTypes';
+
+const initialState = {
+    dragons:[]
+}
+
+const publicDragonsReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case PUBLIC_DRAGONS_FETCH_BEGIN:
+            return { ...state }
+        case PUBLIC_DRAGONS_FETCH_FAILURE:
+            return { ...state, message: action.payload }
+        case PUBLIC_DRAGONS_FETCH_SUCCESS:
+            return { ...state, dragons: action.payload }
+        default:
+            return state;
+    }
+}
+
+export default publicDragonsReducer;
+```
+
+- root reducer
+```js
+import dragonReducer from './dragonReducer';
+import generationReducer from './generationReducer';
+import accountReducer from './accountReducer';
+import accountDragonReducer from './accountDragonReducer';
+import accountInfoReducer from './accountInfoReducer';
+import publicDragonsReducer from './publicDragonsReducer';
+import { combineReducers } from 'redux';
+
+const rootReducer = combineReducers({
+    account: accountReducer,
+    generation: generationReducer,
+    dragon: dragonReducer,
+    accountDragons: accountDragonReducer,
+    accountInfo:accountInfoReducer,
+    publicDragons:publicDragonsReducer
+});
+
+export default rootReducer;
+```
+
+- parent component index, 这一步可以使用 redux thunk 整合。
+```js
+import { fetchPublicDragons } from '../actions/accountInfoActions';
+import PublicDragons from './PublicDragons';
+
+store.dispatch(fetchPublicDragons());
+
+<AuthRoute exact path='/public-dragons' component={PublicDragons} />
+```
+
+- parent component Home
+
+```js
+<Link to='/public-dragons'>Public Dragons</Link>
+```
+
+- child component
+
+```js
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { fetchPublicDragons } from '../actions/accountInfoActions';
+import { Link } from 'react-router-dom';
+import PublicDragonsRow from './PublicDragonsRow';
+
+class PublicDragons extends Component {
+
+    componentDidMount() {
+        this.props.fetchPublicDragons();
+    }
+
+    render() {
+        return (
+            <div>
+                <h3>Public Dragons</h3>
+                <Link to='/'>Back home</Link>
+                {
+                    this.props.publicDragons.dragons.map(dragon=>{
+                        return (
+                            <div key={dragon.dragonId}>
+                                <PublicDragonsRow dragon={dragon} />
+                            </div>
+                        )
+                    })
+                }
+            </div>
+        )
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        publicDragons: state.publicDragons
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchPublicDragons: () => dispatch(fetchPublicDragons)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(PublicDragons);
+```
+
+- child component
+
+```js
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import DragonAvatar from './DragonAvatar';
+
+class PublicDragonsRow extends Component {
+
+    render() {
+        return (
+            <div className='dragon-card'>
+                <div>{this.props.dragon.nickname}</div>
+                <div>{this.props.dragon.saleValue}</div>
+                <br />
+                <DragonAvatar dragon={this.props.dragon} />
+            </div>
+        )
+    }
+}
+
+export default PublicDragonsRow;
+```
+
+- update balance method
+
+```js
+    static updateBalance({ accountId, value }) {
+        return new Promise((resolve, reject) => {
+            pool.query(`UPDATE account SET "balance"= balance + $1 WHERE "id" = $2`,
+                [value, accountId],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    resolve();
+                }
+            )
+        })
     }
 ```
