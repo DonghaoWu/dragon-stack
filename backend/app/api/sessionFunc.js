@@ -51,7 +51,7 @@ const authenticatedAccount = ({ sessionString }) => {
                 .then(({ account }) => {
                     const authenticated = account.sessionId === id;
                     if (authenticated) {
-                        resolve({ username, currentAccountId: account.id })
+                        resolve({ username, currentAccountId: account.id, account })
                     }
                     else {
                         const error = new Error('No valid session in database or session has logout by other device.');

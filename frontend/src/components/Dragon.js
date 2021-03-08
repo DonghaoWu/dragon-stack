@@ -10,10 +10,10 @@ const Dragon = ({ dragon, createDragon }) => {
             <Button onClick={createDragon}>Create a new dragon in current generation</Button>
             <br />
             <br />
-            <div className='dragon-card'>
+            <div>
                 {
                     dragon.createSuccess ?
-                        <DragonAvatar dragon={dragon} />
+                        <div className='dragon-card'><DragonAvatar dragon={dragon} /></div>
                         : <div>{dragon.message}</div>
                 }
             </div>

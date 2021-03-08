@@ -77,4 +77,12 @@ router.get('/logout', (req, res, next) => {
         .catch(error => next(error));
 });
 
+router.get('/info', (req, res, next) => {
+    authenticatedAccount({ sessionString: req.cookies.sessionString })
+        .then(({ account, username }) => {
+            res.json({ info: { balance: account.balance, username } });
+        })
+        .catch(error => next(error));
+})
+
 module.exports = router;
