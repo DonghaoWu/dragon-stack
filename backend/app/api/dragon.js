@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const DragonTable = require('../models/dragon/table');
-const getWholeDragon = require('../models/dragon/getWholeDragon');
+const { getWholeDragon, getPublicDragons } = require('../models/dragon/getDragons');
 const { authenticatedAccount } = require('./sessionFunc');
 const AccountDragonTable = require('../models/accountDragon/table');
 
@@ -44,15 +44,22 @@ router.get('/dragons', (req, res, next) => {
 });
 
 router.put('/update', (req, res, next) => {
-    const { dragonId, nickname } = req.body;
+    const { dragonId, nickname, isPublic, saleValue } = req.body;
 
-    DragonTable.updateDragonNickname({ dragonId, nickname })
+    DragonTable.updateDragon({ dragonId, nickname, isPublic, saleValue })
         .then(() => {
-            res.json({ message: `successfully updated dragon's nickname` })
+            res.json({ message: `successfully updated dragon.` })
         })
         .catch(error => next(error));
 });
 
+router.get('/public-dragons', (req, res, next) => {
+    getPublicDragons()
+        .then(({ dragons }) => {
+            return res.json({ dragons })
+        })
+        .catch(error => next(error));
+});
 
 router.get('/:dragonId', (req, res, next) => {
     const dragonId = req.params.dragonId;

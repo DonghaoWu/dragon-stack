@@ -21,6 +21,7 @@ class Home extends Component {
                     <AccountInfo />
                     <br />
                     <Link to='/account-dragons'>My Dragons List</Link>
+                    <Link to='/public-dragons'>Public Dragons</Link>
                     <br />
                     <Dragon />
                     <br />

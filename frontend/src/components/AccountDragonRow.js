@@ -6,12 +6,20 @@ import { fetchAccountDragons } from '../actions/accountDragonActions';
 class AccountDragonRow extends Component {
     state = {
         currentNickname: this.props.dragon.nickname,
+        currentSaleValue: this.props.dragon.saleVale,
+        currentIsPublic: this.props.dragon.isPublic,
         nickname: this.props.dragon.nickname,
+        isPublic: this.props.dragon.isPublic,
+        saleValue: this.props.dragon.saleValue,
         edit: false
     }
 
-    handleChange = e => {
-        this.setState({ nickname: e.target.value });
+    handleInputChange = e => {
+        this.setState({ [e.target.name]: e.target.value });
+    }
+
+    handleCheckBoxChange = e => {
+        this.setState({ isPublic: e.target.checked })
     }
 
     openEditMode = () => {
@@ -25,14 +33,16 @@ class AccountDragonRow extends Component {
             body: JSON.stringify(
                 {
                     dragonId: this.props.dragon.dragonId,
-                    nickname: this.state.nickname
+                    nickname: this.state.nickname,
+                    isPublic: this.state.isPublic,
+                    saleValue: this.state.saleValue
                 }
             )
         })
             .then(response => response.json())
             .then(data => {
                 if (data.type === 'error') {
-                    alert(data.message);
+                    throw new Error(data.message);
                 }
                 else {
                     return this.props.fetchAccountDragons();
@@ -40,7 +50,12 @@ class AccountDragonRow extends Component {
             })
             .then(() => {
                 this.setState({ edit: false });
-                alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
+                alert(
+                `Your dragon is successfull changed.
+                Nickname: from [${this.state.currentNickname}] to [${this.state.nickname}]
+                Sale value: from [${this.state.currentSaleValue}] to [${this.state.saleValue}]
+                Public: from [${this.state.currentIsPublic}] to [${this.state.isPublic}]
+                `);
             })
             .catch(error => {
                 alert(error.message)
@@ -50,13 +65,34 @@ class AccountDragonRow extends Component {
     render() {
         return (
             <div className='dragon-card'>
-                <div className='edit-nickname'>
-                    <input
-                        type='text'
-                        value={this.state.nickname}
-                        onChange={this.handleChange}
-                        disabled={!this.state.edit}
-                    />
+                <div className='edit-fields'>
+                    <span>Nickname:{' '}
+                        <input
+                            type='text'
+                            name='nickname'
+                            value={this.state.nickname}
+                            onChange={this.handleInputChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    <span>Sale Value:{' '}
+                        <input
+                            type='number'
+                            name='saleValue'
+                            value={this.state.saleValue}
+                            onChange={this.handleInputChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    <span>Public:{' '}
+                        <input
+                            type='checkbox'
+                            name='isPublic'
+                            checked={this.state.isPublic}
+                            onChange={this.handleCheckBoxChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
                     {
                         this.state.edit ?
                             <button onClick={this.saveChange}>Save</button>

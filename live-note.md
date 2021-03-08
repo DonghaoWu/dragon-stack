@@ -3666,7 +3666,7 @@ CREATE TABLE dragon(
     birthdate       TIMESTAMP NOT NULL,
     nickname        VARCHAR(64),
     "generationId"  INTEGER,
-    "isPublic"      BOOLEAN NOT NULL,
+    "public"      BOOLEAN NOT NULL,
     "saleValue"     INTEGER NOT NULL,
     FOREIGN KEY     ("generationId") REFERENCES generation(id)
 );
@@ -3680,7 +3680,7 @@ const DEFAULT_PORPERTIES = {
     dragonId: undefined,
     nickname: 'unnamed',
     generationId: undefined,
-    isPublic:false,
+    public:false,
     saleValue:0,
     get birthdate() {
         return new Date();
@@ -3698,13 +3698,13 @@ const DEFAULT_PORPERTIES = {
 }
 
 class Dragon {
-    constructor({ dragonId, birthdate, nickname, traits, generationId, isPublic, saleValue } = {}) {
+    constructor({ dragonId, birthdate, nickname, traits, generationId, public, saleValue } = {}) {
         this.dragonId = dragonId || DEFAULT_PORPERTIES.dragonId;
         this.birthdate = birthdate || DEFAULT_PORPERTIES.birthdate;
         this.nickname = nickname || DEFAULT_PORPERTIES.nickname;
         this.traits = traits || DEFAULT_PORPERTIES.randomTraits;
         this.generationId = generationId || DEFAULT_PORPERTIES.generationId;
-        this.isPublic = isPublic || DEFAULT_PORPERTIES.isPublic;
+        this.public = public || DEFAULT_PORPERTIES.public;
         this.saleValue = saleValue || DEFAULT_PORPERTIES.saleValue;
     }
 }
@@ -3715,12 +3715,12 @@ module.exports = Dragon;
 - table
 ```js
     static storeDragon(dragon) {
-        const { birthdate, nickname, generationId, isPublic, saleValue } = dragon;
+        const { birthdate, nickname, generationId, public, saleValue } = dragon;
 
         return new Promise((resolve, reject) => {
-            pool.query(`INSERT INTO dragon(birthdate, nickname, "generationId","isPublic", "saleValue") 
+            pool.query(`INSERT INTO dragon(birthdate, nickname, "generationId","public", "saleValue") 
                         VALUES($1, $2, $3, $4, $5) RETURNING id`,
-                [birthdate, nickname, generationId, isPublic, saleValue],
+                [birthdate, nickname, generationId, public, saleValue],
                 (error, response) => {
                     if (error) return reject(error);
 
@@ -3739,7 +3739,7 @@ module.exports = Dragon;
     static getDragonWithoutTraits({ dragonId }) {
         return new Promise((resolve, reject) => {
             pool.query(
-                `SELECT birthdate, nickname, "generationId", "isPublic", "saleValue" FROM dragon WHERE dragon.id=$1`,
+                `SELECT birthdate, nickname, "generationId", "public", "saleValue" FROM dragon WHERE dragon.id=$1`,
                 [dragonId],
                 (error, response) => {
                     if (error) return reject(error);
@@ -3752,11 +3752,11 @@ module.exports = Dragon;
         })
     }
 
-    static updateDragon({ dragonId, nickname, isPublic, saleValue }) {
+    static updateDragon({ dragonId, nickname, public, saleValue }) {
         return new Promise((resolve, reject) => {
             pool.query(
-                `UPDATE dragon SET nickname = $1 "isPublic" = $2 "saleValue" = $3 WHERE id = $4`,
-                [nickname, isPublic, saleValue, dragonId],
+                `UPDATE dragon SET nickname = $1 "public" = $2 "saleValue" = $3 WHERE id = $4`,
+                [nickname, public, saleValue, dragonId],
                 (error, response) => {
                     if (error) reject(error);
 
@@ -3769,8 +3769,8 @@ module.exports = Dragon;
 
 - update dragon with dynamic queries
 ```js
-    static updateDragon({ dragonId, nickname, isPublic, saleValue }) {
-        const settingsMap = {nuckname, isPublic, saleValue};
+    static updateDragon({ dragonId, nickname, public, saleValue }) {
+        const settingsMap = {nuckname, public, saleValue};
 
         const validQueries = Object.entries(settingMap).filter(([settingKey, settingValue])=>{
             if(settingValue !== undefined){
@@ -3788,16 +3788,16 @@ module.exports = Dragon;
             }
         });
 
-        return Promise.all(validQueries).
+        return Promise.all(validQueries)
     }
 ```
 
 - api
 ```js
 router.put('/update', (req, res, next) => {
-    const { dragonId, nickname, isPublic, saleValue } = req.body;
+    const { dragonId, nickname, public, saleValue } = req.body;
 
-    DragonTable.updateDragonNickname({ dragonId, nickname, isPublic, saleValue })
+    DragonTable.updateDragonNickname({ dragonId, nickname, public, saleValue })
         .then(() => {
             res.json({ message: `successfully updated dragon` })
         })
@@ -3817,7 +3817,7 @@ class AccountDragonRow extends Component {
     state = {
         currentNickname: this.props.dragon.nickname,
         nickname: this.props.dragon.nickname,
-        isPublic: this.props.dragon.isPublic,
+        public: this.props.dragon.public,
         saleValue:this.props.dragon.saleValue,
         edit: false
     }
@@ -3827,7 +3827,7 @@ class AccountDragonRow extends Component {
     }
 
     handleCheckBoxChange = e =>{
-        this.setState({ isPublic: e.target.checked })
+        this.setState({ public: e.target.checked })
     }
 
     openEditMode = () => {
@@ -3842,7 +3842,7 @@ class AccountDragonRow extends Component {
                 {
                     dragonId: this.props.dragon.dragonId,
                     nickname: this.state.nickname,
-                    isPublic: this.state.isPublic,
+                    public: this.state.public,
                     saleValue: this.state.saleValue
                 }
             )
@@ -3876,32 +3876,32 @@ class AccountDragonRow extends Component {
                         onChange={this.handleInputChange}
                         disabled={!this.state.edit}
                     />
-                    <div>
-                        <span>Sale Value:{' '}
-                            <input
-                                type='number'
-                                name='saleValue'
-                                value={this.state.saleVale}
-                                onChange={this.handleCheckboxChange}
-                                disabled={!this.state.edit}
-                            />
-                        </span>
-                        <span>Public:{' '}
-                            <input
-                                type='checkbox'
-                                name='isPublic'
-                                value={this.state.isPublic}
-                                onChange={this.handleInputChange}
-                                disabled={!this.state.edit}
-                            />
-                        </span>
-                        {
-                            this.state.edit ?
-                                <button onClick={this.saveChange}>Save</button>
-                                :
-                                <button onClick={this.openEditMode}>Edit</button>
-                        }
-                    <div>
+                </div>
+                <div>
+                    <span>Sale Value:{' '}
+                        <input
+                            type='number'
+                            name='saleValue'
+                            value={this.state.saleVale}
+                            onChange={this.handleCheckboxChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    <span>Public:{' '}
+                        <input
+                            type='checkbox'
+                            name='public'
+                            value={this.state.public}
+                            onChange={this.handleInputChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    {
+                        this.state.edit ?
+                            <button onClick={this.saveChange}>Save</button>
+                            :
+                            <button onClick={this.openEditMode}>Edit</button>
+                    }
                 </div>
                 <br />
                 <DragonAvatar dragon={this.props.dragon} />
@@ -3927,7 +3927,7 @@ export default connect(null, mapDispatchToProps)(AccountDragonRow);
 const getPublicDragons = () => {
     return new Promise((resolve, reject)=>{
         pool.query(
-            `SELECT id FROM dragon WHERE "isPublic" = TRUE`,
+            `SELECT id FROM dragon WHERE "public" = TRUE`,
             (error, response)=>{
                 if(error) reject(error);
                 else{
@@ -4153,4 +4153,11 @@ export default PublicDragonsRow;
             )
         })
     }
+```
+
+3/8 修改信息:
+```diff
++ 1. new promise 中，reject 前面要使用 return
++ 2. 增加了 saleValue 和 isPublic 之后，需要在 getWholeDragon 中加入两个属性（这个调试了很久）。
++ 3. input checkbox 依靠的值属性不是 value 而是 chekced。
 ```

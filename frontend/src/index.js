@@ -7,7 +7,10 @@ import store from './store';
 import { fetchAuthenticated } from './actions/accountActions';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import AccountDragons from './components/AccountDragons';
+import { fetchPublicDragons } from './actions/publicDragonActions';
+import PublicDragons from './components/PublicDragons';
 
+store.dispatch(fetchPublicDragons);
 
 const AuthRoute = (props) => {
   if (!store.getState().account.loggedIn) {
@@ -26,6 +29,7 @@ store.dispatch(fetchAuthenticated)
           <Router>
             <Switch>
               <AuthRoute path='/account-dragons' component={AccountDragons} />
+              <AuthRoute exact path='/public-dragons' component={PublicDragons} />
               <Route exact path='/' component={App} />
             </Switch>
           </Router>
