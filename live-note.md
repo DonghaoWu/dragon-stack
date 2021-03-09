@@ -3666,7 +3666,7 @@ CREATE TABLE dragon(
     birthdate       TIMESTAMP NOT NULL,
     nickname        VARCHAR(64),
     "generationId"  INTEGER,
-    "public"      BOOLEAN NOT NULL,
+    "isPublic"      BOOLEAN NOT NULL,
     "saleValue"     INTEGER NOT NULL,
     FOREIGN KEY     ("generationId") REFERENCES generation(id)
 );
@@ -3680,8 +3680,8 @@ const DEFAULT_PORPERTIES = {
     dragonId: undefined,
     nickname: 'unnamed',
     generationId: undefined,
-    public:false,
-    saleValue:0,
+    isPublic: false,
+    saleValue: 0,
     get birthdate() {
         return new Date();
     },
@@ -3698,13 +3698,13 @@ const DEFAULT_PORPERTIES = {
 }
 
 class Dragon {
-    constructor({ dragonId, birthdate, nickname, traits, generationId, public, saleValue } = {}) {
+    constructor({ dragonId, birthdate, nickname, traits, generationId, saleValue, isPublic } = {}) {
         this.dragonId = dragonId || DEFAULT_PORPERTIES.dragonId;
         this.birthdate = birthdate || DEFAULT_PORPERTIES.birthdate;
         this.nickname = nickname || DEFAULT_PORPERTIES.nickname;
         this.traits = traits || DEFAULT_PORPERTIES.randomTraits;
         this.generationId = generationId || DEFAULT_PORPERTIES.generationId;
-        this.public = public || DEFAULT_PORPERTIES.public;
+        this.isPublic = isPublic || DEFAULT_PORPERTIES.isPublic;
         this.saleValue = saleValue || DEFAULT_PORPERTIES.saleValue;
     }
 }
@@ -3715,12 +3715,12 @@ module.exports = Dragon;
 - table
 ```js
     static storeDragon(dragon) {
-        const { birthdate, nickname, generationId, public, saleValue } = dragon;
+        const { birthdate, nickname, generationId, isPublic, saleValue } = dragon;
 
         return new Promise((resolve, reject) => {
-            pool.query(`INSERT INTO dragon(birthdate, nickname, "generationId","public", "saleValue") 
+            pool.query(`INSERT INTO dragon(birthdate, nickname, "generationId","isPublic", "saleValue") 
                         VALUES($1, $2, $3, $4, $5) RETURNING id`,
-                [birthdate, nickname, generationId, public, saleValue],
+                [birthdate, nickname, generationId, isPublic, saleValue],
                 (error, response) => {
                     if (error) return reject(error);
 
@@ -3739,7 +3739,7 @@ module.exports = Dragon;
     static getDragonWithoutTraits({ dragonId }) {
         return new Promise((resolve, reject) => {
             pool.query(
-                `SELECT birthdate, nickname, "generationId", "public", "saleValue" FROM dragon WHERE dragon.id=$1`,
+                `SELECT birthdate, nickname, "generationId", "isPublic", "saleValue" FROM dragon WHERE dragon.id=$1`,
                 [dragonId],
                 (error, response) => {
                     if (error) return reject(error);
@@ -3769,40 +3769,63 @@ module.exports = Dragon;
 
 - update dragon with dynamic queries
 ```js
-    static updateDragon({ dragonId, nickname, public, saleValue }) {
-        const settingsMap = {nuckname, public, saleValue};
+    static updateDragon({ dragonId, nickname, isPublic, saleValue }) {
+        const settingsMap = { nickname, isPublic, saleValue };
 
-        const validQueries = Object.entries(settingMap).filter(([settingKey, settingValue])=>{
-            if(settingValue !== undefined){
-                return new Promise((resolve, reject)=>{
+        const validQueries = Object.entries(settingsMap).filter(([settingKey, settingValue]) => {
+            if (settingValue !== undefined) {
+                return new Promise((resolve, reject) => {
                     pool.query(
                         `UPDATE dragon SET "${settingKey}" = $1 WHERE id = $2`,
                         [settingValue, dragonId],
                         (error, response) => {
-                            if (error) reject(error);
+                            if (error) return reject(error);
 
                             resolve();
                         }
                     )
-                })
+                });
             }
         });
 
-        return Promise.all(validQueries)
+        return Promise.all(validQueries);
     }
 ```
 
 - api
 ```js
 router.put('/update', (req, res, next) => {
-    const { dragonId, nickname, public, saleValue } = req.body;
+    const { dragonId, nickname, isPublic, saleValue } = req.body;
 
-    DragonTable.updateDragonNickname({ dragonId, nickname, public, saleValue })
+    DragonTable.updateDragon({ dragonId, nickname, isPublic, saleValue })
         .then(() => {
-            res.json({ message: `successfully updated dragon` })
+            res.json({ message: `successfully updated dragon.` })
         })
         .catch(error => next(error));
 });
+```
+
+- getWholeDragon
+
+```js
+const getWholeDragon = ({ dragonId }) => {
+    return Promise.all([
+        DragonTable.getDragonWithoutTraits({ dragonId }),
+        DragonTraitTable.getDragonTraits({ dragonId })
+    ])
+        .then(([dragon, dragonTraits]) => {
+            return new Dragon({
+                nickname: dragon.nickname,
+                birthdate: dragon.birthdate,
+                generationId: dragon.generationId,
+                traits: dragonTraits,
+                dragonId: dragonId,
+                saleValue: dragon.saleValue,
+                isPublic: dragon.isPublic
+            })
+        })
+        .catch(error => console.error(error));
+}
 ```
 
 - component 
@@ -3816,9 +3839,11 @@ import { fetchAccountDragons } from '../actions/accountDragonActions';
 class AccountDragonRow extends Component {
     state = {
         currentNickname: this.props.dragon.nickname,
+        currentSaleValue: this.props.dragon.saleVale,
+        currentIsPublic: this.props.dragon.isPublic,
         nickname: this.props.dragon.nickname,
-        public: this.props.dragon.public,
-        saleValue:this.props.dragon.saleValue,
+        isPublic: this.props.dragon.isPublic,
+        saleValue: this.props.dragon.saleValue,
         edit: false
     }
 
@@ -3826,8 +3851,8 @@ class AccountDragonRow extends Component {
         this.setState({ [e.target.name]: e.target.value });
     }
 
-    handleCheckBoxChange = e =>{
-        this.setState({ public: e.target.checked })
+    handleCheckBoxChange = e => {
+        this.setState({ isPublic: e.target.checked })
     }
 
     openEditMode = () => {
@@ -3842,7 +3867,7 @@ class AccountDragonRow extends Component {
                 {
                     dragonId: this.props.dragon.dragonId,
                     nickname: this.state.nickname,
-                    public: this.state.public,
+                    isPublic: this.state.isPublic,
                     saleValue: this.state.saleValue
                 }
             )
@@ -3850,7 +3875,7 @@ class AccountDragonRow extends Component {
             .then(response => response.json())
             .then(data => {
                 if (data.type === 'error') {
-                    alert(data.message);
+                    throw new Error(data.message);
                 }
                 else {
                     return this.props.fetchAccountDragons();
@@ -3858,7 +3883,12 @@ class AccountDragonRow extends Component {
             })
             .then(() => {
                 this.setState({ edit: false });
-                alert(`Your dragon nickname is successfull changed from [${this.state.currentNickname}] to [${this.state.nickname}]`);
+                alert(
+                `Your dragon is successfull changed.
+                Nickname: from [${this.state.currentNickname}] to [${this.state.nickname}]
+                Sale value: from [${this.state.currentSaleValue}] to [${this.state.saleValue}]
+                Public: from [${this.state.currentIsPublic}] to [${this.state.isPublic}]
+                `);
             })
             .catch(error => {
                 alert(error.message)
@@ -3868,31 +3898,31 @@ class AccountDragonRow extends Component {
     render() {
         return (
             <div className='dragon-card'>
-                <div className='edit-nickname'>
-                    <input
-                        type='text'
-                        name='nickname'
-                        value={this.state.nickname}
-                        onChange={this.handleInputChange}
-                        disabled={!this.state.edit}
-                    />
-                </div>
-                <div>
+                <div className='edit-fields'>
+                    <span>Nickname:{' '}
+                        <input
+                            type='text'
+                            name='nickname'
+                            value={this.state.nickname}
+                            onChange={this.handleInputChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
                     <span>Sale Value:{' '}
                         <input
                             type='number'
                             name='saleValue'
-                            value={this.state.saleVale}
-                            onChange={this.handleCheckboxChange}
+                            value={this.state.saleValue}
+                            onChange={this.handleInputChange}
                             disabled={!this.state.edit}
                         />
                     </span>
                     <span>Public:{' '}
                         <input
                             type='checkbox'
-                            name='public'
-                            value={this.state.public}
-                            onChange={this.handleInputChange}
+                            name='isPublic'
+                            checked={this.state.isPublic}
+                            onChange={this.handleCheckBoxChange}
                             disabled={!this.state.edit}
                         />
                     </span>
@@ -3919,29 +3949,29 @@ const mapDispatchToProps = dispatch => {
 export default connect(null, mapDispatchToProps)(AccountDragonRow);
 ```
 
-2. get public dragons
+2. Get public dragons
 
 - table
 
 ```js
 const getPublicDragons = () => {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         pool.query(
-            `SELECT id FROM dragon WHERE "public" = TRUE`,
-            (error, response)=>{
-                if(error) reject(error);
-                else{
+            `SELECT id FROM dragon WHERE "isPublic" = TRUE`,
+            (error, response) => {
+                if (error) reject(error);
+                else {
                     const publicDragonRows = response.rows;
 
                     Promise.all(
-                        publicDragonRows.map(({id}) =>{
-                            return getWholeDragon({dragonId: id})
+                        publicDragonRows.map(({ id }) => {
+                            return getWholeDragon({ dragonId: id })
                         })
                     )
-                    .then((dragons)=>{
-                        resolve({dragons})
-                    })
-                    .catch(error=> reject(error));
+                        .then((dragons) => {
+                            resolve({ dragons })
+                        })
+                        .catch(error => reject(error));
                 }
             }
         )
@@ -3952,12 +3982,14 @@ const getPublicDragons = () => {
 - api
 
 ```js
-const getPublicDragons = require('..');
+const { getWholeDragon, getPublicDragons } = require('../models/dragon/getDragons');
 
-router.get('/public-dragons', (req, res, next)=>{
+router.get('/public-dragons', (req, res, next) => {
     getPublicDragons()
-    .then(({dragons})=> res.json({dragons}))
-    .catch(error=> next(error));
+        .then(({ dragons }) => {
+            return res.json({ dragons })
+        })
+        .catch(error => next(error));
 });
 ```
 
@@ -3971,9 +4003,9 @@ export const PUBLIC_DRAGONS_FETCH_FAILURE = 'PUBLIC_DRAGONS_FETCH_FAILURE';
 
 - actions
 ```js
-import {} from 'types';
+import { PUBLIC_DRAGONS_FETCH_BEGIN, PUBLIC_DRAGONS_FETCH_SUCCESS, PUBLIC_DRAGONS_FETCH_FAILURE } from '../types/publicDragonsTypes';
 
-export const fetchPublicDragons = dispatch=>{
+export const fetchPublicDragons = (dispatch) => {
     dispatch({ type: PUBLIC_DRAGONS_FETCH_BEGIN });
 
     return fetch('/dragon/public-dragons', {
@@ -4005,13 +4037,13 @@ export const fetchPublicDragons = dispatch=>{
 
 - reducer
 ```js
-import { PUBLIC_DRAGONS_FETCH_BEGIN, PUBLIC_DRAGONS_FETCH_FAILURE, PUBLIC_DRAGONS_FETCH_SUCCESS } from '../types/accountDragonTypes';
+import { PUBLIC_DRAGONS_FETCH_BEGIN, PUBLIC_DRAGONS_FETCH_FAILURE, PUBLIC_DRAGONS_FETCH_SUCCESS } from '../types/publicDragonsTypes';
 
 const initialState = {
-    dragons:[]
+    dragons: []
 }
 
-const publicDragonsReducer = (state = initialState, action) => {
+const publicDragonReducer = (state = initialState, action) => {
     switch (action.type) {
         case PUBLIC_DRAGONS_FETCH_BEGIN:
             return { ...state }
@@ -4024,7 +4056,7 @@ const publicDragonsReducer = (state = initialState, action) => {
     }
 }
 
-export default publicDragonsReducer;
+export default publicDragonReducer;
 ```
 
 - root reducer
@@ -4034,7 +4066,7 @@ import generationReducer from './generationReducer';
 import accountReducer from './accountReducer';
 import accountDragonReducer from './accountDragonReducer';
 import accountInfoReducer from './accountInfoReducer';
-import publicDragonsReducer from './publicDragonsReducer';
+import publicDragonReducer from './publicDragonReducer';
 import { combineReducers } from 'redux';
 
 const rootReducer = combineReducers({
@@ -4042,8 +4074,8 @@ const rootReducer = combineReducers({
     generation: generationReducer,
     dragon: dragonReducer,
     accountDragons: accountDragonReducer,
-    accountInfo:accountInfoReducer,
-    publicDragons:publicDragonsReducer
+    accountInfo: accountInfoReducer,
+    publicDragons: publicDragonReducer
 });
 
 export default rootReducer;
@@ -4051,10 +4083,10 @@ export default rootReducer;
 
 - parent component index, 这一步可以使用 redux thunk 整合。
 ```js
-import { fetchPublicDragons } from '../actions/accountInfoActions';
-import PublicDragons from './PublicDragons';
+import { fetchPublicDragons } from './actions/publicDragonActions';
+import PublicDragons from './components/PublicDragons';
 
-store.dispatch(fetchPublicDragons());
+store.dispatch(fetchPublicDragons);
 
 <AuthRoute exact path='/public-dragons' component={PublicDragons} />
 ```
@@ -4070,7 +4102,7 @@ store.dispatch(fetchPublicDragons());
 ```js
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchPublicDragons } from '../actions/accountInfoActions';
+import { fetchPublicDragons } from '../actions/publicDragonActions';
 import { Link } from 'react-router-dom';
 import PublicDragonsRow from './PublicDragonsRow';
 
@@ -4085,15 +4117,17 @@ class PublicDragons extends Component {
             <div>
                 <h3>Public Dragons</h3>
                 <Link to='/'>Back home</Link>
-                {
-                    this.props.publicDragons.dragons.map(dragon=>{
-                        return (
-                            <div key={dragon.dragonId}>
-                                <PublicDragonsRow dragon={dragon} />
-                            </div>
-                        )
-                    })
-                }
+                <div className='dragons-container'>
+                    {
+                        this.props.publicDragons.dragons.map(dragon => {
+                            return (
+                                <div key={dragon.dragonId}>
+                                    <PublicDragonsRow dragon={dragon} />
+                                </div>
+                            )
+                        })
+                    }
+                </div>
             </div>
         )
     }
@@ -4126,8 +4160,7 @@ class PublicDragonsRow extends Component {
     render() {
         return (
             <div className='dragon-card'>
-                <div>{this.props.dragon.nickname}</div>
-                <div>{this.props.dragon.saleValue}</div>
+                <div>Sale value:{this.props.dragon.saleValue}</div>
                 <br />
                 <DragonAvatar dragon={this.props.dragon} />
             </div>
@@ -4137,6 +4170,19 @@ class PublicDragonsRow extends Component {
 
 export default PublicDragonsRow;
 ```
+
+3/8 备注信息:
+```diff
++ 1. new promise 中，reject 前面要使用 return
++ 2. 增加了 saleValue 和 isPublic 之后，需要在 getWholeDragon 中加入两个属性（这个调试了很久）。
++ 3. input checkbox 依靠的值属性不是 value 而是 chekced。
+```
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+--------------------------------------------------------------
+//////////////////////////////////////////////////////////////
+
+3/9 last feature, trade dragons.
 
 - update balance method
 
@@ -4155,9 +4201,3 @@ export default PublicDragonsRow;
     }
 ```
 
-3/8 修改信息:
-```diff
-+ 1. new promise 中，reject 前面要使用 return
-+ 2. 增加了 saleValue 和 isPublic 之后，需要在 getWholeDragon 中加入两个属性（这个调试了很久）。
-+ 3. input checkbox 依靠的值属性不是 value 而是 chekced。
-```
