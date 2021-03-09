@@ -4184,6 +4184,7 @@ export default PublicDragonsRow;
 
 3/9 last feature, trade dragons.
 
+1. Feature 1: Buy a dragon
 - update balance method
 
 ```js
@@ -4201,3 +4202,925 @@ export default PublicDragonsRow;
     }
 ```
 
+1. get dragon account and update dragon account
+
+```js
+static getDragonAccount({dragonId}){
+    return new Promise((resolve, reject)=>{
+        pool.query(
+            `SELECT "accountId" FROM accountDragon WHERE "dragonId" = $1`,
+            [dragonId],
+            (error, response)=>{
+                if(error) return reject(error);
+
+                resolve({accountId: response.rows[0].accountId})
+            }
+        )
+    })
+}
+
+static updateDragonAccount({dragonId, accountId}){
+    return new Promise((resolve, reject)=>{
+        pool.query(
+            `UPDATE accountDragon SET "accountId" = $1 WHERE "dragonId" = $2`,
+            [accountId, dragonId],
+            (error, response)=>{
+                if(error) return reject(error);
+
+                resolve()
+            }
+        )
+    })
+}
+```
+- 是否需要认证发出修改请求的 account， 这是一个关于认证权限的安全，首先要认证对应的 dragon 是否属于 发出请求的 account。
+
+2. buy dragon backend api
+
+```js
+router.post('/buy',(req,res,next)=>{
+    const {dragonId, saleValue} = req.body;
+
+    let buyerId;
+
+    DragonTable.getDragon({dragonId})
+    .then(dragon=>{
+        if(dragon.saleValue !== saleValue){
+            throw new Error('Sale value is not correct!');
+        }
+        if(!dragon.isPublic){
+            throw new Error('Dragon is not public.')
+        }
+        return authenticatedAccount({sessionString: req.cookies.sessionString})
+    })
+    .then(({account, authenticated})=>{
+        if(!authenticated){
+            throw new Error('Unauthenticated user.')
+        }
+
+        if(account.balance < saleValue){
+            throw new Error('Insufficient balance.')
+        }
+
+        buyerId = account.id;
+
+        return AccountDragonTable.getDragonAccount({dragonId};)
+    })
+    .then(({accountId})=>{
+        if(accountId === buyerId){
+            throw new Error('Cannot buy your own dragon.')
+        }
+
+        const sellerId = accountId;
+
+        return Promise.all([
+            AccountTable.updateBalance({
+                accountId:buyerId,
+                value:-saleValue
+            }),
+            AccountTable.updateBalance({
+                accountId:sellerId,
+                value:saleValue
+            }),
+            AccountDragonTable.updateDragonAccount({
+                dragonId,
+                accountId: buyerId
+            }),
+            DragonTable.updateDragon({
+                dragonId,
+                isPublic:false
+            })
+        ])
+    })
+    .then(()=>res.json({message:'Dragon is bought successully!'}))
+    .catch(error => next(error));
+});
+```
+
+- 这是一个很完整的账号互动 promise chain， 最推荐学习这个。
+
+3. buy dragon front end UI.
+
+- component
+```js
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import DragonAvatar from './DragonAvatar';
+
+class PublicDragonsRow extends Component {
+    buy = ()=>{
+        const { dragonId, saleValue } = this.props.dragon;
+        fetch(`dragon/buy`,{
+            method:'POST',
+            credentials:'include',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(
+                {
+                    dragonId, 
+                    saleValue
+                }
+            )
+        })
+        .then(response => response.json())
+        .then(json=>{
+            alert(json.message);
+            if(json.type ==='error'){
+                history.push('/account-dragons');
+            }
+        })
+        .catch(error => alert(error.message));
+    }
+
+    render() {
+        return (
+            <div className='dragon-card'>
+                <div>Sale value:{this.props.dragon.saleValue}</div>
+                <br />
+                <DragonAvatar dragon={this.props.dragon} />
+                <br/>
+                <button onClick={this.buy}>Buy</button>
+            </div>
+        )
+    }
+}
+
+export default PublicDragonsRow;
+```
+
+- 这里加了一个 history.push , 它跟 redirect 不一样的地方在于 redirect 不是 mount， history.push 是 mount。`未证实说法`。
+
+
+2. Feature 2: Siring and Breedering.
+
+- class
+```js
+const Dragon = reqiure('./index');
+class Breeder{
+    static breedDragon({matron, patron}){
+        const matronTraits = matron.traits;
+        const patronTraits = patron.traits;
+
+        const babyTraits = [];
+
+        matronTraits.forEach(({traitType, traitValue})=>{
+            const matronTrait = traitValue;
+
+            const patronTrait = patronTraits.find(
+                trait => trait.traitType === traitType
+            ).traitValue;
+
+            babyTraits.push({
+                traitType,
+                traitValue: Breeder.pickTrait({matronTrait, patronTrait})
+            })
+        })
+
+        return new Dragon({ nickname:'Unnamed baby', traits: babyTraits })
+    }
+}
+
+module.export Breeder;
+```
+
+- pickTrait function
+
+```bash
+$ npm i base-64
+```
+
+```js
+
+const base64 = require('base-64');
+
+static pickTrait({matronTrait, patronTrait}){
+    if(matronTrait === patronTrait) return matronTrait;
+
+    const matronTraitCharSum = Breeder.charSum(base64(matronTrait));
+    const patronTraitCharSum = Breeder.charSum(base64(patronTrait));
+
+    const randNum = Math.floor(Math.random() * (matronTraitCharSum + patronTraitCharSum));
+
+    return randNum < matronTraitCharSum ? matronTrait : patronTrait;
+}
+
+static charSUm(string){
+    return string.split('').reduce((sum, char) =>{
+        return sum += char.charCodeAt();
+    }, 0)
+}
+```
+
+- Dragon sire value Backend
+
+- sql
+```sql
+CREATE TABLE dragon(
+    id              SERIAL PRIMARY KEY,
+    birthdate       TIMESTAMP NOT NULL,
+    nickname        VARCHAR(64),
+    "generationId"  INTEGER,
+    "isPublic"      BOOLEAN NOT NULL,
+    "saleValue"     INTEGER NOT NULL,
+    "sireValue"     INTEGER,
+    FOREIGN KEY     ("generationId") REFERENCES generation(id)
+);
+```
+
+- dragon index
+```js
+const TRAITS = require('../../../data/traits.json');
+
+const DEFAULT_PORPERTIES = {
+    dragonId: undefined,
+    nickname: 'unnamed',
+    generationId: undefined,
+    isPublic: false,
+    saleValue: 0,
+    sireValue: 0,
+    get birthdate() {
+        return new Date();
+    },
+    get randomTraits() {
+        const traits = [];
+        TRAITS.forEach(TRAIT => {
+            const traitType = TRAIT.type;
+            const traitValues = TRAIT.values;
+            const traitValue = traitValues[Math.floor(Math.random() * traitValues.length)];
+            traits.push({ traitType, traitValue })
+        });
+        return traits;
+    }
+}
+
+class Dragon {
+    constructor({ dragonId, birthdate, nickname, traits, generationId, saleValue, isPublic, sireValue } = {}) {
+        this.dragonId = dragonId || DEFAULT_PORPERTIES.dragonId;
+        this.birthdate = birthdate || DEFAULT_PORPERTIES.birthdate;
+        this.nickname = nickname || DEFAULT_PORPERTIES.nickname;
+        this.traits = traits || DEFAULT_PORPERTIES.randomTraits;
+        this.generationId = generationId || DEFAULT_PORPERTIES.generationId;
+        this.isPublic = isPublic || DEFAULT_PORPERTIES.isPublic;
+        this.saleValue = saleValue || DEFAULT_PORPERTIES.saleValue;
+        this.sireVlaue = sireVlaue || DEFAULT_PORPERTIES.sireVlaue;
+    }
+}
+
+module.exports = Dragon;
+```
+
+- table
+
+```js
+class DragonTable {
+    static storeDragon(dragon) {
+        const { birthdate, nickname, generationId, isPublic, saleValue, sireValue } = dragon;
+
+        return new Promise((resolve, reject) => {
+            pool.query(`INSERT INTO dragon(birthdate, nickname, "generationId","isPublic", "saleValue", "sireValue") 
+                        VALUES($1, $2, $3, $4, $5, $6) RETURNING id`,
+                [birthdate, nickname, generationId, isPublic, saleValue, sireValue],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    const dragonId = response.rows[0].id;
+
+                    Promise.all(dragon.traits.map(({ traitType, traitValue }) => {
+                        return DragonTraitTable.storeDragonTrait({ dragonId, traitType, traitValue })
+                    }))
+                        .then(() => resolve({ dragonId }))
+                        .catch(error => reject(error));
+                }
+            )
+        })
+    };
+
+    static getDragonWithoutTraits({ dragonId }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `SELECT birthdate, nickname, "generationId", "isPublic", "saleValue", "sireValue" FROM dragon WHERE dragon.id=$1`,
+                [dragonId],
+                (error, response) => {
+                    if (error) return reject(error);
+
+                    if (response.rows.length === 0) return reject(new Error('no dragon in this id.'))
+
+                    resolve(response.rows[0]);
+                }
+            )
+        })
+    }
+
+    static updateDragon({ dragonId, nickname, isPublic, saleValue, sireValue }) {
+        const settingsMap = { nickname, isPublic, saleValue, sireValue };
+
+        const validQueries = Object.entries(settingsMap).filter(([settingKey, settingValue]) => {
+            if (settingValue !== undefined) {
+                return new Promise((resolve, reject) => {
+                    pool.query(
+                        `UPDATE dragon SET "${settingKey}" = $1 WHERE id = $2`,
+                        [settingValue, dragonId],
+                        (error, response) => {
+                            if (error) return reject(error);
+
+                            resolve();
+                        }
+                    )
+                });
+            }
+        });
+
+        return Promise.all(validQueries);
+    }
+}
+```
+
+- getWholeDragon
+
+```js
+const getWholeDragon = ({ dragonId }) => {
+    return Promise.all([
+        DragonTable.getDragonWithoutTraits({ dragonId }),
+        DragonTraitTable.getDragonTraits({ dragonId })
+    ])
+        .then(([dragon, dragonTraits]) => {
+            return new Dragon({
+                nickname: dragon.nickname,
+                birthdate: dragon.birthdate,
+                generationId: dragon.generationId,
+                traits: dragonTraits,
+                dragonId: dragonId,
+                saleValue: dragon.saleValue,
+                isPublic: dragon.isPublic,
+                sireValue: dragon.sireValue
+            })
+        })
+        .catch(error => console.error(error));
+}
+```
+
+- api
+
+```js
+router.put('/update', (req, res, next) => {
+    const { dragonId, nickname, isPublic, saleValue, sireValue } = req.body;
+
+    DragonTable.updateDragon({ dragonId, nickname, isPublic, saleValue, sireValue })
+        .then(() => {
+            res.json({ message: `successfully updated dragon.` })
+        })
+        .catch(error => next(error));
+});
+```
+
+- Dragon sire value Frontend
+
+```js
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import DragonAvatar from './DragonAvatar';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
+
+class AccountDragonRow extends Component {
+    state = {
+        currentNickname: this.props.dragon.nickname,
+        currentSaleValue: this.props.dragon.saleVale,
+        currentIsPublic: this.props.dragon.isPublic,
+        nickname: this.props.dragon.nickname,
+        isPublic: this.props.dragon.isPublic,
+        saleValue: this.props.dragon.saleValue,
+        sireValue: this.props.dragon.sireValue
+        edit: false
+    }
+
+    handleInputChange = e => {
+        this.setState({ [e.target.name]: e.target.value });
+    }
+
+    handleCheckBoxChange = e => {
+        this.setState({ isPublic: e.target.checked })
+    }
+
+    openEditMode = () => {
+        this.setState({ edit: true });
+    }
+
+    saveChange = () => {
+        fetch(`/dragon/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
+                {
+                    dragonId: this.props.dragon.dragonId,
+                    nickname: this.state.nickname,
+                    isPublic: this.state.isPublic,
+                    saleValue: this.state.saleValue
+                    sireValue: this.state.sireValue
+                }
+            )
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.type === 'error') {
+                    throw new Error(data.message);
+                }
+                else {
+                    return this.props.fetchAccountDragons();
+                }
+            })
+            .then(() => {
+                this.setState({ edit: false });
+                alert(
+                `Your dragon is successfull changed.
+                Nickname: from [${this.state.currentNickname}] to [${this.state.nickname}]
+                Sale value: from [${this.state.currentSaleValue}] to [${this.state.saleValue}]
+                Public: from [${this.state.currentIsPublic}] to [${this.state.isPublic}]
+                `);
+            })
+            .catch(error => {
+                alert(error.message)
+            })
+    }
+
+    render() {
+        return (
+            <div className='dragon-card'>
+                <div className='edit-fields'>
+                    <span>Nickname:{' '}
+                        <input
+                            type='text'
+                            name='nickname'
+                            value={this.state.nickname}
+                            onChange={this.handleInputChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    <span>Sale Value:{' '}
+                        <input
+                            type='number'
+                            name='saleValue'
+                            value={this.state.saleValue}
+                            onChange={this.handleInputChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    <span>Sire Value:{' '}
+                        <input
+                            type='number'
+                            name='sireValue'
+                            value={this.state.sireValue}
+                            onChange={this.handleInputChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    <span>Public:{' '}
+                        <input
+                            type='checkbox'
+                            name='isPublic'
+                            checked={this.state.isPublic}
+                            onChange={this.handleCheckBoxChange}
+                            disabled={!this.state.edit}
+                        />
+                    </span>
+                    {
+                        this.state.edit ?
+                            <button onClick={this.saveChange}>Save</button>
+                            :
+                            <button onClick={this.openEditMode}>Edit</button>
+                    }
+                </div>
+                <br />
+                <DragonAvatar dragon={this.props.dragon} />
+            </div>
+        )
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchAccountDragons: () => dispatch(fetchAccountDragons)
+    }
+}
+
+export default connect(null, mapDispatchToProps)(AccountDragonRow);
+```
+
+
+- Mate dragon request
+
+- api
+```js
+
+const Breeder = require('../dragon/breeder');
+router.post('/mate', (req, res,next)=>{
+    const { matronDragonId, patronDragonId } = req.body;
+
+    if(matronDragonId === patronDragonId){
+        const error = new Error('Cannot breed with the same dragon!');
+        return next(error);
+    }
+
+    let matronDragon, patronDragon;
+    let matronAccountId, patronAccountId;
+
+    getWholeDragon({dragonId: patronDragonId})
+    .then({dragon} =>{
+        if(!dragon.isPublic){
+            throw new Error('Mate Dragon must be public.')
+        }
+        patronDragon = dragon;
+        return getWholeDragon({dragonId: matronDragonId})
+    })
+    .then(({dragon})=>{
+        if(!dragon.isPublic){
+            throw new Error('Mate Dragon must be public.')
+        }
+        matronDragon = dragon;
+        return authenticatedAccount({sessionString: req.cookies.sessionString})
+    })
+    .then(({account, authenticated})=>{
+        if(!authenticated) throw new Error('Not authenticated.')
+
+        if(patronDragon.sireValue > account.balance){
+            throw new Error('Sire value exceeds balance.');
+        }
+
+        matronAccountId = account.id;
+
+        return AccoutDragonTable.getDragonAccount({ dragonId : patronDragonId })
+    })
+    .then(({accountId})=>{
+        patronAccountId = accountId;
+
+        if(matronAccountId === patronAccountId){
+            throw new Error('Cannot breed your own dragons!');
+        }
+
+        const dragon = Breeder.breedDragon({matron: matronDragon, patron: patronDragon});
+
+        return DragonTable.storeDragon(dragon);
+    })
+    .then(({dragonId})=>{
+        Promise.all([
+            AccountTable.updateBalance({
+                accountId: matronAccountId,
+                value: -patronDragon.sireValue
+            }),
+            AccountTable.updateBalance({
+                accountId: patronAccountId,
+                value: patronDragon.sireValue
+            }),
+            AccountDragonTable.storeAccountDragon({
+                dragonId,
+                accountId:matronAccountId
+            })
+        ])
+    })
+    .then(()=> res.json({message:'Mate success!'}))
+    .catch(error => next(error));
+});
+```
+
+- Sire button, front end
+
+```js
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import DragonAvatar from './DragonAvatar';
+import MatingOptions from './MatingOptions';
+
+class PublicDragonsRow extends Component {
+    state = {displayMatingOptions: false};
+
+    toggleDisplayMatingOptions = ()=>{
+        this.setState({displayMatingOptions: !displayMatingOptions})
+    }
+
+    buy = ()=>{
+        const { dragonId, saleValue } = this.props.dragon;
+        fetch(`dragon/buy`,{
+            method:'POST',
+            credentials:'include',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(
+                {
+                    dragonId, 
+                    saleValue
+                }
+            )
+        })
+        .then(response => response.json())
+        .then(json=>{
+            alert(json.message);
+            if(json.type ==='error'){
+                history.push('/account-dragons');
+            }
+        })
+        .catch(error => alert(error.message));
+    }
+
+    sire = () =>{
+
+    }
+
+    render() {
+        return (
+            <div className='dragon-card'>
+                <div>Sale value:{this.props.dragon.saleValue}</div>
+                <div>Sire value:{this.props.dragon.sireValue}</div>
+                <br />
+                <DragonAvatar dragon={this.props.dragon} />
+                <br/>
+                <button onClick={this.buy}>Buy</button>
+                <button onClick={this.toggleDisplayMatingOptions}>Sire</button>
+
+                {
+                    this.state.displayMatingOptions
+                    ?
+                    <MatingOptions patronDragonId={this.props.dragon.dragonId} />
+                    :
+                    <div><div>
+                }
+            </div>
+        )
+    }
+}
+
+export default PublicDragonsRow;
+```
+
+- Mating Options
+
+```js
+import React, {Component} from 'react';
+import { connect } from 'react-redux';
+
+class MatingOptions extends Component{
+    render(){
+        return(
+            <div>
+                <h4>Pick one of your dragons to mate with.</h4>
+                {
+                    this.props.accountDragons.dragons.map(dragon=>{
+                        const {dragonId, generationId, nickname} = dragon;
+                        return(
+                            <span key={dragonId}>
+                                    <button>G:{generationId}.I:{dragonId}.N:{nickname}</button>
+                            </span>
+                        )
+                    })
+                }
+            </div>
+        )
+    }
+}
+
+const mapStateToProps = state =>{
+    return{
+        accountDragons: state.accountDragons
+    }
+}
+
+export default connect(mapStateToProps, null)(MatingOptions);
+```
+
+```js
+import {fetchAccountDragons} from '';
+    componentDidMount() {
+        this.props.fetchPublicDragons();
+        this.props.fetchSAccountDragons();
+    }
+```
+
+- send mate request
+
+```js
+import React, {Component} from 'react';
+import { connect } from 'react-redux';
+
+class MatingOptions extends Component{
+    mate = ({matronDragonId, patronDragonId}) => ()=>{
+        fetch('/dragon/mate', {
+            method:'POST',
+            credentials:'include',
+            headers:{ "Content-type":"application/json"},
+            body:JSON.stringify(
+                {
+                    matronDragonId,
+                    patronDragonId
+                }
+            )
+        })
+        .then(response =>{
+            return response.json()
+        })
+        .then(json =>{
+            alert(json.message);
+
+            if(json.type !== 'error'){
+                history.push('/account-dragons');
+            }
+        })
+        .catch(error=> alert(error.message));
+    }
+
+    render(){
+        return(
+            <div>
+                <h4>Pick one of your dragons to mate with.</h4>
+                {
+                    this.props.accountDragons.dragons.map(dragon=>{
+                        const {dragonId, generationId, nickname} = dragon;
+                        return(
+                            <span key={dragonId}>
+                                    <button onCLick={this.mate({
+                                        matronDragonId: dragonId,
+                                        patronDragonId:this.props.patronDragonId
+                                    })}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
+                            </span>
+                        )
+                    })
+                }
+            </div>
+        )
+    }
+}
+
+const mapStateToProps = state =>{
+    return{
+        accountDragons: state.accountDragons
+    }
+}
+
+export default connect(mapStateToProps, null)(MatingOptions);
+```
+
+3. Feature 3 Limit Dragons per generation,` a user can only get a dragon in one generation.`
+
+```js
+const { REFRESH_RATE, SECONDS } = require('../../config');
+const Dragon = require('../dragon/index');
+
+const refreshRate = REFRESH_RATE * SECONDS;
+
+class Generation {
+    constructor() {
+        this.accountIds = new Set();
+        this.expiration = this.calculateExpiration();
+        this.generationId = undefined;
+    }
+
+    calculateExpiration() {
+        const expirationPeriod = Math.floor(Math.random() * (refreshRate / 2));
+
+
+        const msUntilExpiration = Math.random() < 0.5
+            ? refreshRate - expirationPeriod
+            : refreshRate + expirationPeriod
+
+        return new Date(Date.now() + msUntilExpiration)
+    }
+
+    newDragon({accountId}) {
+        if (Date.now() > this.expiration) {
+            throw new Error('This generation expried on ' + this.expiration);
+        }
+        if(this.accountIds.has(accountId)){
+            throw new Error('You already have a dragon from this generation.');
+        }
+        this.accountIds.add(accountId);
+        return new Dragon({ generationId: this.generationId });
+    }
+}
+
+module.exports = Generation;
+```
+
+- api
+
+```js
+router.get('/new', (req, res, next) => {
+    let accountId, dragon;
+    const { sessionString } = req.cookies;
+    authenticatedAccount({ sessionString })
+        .then(({ currentAccountId }) => {
+            accountId = currentAccountId;
+            dragon = req.app.locals.engine.generation.newDragon({accountId});
+            return DragonTable.storeDragon(dragon);
+        })
+        .then(({ dragonId }) => {
+            dragon.dragonId = dragonId;
+            return AccountDragonTable.storeAccountDragon({ accountId, dragonId });
+        })
+        .then(() => {
+            return res.json({ dragon })
+        })
+        .catch(error => next(error));;
+});
+```
+
+- component
+
+```js
+import React, { useState, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
+import DragonAvatar from './DragonAvatar';
+import { connect } from 'react-redux';
+import { createDragon } from '../actions/dragonActions'
+
+const Dragon = ({ dragon, createDragon }) => {
+    get DragonView(){
+        if(this.props.dragon.status ==='error'){
+            return <span>{this.props.dragons.message}</span>
+        }
+        return <DragonAvatar dragon={this.props.dragon}/>
+    }
+    return (
+        <div>
+            <Button onClick={createDragon}>Create a new dragon in current generation</Button>
+            <br />
+            <br />
+            <div>
+                {
+                    dragon.createSuccess ?
+                        <div className='dragon-card'><DragonAvatar dragon={dragon} /></div>
+                        : <div>{dragon.message}</div>
+                }
+            </div>
+        </div>
+    )
+}
+
+const mapStateToProps = state => {
+    return {
+        dragon: state.dragon
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        createDragon: () => dispatch(createDragon)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dragon);
+```
+
+- more features
+
+```diff
+Quicker
+
+Frontend: Display the Account Balance, Id, Username, and Log Out Button in a header that stays at the top of app across all pages.
+
+Frontend: Generate action type values with a helper function. This is a level of abstraction we don’t need in the course. But perfect material for a challenge!
+
+Frontend: Use moment-js to display the generation expiration time more prettily.
+
+Frontend: Implement a cancel button in the AccountDragonRow after editing.
+
+Frontend: Color the input differently in AccountDragonRow when it’s disabled
+
+Frontend: Stylize alert message pop ups.
+
+Frontend: Make sure the dragon cannot be public until after a sale value has been given. Use a popup with the alert() function. Or use an alternate kind of blocking behavior.
+
+Frontend: Add confirmation button to buy or mate with a dragon.
+
+Backend: Enforce a limit for how many dragons can be generated in a generation. Base it on how many dragons currently exist. Or impose a maximum number of dragons per generation.
+
+Backend: Reward users with currency for logging in daily.
+
+Backend: Add validations that prevent the saleValue or sireValue from being less than 0.
+
+Backend: Make sure that dragons with a 0 sale or sireValue cannot be made public.
+
+Backend: Generate random names for the dragon instead of ‘unnamed’.
+
+Advanced:
+
+Frontend: Generate an avatar that overlays images for an actual “image” of the dragon based off the traits.
+
+Frontend: Implement a caching layer on the browser that prevents re-fetches if an endpoint hasn’t changed.
+
+Frontend: Use socket.io to implement real time updates of the public-dragons page to avoid races between user to buy dragons.
+
+Conceptual: Design a currency-less system that pays siring fees with a dragon itself. Then trade dragons without cost.
+
+Backend: Extract the get and store functions of the table classes into a framework around node-postgres and express! I could help contribute if it’s open source on Github :)
+
+Backend: Implement a more elegant traitLottery function. Some more randomness could represent real genetics - where you look very similar to your parents, but you have variation.
+
+Backend: Rank each trait according to their statistical chances of beating the other traits in the traitLottery function.
+
+Backend: Optimize storing the multiple traits within the `storeDragon` function as one query, rather than a query that is run multiple times within a loop.
+
+Backend: Add an incremental api endpoint to support pagination for smaller dragon loads. This has the important benefit of not overworking the database.
+
+Backend: Implement a caching layer on the backend that does not have to make new trips to the database for unchanged parts of the database (mark changes with updates).
+
+Backend: Store the unique ids of a generation as a callback when the previous generation expires. This will allow you to batch up the generation ids and store them later on, rather than writing to the database with each new dragon.
+
+Full-stack: Implement unit testing (try Jest)!
+
+Full-stack: Implement browser integration tests!
+```
