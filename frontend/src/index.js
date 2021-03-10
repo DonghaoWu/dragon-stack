@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import { Provider } from 'react-redux';
-import store from './store';
+import store from './redux/store';
 import { fetchAuthenticated } from './actions/accountActions';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import AccountDragons from './components/AccountDragons';
