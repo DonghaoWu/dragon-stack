@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import { fetchPublicDragons } from '../actions/publicDragonActions';
 import { Link } from 'react-router-dom';
 import PublicDragonsRow from './PublicDragonsRow';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
 
 class PublicDragons extends Component {
 
     componentDidMount() {
         this.props.fetchPublicDragons();
+        this.props.fetchAccountDragons();
     }
 
     render() {
@@ -39,7 +41,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        fetchPublicDragons: () => dispatch(fetchPublicDragons)
+        fetchPublicDragons: () => dispatch(fetchPublicDragons),
+        fetchAccountDragons: () => dispatch(fetchAccountDragons)
     }
 }
 

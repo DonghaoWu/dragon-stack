@@ -4243,7 +4243,7 @@ router.post('/buy',(req,res,next)=>{
 
     let buyerId;
 
-    DragonTable.getDragon({dragonId})
+    DragonTable.getDragonWithoutTraits({dragonId})
     .then(dragon=>{
         if(dragon.saleValue !== saleValue){
             throw new Error('Sale value is not correct!');
@@ -4253,8 +4253,8 @@ router.post('/buy',(req,res,next)=>{
         }
         return authenticatedAccount({sessionString: req.cookies.sessionString})
     })
-    .then(({account, authenticated})=>{
-        if(!authenticated){
+    .then(({account})=>{
+        if(!account){
             throw new Error('Unauthenticated user.')
         }
 
@@ -4818,10 +4818,6 @@ class PublicDragonsRow extends Component {
         .catch(error => alert(error.message));
     }
 
-    sire = () =>{
-
-    }
-
     render() {
         return (
             <div className='dragon-card'>
@@ -4838,7 +4834,7 @@ class PublicDragonsRow extends Component {
                     ?
                     <MatingOptions patronDragonId={this.props.dragon.dragonId} />
                     :
-                    <div><div>
+                    <div></div>
                 }
             </div>
         )
@@ -4887,7 +4883,7 @@ export default connect(mapStateToProps, null)(MatingOptions);
 import {fetchAccountDragons} from '';
     componentDidMount() {
         this.props.fetchPublicDragons();
-        this.props.fetchSAccountDragons();
+        this.props.fetchAccountDragons();
     }
 ```
 

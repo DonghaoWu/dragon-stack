@@ -16,7 +16,8 @@ const getWholeDragon = ({ dragonId }) => {
                 traits: dragonTraits,
                 dragonId: dragonId,
                 saleValue: dragon.saleValue,
-                isPublic: dragon.isPublic
+                isPublic: dragon.isPublic,
+                sireValue: dragon.sireValue
             })
         })
         .catch(error => console.error(error));
