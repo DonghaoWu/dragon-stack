@@ -4205,95 +4205,96 @@ export default PublicDragonsRow;
 1. get dragon account and update dragon account
 
 ```js
-static getDragonAccount({dragonId}){
-    return new Promise((resolve, reject)=>{
-        pool.query(
-            `SELECT "accountId" FROM accountDragon WHERE "dragonId" = $1`,
-            [dragonId],
-            (error, response)=>{
-                if(error) return reject(error);
+    static getDragonAccount({ dragonId }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `SELECT "accountId" FROM accountDragon WHERE "dragonId" = $1`,
+                [dragonId],
+                (error, response) => {
+                    if (error) return reject(error);
 
-                resolve({accountId: response.rows[0].accountId})
-            }
-        )
-    })
-}
+                    resolve({ accountId: response.rows[0].accountId })
+                }
+            )
+        })
+    }
 
-static updateDragonAccount({dragonId, accountId}){
-    return new Promise((resolve, reject)=>{
-        pool.query(
-            `UPDATE accountDragon SET "accountId" = $1 WHERE "dragonId" = $2`,
-            [accountId, dragonId],
-            (error, response)=>{
-                if(error) return reject(error);
+    static updateDragonAccount({ dragonId, accountId }) {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `UPDATE accountDragon SET "accountId" = $1 WHERE "dragonId" = $2`,
+                [accountId, dragonId],
+                (error, response) => {
+                    if (error) return reject(error);
 
-                resolve()
-            }
-        )
-    })
-}
+                    resolve()
+                }
+            )
+        })
+    }
 ```
+
 - 是否需要认证发出修改请求的 account， 这是一个关于认证权限的安全，首先要认证对应的 dragon 是否属于 发出请求的 account。
 
 2. buy dragon backend api
 
 ```js
-router.post('/buy',(req,res,next)=>{
-    const {dragonId, saleValue} = req.body;
+router.post('/buy', (req, res, next) => {
+    const { dragonId, saleValue } = req.body;
 
     let buyerId;
 
-    DragonTable.getDragonWithoutTraits({dragonId})
-    .then(dragon=>{
-        if(dragon.saleValue !== saleValue){
-            throw new Error('Sale value is not correct!');
-        }
-        if(!dragon.isPublic){
-            throw new Error('Dragon is not public.')
-        }
-        return authenticatedAccount({sessionString: req.cookies.sessionString})
-    })
-    .then(({account})=>{
-        if(!account){
-            throw new Error('Unauthenticated user.')
-        }
+    DragonTable.getDragonWithoutTraits({ dragonId })
+        .then(dragon => {
+            if (dragon.saleValue !== saleValue) {
+                throw new Error('Sale value is not correct!');
+            }
+            if (!dragon.isPublic) {
+                throw new Error('Dragon is not public.')
+            }
+            return authenticatedAccount({ sessionString: req.cookies.sessionString })
+        })
+        .then(({ account }) => {
+            if (!account) {
+                throw new Error('Unauthenticated user.')
+            }
 
-        if(account.balance < saleValue){
-            throw new Error('Insufficient balance.')
-        }
+            if (account.balance < saleValue) {
+                throw new Error('Insufficient balance.')
+            }
 
-        buyerId = account.id;
+            buyerId = account.id;
+            console.log(AccountDragonTable, '=============>')
+            return AccountDragonTable.getDragonAccount({ dragonId })
+        })
+        .then(({ accountId }) => {
+            if (accountId === buyerId) {
+                throw new Error('Cannot buy your own dragon.')
+            }
 
-        return AccountDragonTable.getDragonAccount({dragonId};)
-    })
-    .then(({accountId})=>{
-        if(accountId === buyerId){
-            throw new Error('Cannot buy your own dragon.')
-        }
+            const sellerId = accountId;
 
-        const sellerId = accountId;
-
-        return Promise.all([
-            AccountTable.updateBalance({
-                accountId:buyerId,
-                value:-saleValue
-            }),
-            AccountTable.updateBalance({
-                accountId:sellerId,
-                value:saleValue
-            }),
-            AccountDragonTable.updateDragonAccount({
-                dragonId,
-                accountId: buyerId
-            }),
-            DragonTable.updateDragon({
-                dragonId,
-                isPublic:false
-            })
-        ])
-    })
-    .then(()=>res.json({message:'Dragon is bought successully!'}))
-    .catch(error => next(error));
+            return Promise.all([
+                AccountTable.updateBalance({
+                    accountId: buyerId,
+                    value: -saleValue
+                }),
+                AccountTable.updateBalance({
+                    accountId: sellerId,
+                    value: saleValue
+                }),
+                AccountDragonTable.updateDragonAccount({
+                    dragonId,
+                    accountId: buyerId
+                }),
+                DragonTable.updateDragon({
+                    dragonId,
+                    isPublic: false
+                })
+            ])
+        })
+        .then(() => res.json({ message: 'Dragon is bought successully!' }))
+        .catch(error => next(error));
 });
 ```
 
@@ -4306,39 +4307,59 @@ router.post('/buy',(req,res,next)=>{
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
+import MatingOptions from './MatingOptions';
 
 class PublicDragonsRow extends Component {
-    buy = ()=>{
+    state = {
+        displayOptions: false
+    };
+
+    toggleDisplayMatingOptions = () => {
+        this.setState({ displayOptions: !this.state.displayOptions })
+    }
+
+    buy = () => {
         const { dragonId, saleValue } = this.props.dragon;
-        fetch(`dragon/buy`,{
-            method:'POST',
-            credentials:'include',
-            headers: {'Content-Type':'application/json'},
+        fetch(`dragon/buy`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
                 {
-                    dragonId, 
+                    dragonId,
                     saleValue
                 }
             )
         })
-        .then(response => response.json())
-        .then(json=>{
-            alert(json.message);
-            if(json.type ==='error'){
-                history.push('/account-dragons');
-            }
-        })
-        .catch(error => alert(error.message));
+            .then(response => response.json())
+            .then(json => {
+                alert(json.message);
+                // if(json.type ==='error'){
+                //     history.push('/account-dragons');
+                // }
+            })
+            .catch(error => alert(error.message));
     }
 
     render() {
         return (
-            <div className='dragon-card'>
-                <div>Sale value:{this.props.dragon.saleValue}</div>
-                <br />
-                <DragonAvatar dragon={this.props.dragon} />
-                <br/>
-                <button onClick={this.buy}>Buy</button>
+            <div>
+                <div className='dragon-card'>
+                    <div>Sale value:{this.props.dragon.saleValue}</div>
+                    <div>Sire value:{this.props.dragon.sireValue}</div>
+                    <br />
+                    <DragonAvatar dragon={this.props.dragon} />
+                    <br />
+                    <button onClick={this.buy}>Buy</button>
+                    <button onClick={this.toggleDisplayMatingOptions}>Sire</button>
+                </div>
+                {
+                    this.state.displayOptions
+                        ?
+                        <MatingOptions patronDragonId={this.props.dragon.dragonId} />
+                        :
+                        <div></div>
+                }
             </div>
         )
     }
@@ -4354,15 +4375,16 @@ export default PublicDragonsRow;
 
 - class
 ```js
-const Dragon = reqiure('./index');
-class Breeder{
-    static breedDragon({matron, patron}){
+const Dragon = require('./index');
+const base64 = require('base-64');
+class Breeder {
+    static breedDragon({ matron, patron }) {
         const matronTraits = matron.traits;
         const patronTraits = patron.traits;
 
         const babyTraits = [];
 
-        matronTraits.forEach(({traitType, traitValue})=>{
+        matronTraits.forEach(({ traitType, traitValue }) => {
             const matronTrait = traitValue;
 
             const patronTrait = patronTraits.find(
@@ -4371,15 +4393,32 @@ class Breeder{
 
             babyTraits.push({
                 traitType,
-                traitValue: Breeder.pickTrait({matronTrait, patronTrait})
+                traitValue: Breeder.pickTrait({ matronTrait, patronTrait })
             })
         })
 
-        return new Dragon({ nickname:'Unnamed baby', traits: babyTraits })
+        return new Dragon({ nickname: 'Unnamed baby', traits: babyTraits })
+    }
+
+    static pickTrait({ matronTrait, patronTrait }) {
+        if (matronTrait === patronTrait) return matronTrait;
+
+        const matronTraitCharSum = Breeder.charSum(base64.encode(matronTrait));
+        const patronTraitCharSum = Breeder.charSum(base64.encode(patronTrait));
+
+        const randNum = Math.floor(Math.random() * (matronTraitCharSum + patronTraitCharSum));
+
+        return randNum < matronTraitCharSum ? matronTrait : patronTrait;
+    }
+
+    static charSum(str) {
+        return str.split('').reduce((sum, char) => {
+            return sum += char.charCodeAt();
+        }, 0)
     }
 }
 
-module.export Breeder;
+module.exports = Breeder;
 ```
 
 - pickTrait function
@@ -4389,25 +4428,6 @@ $ npm i base-64
 ```
 
 ```js
-
-const base64 = require('base-64');
-
-static pickTrait({matronTrait, patronTrait}){
-    if(matronTrait === patronTrait) return matronTrait;
-
-    const matronTraitCharSum = Breeder.charSum(base64(matronTrait));
-    const patronTraitCharSum = Breeder.charSum(base64(patronTrait));
-
-    const randNum = Math.floor(Math.random() * (matronTraitCharSum + patronTraitCharSum));
-
-    return randNum < matronTraitCharSum ? matronTrait : patronTrait;
-}
-
-static charSUm(string){
-    return string.split('').reduce((sum, char) =>{
-        return sum += char.charCodeAt();
-    }, 0)
-}
 ```
 
 - Dragon sire value Backend
@@ -4461,7 +4481,7 @@ class Dragon {
         this.generationId = generationId || DEFAULT_PORPERTIES.generationId;
         this.isPublic = isPublic || DEFAULT_PORPERTIES.isPublic;
         this.saleValue = saleValue || DEFAULT_PORPERTIES.saleValue;
-        this.sireVlaue = sireVlaue || DEFAULT_PORPERTIES.sireVlaue;
+        this.sireValue = sireValue || DEFAULT_PORPERTIES.sireValue;
     }
 }
 
@@ -4471,6 +4491,10 @@ module.exports = Dragon;
 - table
 
 ```js
+const pool = require('../../../databasePool');
+const DragonTraitTable = require('../dragonTrait/table');
+const Dragon = require('./index');
+
 class DragonTable {
     static storeDragon(dragon) {
         const { birthdate, nickname, generationId, isPublic, saleValue, sireValue } = dragon;
@@ -4532,6 +4556,8 @@ class DragonTable {
         return Promise.all(validQueries);
     }
 }
+
+module.exports = DragonTable;
 ```
 
 - getWholeDragon
@@ -4588,7 +4614,7 @@ class AccountDragonRow extends Component {
         nickname: this.props.dragon.nickname,
         isPublic: this.props.dragon.isPublic,
         saleValue: this.props.dragon.saleValue,
-        sireValue: this.props.dragon.sireValue
+        sireValue: this.props.dragon.sireValue,
         edit: false
     }
 
@@ -4613,7 +4639,7 @@ class AccountDragonRow extends Component {
                     dragonId: this.props.dragon.dragonId,
                     nickname: this.state.nickname,
                     isPublic: this.state.isPublic,
-                    saleValue: this.state.saleValue
+                    saleValue: this.state.saleValue,
                     sireValue: this.state.sireValue
                 }
             )
@@ -4630,7 +4656,7 @@ class AccountDragonRow extends Component {
             .then(() => {
                 this.setState({ edit: false });
                 alert(
-                `Your dragon is successfull changed.
+                    `Your dragon is successfull changed.
                 Nickname: from [${this.state.currentNickname}] to [${this.state.nickname}]
                 Sale value: from [${this.state.currentSaleValue}] to [${this.state.saleValue}]
                 Public: from [${this.state.currentIsPublic}] to [${this.state.isPublic}]
@@ -4709,12 +4735,10 @@ export default connect(null, mapDispatchToProps)(AccountDragonRow);
 
 - api
 ```js
-
-const Breeder = require('../dragon/breeder');
-router.post('/mate', (req, res,next)=>{
+router.post('/mate', (req, res, next) => {
     const { matronDragonId, patronDragonId } = req.body;
-
-    if(matronDragonId === patronDragonId){
+    console.log('========>', matronDragonId, patronDragonId);
+    if (matronDragonId === patronDragonId) {
         const error = new Error('Cannot breed with the same dragon!');
         return next(error);
     }
@@ -4722,61 +4746,63 @@ router.post('/mate', (req, res,next)=>{
     let matronDragon, patronDragon;
     let matronAccountId, patronAccountId;
 
-    getWholeDragon({dragonId: patronDragonId})
-    .then({dragon} =>{
-        if(!dragon.isPublic){
-            throw new Error('Mate Dragon must be public.')
-        }
-        patronDragon = dragon;
-        return getWholeDragon({dragonId: matronDragonId})
-    })
-    .then(({dragon})=>{
-        if(!dragon.isPublic){
-            throw new Error('Mate Dragon must be public.')
-        }
-        matronDragon = dragon;
-        return authenticatedAccount({sessionString: req.cookies.sessionString})
-    })
-    .then(({account, authenticated})=>{
-        if(!authenticated) throw new Error('Not authenticated.')
+    getWholeDragon({ dragonId: patronDragonId })
+        .then((dragon) => {
+            // console.log(dragon,'1>>>>')
+            if (!dragon.isPublic) {
+                throw new Error('Mate Dragon must be public.')
+            }
+            patronDragon = dragon;
+            return getWholeDragon({ dragonId: matronDragonId })
+        })
+        .then((dragon) => {
+            // console.log(dragon,'2>>>>')
 
-        if(patronDragon.sireValue > account.balance){
-            throw new Error('Sire value exceeds balance.');
-        }
+            matronDragon = dragon;
+            return authenticatedAccount({ sessionString: req.cookies.sessionString })
+        })
+        .then(({ account }) => {
+            if (!account) throw new Error('Not authenticated.')
 
-        matronAccountId = account.id;
+            if (patronDragon.sireValue > account.balance) {
+                throw new Error('Sire value exceeds balance.');
+            }
 
-        return AccoutDragonTable.getDragonAccount({ dragonId : patronDragonId })
-    })
-    .then(({accountId})=>{
-        patronAccountId = accountId;
+            matronAccountId = account.id;
+            console.log('========>m', matronAccountId);
+            return AccountDragonTable.getDragonAccount({ dragonId: patronDragonId })
+        })
+        .then(({ accountId }) => {
+            console.log('========>', accountId);
 
-        if(matronAccountId === patronAccountId){
-            throw new Error('Cannot breed your own dragons!');
-        }
+            patronAccountId = accountId;
 
-        const dragon = Breeder.breedDragon({matron: matronDragon, patron: patronDragon});
+            if (matronAccountId === patronAccountId) {
+                throw new Error('Cannot breed your own dragons!');
+            }
 
-        return DragonTable.storeDragon(dragon);
-    })
-    .then(({dragonId})=>{
-        Promise.all([
-            AccountTable.updateBalance({
-                accountId: matronAccountId,
-                value: -patronDragon.sireValue
-            }),
-            AccountTable.updateBalance({
-                accountId: patronAccountId,
-                value: patronDragon.sireValue
-            }),
-            AccountDragonTable.storeAccountDragon({
-                dragonId,
-                accountId:matronAccountId
-            })
-        ])
-    })
-    .then(()=> res.json({message:'Mate success!'}))
-    .catch(error => next(error));
+            const dragon = Breeder.breedDragon({ matron: matronDragon, patron: patronDragon });
+
+            return DragonTable.storeDragon(dragon);
+        })
+        .then(({ dragonId }) => {
+            Promise.all([
+                AccountTable.updateBalance({
+                    accountId: matronAccountId,
+                    value: -patronDragon.sireValue
+                }),
+                AccountTable.updateBalance({
+                    accountId: patronAccountId,
+                    value: patronDragon.sireValue
+                }),
+                AccountDragonTable.storeAccountDragon({
+                    dragonId,
+                    accountId: matronAccountId
+                })
+            ])
+        })
+        .then(() => res.json({ message: 'Mate success!' }))
+        .catch(error => next(error));
 });
 ```
 
@@ -4789,52 +4815,55 @@ import DragonAvatar from './DragonAvatar';
 import MatingOptions from './MatingOptions';
 
 class PublicDragonsRow extends Component {
-    state = {displayMatingOptions: false};
+    state = {
+        displayOptions: false
+    };
 
-    toggleDisplayMatingOptions = ()=>{
-        this.setState({displayMatingOptions: !displayMatingOptions})
+    toggleDisplayMatingOptions = () => {
+        this.setState({ displayOptions: !this.state.displayOptions })
     }
 
-    buy = ()=>{
+    buy = () => {
         const { dragonId, saleValue } = this.props.dragon;
-        fetch(`dragon/buy`,{
-            method:'POST',
-            credentials:'include',
-            headers: {'Content-Type':'application/json'},
+        fetch(`dragon/buy`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
                 {
-                    dragonId, 
+                    dragonId,
                     saleValue
                 }
             )
         })
-        .then(response => response.json())
-        .then(json=>{
-            alert(json.message);
-            if(json.type ==='error'){
-                history.push('/account-dragons');
-            }
-        })
-        .catch(error => alert(error.message));
+            .then(response => response.json())
+            .then(json => {
+                alert(json.message);
+                // if(json.type ==='error'){
+                //     history.push('/account-dragons');
+                // }
+            })
+            .catch(error => alert(error.message));
     }
 
     render() {
         return (
-            <div className='dragon-card'>
-                <div>Sale value:{this.props.dragon.saleValue}</div>
-                <div>Sire value:{this.props.dragon.sireValue}</div>
-                <br />
-                <DragonAvatar dragon={this.props.dragon} />
-                <br/>
-                <button onClick={this.buy}>Buy</button>
-                <button onClick={this.toggleDisplayMatingOptions}>Sire</button>
-
+            <div>
+                <div className='dragon-card'>
+                    <div>Sale value:{this.props.dragon.saleValue}</div>
+                    <div>Sire value:{this.props.dragon.sireValue}</div>
+                    <br />
+                    <DragonAvatar dragon={this.props.dragon} />
+                    <br />
+                    <button onClick={this.buy}>Buy</button>
+                    <button onClick={this.toggleDisplayMatingOptions}>Sire</button>
+                </div>
                 {
-                    this.state.displayMatingOptions
-                    ?
-                    <MatingOptions patronDragonId={this.props.dragon.dragonId} />
-                    :
-                    <div></div>
+                    this.state.displayOptions
+                        ?
+                        <MatingOptions patronDragonId={this.props.dragon.dragonId} />
+                        :
+                        <div></div>
                 }
             </div>
         )
@@ -4847,20 +4876,48 @@ export default PublicDragonsRow;
 - Mating Options
 
 ```js
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-class MatingOptions extends Component{
-    render(){
-        return(
+class MatingOptions extends Component {
+    mate = ({ matronDragonId, patronDragonId }) => () => {
+        fetch('/dragon/mate', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify(
+                {
+                    matronDragonId,
+                    patronDragonId
+                }
+            )
+        })
+            .then(response => {
+                return response.json()
+            })
+            .then(json => {
+                alert(json.message);
+
+                // if(json.type !== 'error'){
+                //     history.push('/account-dragons');
+                // }
+            })
+            .catch(error => alert(error.message));
+    }
+
+    render() {
+        return (
             <div>
                 <h4>Pick one of your dragons to mate with.</h4>
                 {
-                    this.props.accountDragons.dragons.map(dragon=>{
-                        const {dragonId, generationId, nickname} = dragon;
-                        return(
+                    this.props.accountDragons.dragons.map(dragon => {
+                        const { dragonId, generationId, nickname } = dragon;
+                        return (
                             <span key={dragonId}>
-                                    <button>G:{generationId}.I:{dragonId}.N:{nickname}</button>
+                                <button onClick={this.mate({
+                                    matronDragonId: dragonId,
+                                    patronDragonId: this.props.patronDragonId
+                                })}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
                             </span>
                         )
                     })
@@ -4870,8 +4927,8 @@ class MatingOptions extends Component{
     }
 }
 
-const mapStateToProps = state =>{
-    return{
+const mapStateToProps = state => {
+    return {
         accountDragons: state.accountDragons
     }
 }
@@ -4880,7 +4937,7 @@ export default connect(mapStateToProps, null)(MatingOptions);
 ```
 
 ```js
-import {fetchAccountDragons} from '';
+import { fetchAccountDragons } from '../actions/accountDragonActions';
     componentDidMount() {
         this.props.fetchPublicDragons();
         this.props.fetchAccountDragons();
@@ -4890,48 +4947,48 @@ import {fetchAccountDragons} from '';
 - send mate request
 
 ```js
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-class MatingOptions extends Component{
-    mate = ({matronDragonId, patronDragonId}) => ()=>{
+class MatingOptions extends Component {
+    mate = ({ matronDragonId, patronDragonId }) => () => {
         fetch('/dragon/mate', {
-            method:'POST',
-            credentials:'include',
-            headers:{ "Content-type":"application/json"},
-            body:JSON.stringify(
+            method: 'POST',
+            credentials: 'include',
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify(
                 {
                     matronDragonId,
                     patronDragonId
                 }
             )
         })
-        .then(response =>{
-            return response.json()
-        })
-        .then(json =>{
-            alert(json.message);
+            .then(response => {
+                return response.json()
+            })
+            .then(json => {
+                alert(json.message);
 
-            if(json.type !== 'error'){
-                history.push('/account-dragons');
-            }
-        })
-        .catch(error=> alert(error.message));
+                // if(json.type !== 'error'){
+                //     history.push('/account-dragons');
+                // }
+            })
+            .catch(error => alert(error.message));
     }
 
-    render(){
-        return(
+    render() {
+        return (
             <div>
                 <h4>Pick one of your dragons to mate with.</h4>
                 {
-                    this.props.accountDragons.dragons.map(dragon=>{
-                        const {dragonId, generationId, nickname} = dragon;
-                        return(
+                    this.props.accountDragons.dragons.map(dragon => {
+                        const { dragonId, generationId, nickname } = dragon;
+                        return (
                             <span key={dragonId}>
-                                    <button onCLick={this.mate({
-                                        matronDragonId: dragonId,
-                                        patronDragonId:this.props.patronDragonId
-                                    })}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
+                                <button onClick={this.mate({
+                                    matronDragonId: dragonId,
+                                    patronDragonId: this.props.patronDragonId
+                                })}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
                             </span>
                         )
                     })
@@ -4941,8 +4998,8 @@ class MatingOptions extends Component{
     }
 }
 
-const mapStateToProps = state =>{
-    return{
+const mapStateToProps = state => {
+    return {
         accountDragons: state.accountDragons
     }
 }
@@ -5024,12 +5081,6 @@ import { connect } from 'react-redux';
 import { createDragon } from '../actions/dragonActions'
 
 const Dragon = ({ dragon, createDragon }) => {
-    get DragonView(){
-        if(this.props.dragon.status ==='error'){
-            return <span>{this.props.dragons.message}</span>
-        }
-        return <DragonAvatar dragon={this.props.dragon}/>
-    }
     return (
         <div>
             <Button onClick={createDragon}>Create a new dragon in current generation</Button>

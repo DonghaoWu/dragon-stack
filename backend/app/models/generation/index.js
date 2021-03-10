@@ -5,6 +5,7 @@ const refreshRate = REFRESH_RATE * SECONDS;
 
 class Generation {
     constructor() {
+        this.accountIds = new Set();
         this.expiration = this.calculateExpiration();
         this.generationId = undefined;
     }
@@ -20,10 +21,14 @@ class Generation {
         return new Date(Date.now() + msUntilExpiration)
     }
 
-    newDragon() {
+    newDragon({ accountId }) {
         if (Date.now() > this.expiration) {
             throw new Error('This generation expried on ' + this.expiration);
         }
+        if (this.accountIds.has(accountId)) {
+            throw new Error('You already have a dragon from this generation.');
+        }
+        this.accountIds.add(accountId);
         return new Dragon({ generationId: this.generationId });
     }
 }
