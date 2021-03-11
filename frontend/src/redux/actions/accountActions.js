@@ -33,7 +33,7 @@ export const signup = ({ username, password }) => dispatch => {
             else {
                 dispatch({
                     type: ACCOUNT_SIGNUP_SUCCESS,
-                    payload: data.username
+                    payload: data.authInfo
                 })
             }
         }))
@@ -65,7 +65,7 @@ export const login = ({ username, password }) => dispatch => {
             else {
                 dispatch({
                     type: ACCOUNT_SIGNIN_SUCCESS,
-                    payload: data.username
+                    payload: data.authInfo
                 })
             }
         }))
@@ -91,10 +91,10 @@ export const fetchAuthenticated = dispatch => {
                     payload: data.message
                 })
             }
-            else {
+            else if(data.isAuthenticated){
                 return dispatch({
                     type: ACCOUNT_AUTHENTICATED_SUCCESS,
-                    payload: data.username
+                    payload: data.authInfo
                 })
             }
         }))
@@ -105,7 +105,6 @@ export const fetchAuthenticated = dispatch => {
             })
         })
 }
-
 
 export const logout = dispatch => {
     dispatch({ type: ACCOUNT_LOGOUT_BEGIN });
@@ -123,7 +122,7 @@ export const logout = dispatch => {
             else {
                 dispatch({
                     type: ACCOUNT_LOGOUT_SUCCESS,
-                    payload: data.message
+                    payload: data.authInfo
                 })
             }
         }))

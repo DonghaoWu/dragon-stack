@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Generation from './Generation';
 import Dragon from './Dragon';
 import { Button } from 'react-bootstrap';
-import { logout } from '../actions/accountActions';
+import { logout } from '../redux/actions/accountActions';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AccountInfo from './AccountInfo';

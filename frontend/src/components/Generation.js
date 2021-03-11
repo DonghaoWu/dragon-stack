@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { generationActionCreator, fetchGeneration } from '../actions/generationActions'
+import { generationActionCreator, fetchGeneration } from '../redux/actions/generationActions'
 
-const Generation = ({ generation, dispatchGeneration }) => {
+const Generation = ({ currentGeneration, fetchGeneration }) => {
     useEffect(() => {
         fetchNextGeneration();
         return () => clearTimeout(timer);
-    }, [generation.generationId])
+    }, [currentGeneration.generation.generationId])
 
     const [timer, setTimer] = useState(null);
 
     const fetchNextGeneration = () => {
-        dispatchGeneration();
+        fetchGeneration();
 
         setTimer(setTimeout(() => {
             fetchNextGeneration();
@@ -20,22 +20,29 @@ const Generation = ({ generation, dispatchGeneration }) => {
 
     return (
         <div>
-            <h3>Generation Id: {generation.generationId}</h3>
-            <h4>Expires on: {new Date(generation.expiration).toString()}</h4>
-            <h4>Time now: {new Date().toString()}</h4>
+            {
+                (currentGeneration.generation.errorMessage) ?
+                    <div>{currentGeneration.generation.errorMessage}</div>
+                    :
+                    <div>
+                        <h3>Generation Id: {currentGeneration.generation.generationId}</h3>
+                        <h4>Expires on: {new Date(currentGeneration.generation.expiration).toString()}</h4>
+                        <h4>Time now: {new Date().toString()}</h4>
+                    </div>
+            }
         </div>
     )
 }
 
 const mapStateToProps = state => {
     return {
-        generation: state.generation
+        currentGeneration: state.generation
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchGeneration: () => dispatch(fetchGeneration)
+        fetchGeneration: () => dispatch(fetchGeneration)
     }
 }
 

@@ -9,7 +9,7 @@ const setSession = ({ username, res, sessionId }) => {
         if (sessionId) {
             sessionString = Session.sessionString({ username, id: sessionId });
             setSessionCookie({ sessionString, res });
-            resolve({ message: 'session restored.' })
+            resolve();
         }
         else {
             const session = new Session({ username });
@@ -23,7 +23,7 @@ const setSession = ({ username, res, sessionId }) => {
             )
                 .then(() => {
                     setSessionCookie({ sessionString, res });
-                    resolve({ username })
+                    resolve()
                 })
                 .catch(error => reject(error));
         }
@@ -49,9 +49,9 @@ const authenticatedAccount = ({ sessionString }) => {
             const { username, id } = Session.parse(sessionString);
             AccountTable.getAccount({ usernameHash: hash(username) })
                 .then(({ account }) => {
-                    const authenticated = account.sessionId === id;
-                    if (authenticated) {
-                        resolve({ username, currentAccountId: account.id, account })
+                    const isAuthenticated = account.sessionId === id;
+                    if (isAuthenticated) {
+                        resolve({ username, account, isAuthenticated })
                     }
                     else {
                         const error = new Error('No valid session in database or session has logout by other device.');

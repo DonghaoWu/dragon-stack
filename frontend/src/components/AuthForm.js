@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { signup, login } from '../actions/accountActions';
+import { signup, login } from '../redux/actions/accountActions';
 import { connect } from 'react-redux';
 
 class AuthForm extends Component {

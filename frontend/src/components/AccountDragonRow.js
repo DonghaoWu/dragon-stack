@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
-import { fetchAccountDragons } from '../actions/accountDragonActions';
+import { fetchAccountDragons } from '../redux/actions/accountDragonActions';
 
 class AccountDragonRow extends Component {
     state = {

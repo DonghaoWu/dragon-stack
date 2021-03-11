@@ -18,15 +18,20 @@ router.post('/signup', (req, res, next) => {
             }
             else {
                 const error = new Error('This username has already been taken.');
-                error.statrsCode = 409;
+                error.statusCode = 409;
                 throw (error);
             }
         })
         .then(() => {
             return setSession({ username, res })
         })
-        .then(({ username }) => {
-            res.json({ username })
+        .then(() => {
+            res.json({
+                authInfo: {
+                    type: 'success',
+                    message: 'Sign up success!'
+                }
+            })
         })
         .catch(error => next(error))
 });
@@ -38,7 +43,7 @@ router.post('/login', (req, res, next) => {
     AccountTable.getAccount({ usernameHash })
         .then(({ account }) => {
             if (!account || account.passwordHash !== hash(password)) {
-                const error = new Error('Incorrect username / password');
+                const error = new Error('Incorrect username / password.');
                 error.statusCode = 409;
                 throw error;
             }
@@ -48,17 +53,26 @@ router.post('/login', (req, res, next) => {
                 return setSession({ username, res, sessionId });
             }
         })
-        .then(({ username }) => {
-            res.json({ username })
+        .then(() => {
+            res.json({
+                authInfo: {
+                    type: 'success',
+                    message: 'Login success'
+                }
+            })
         })
         .catch(error => next(error))
 });
 
 router.get('/authenticated', (req, res, next) => {
-    const { sessionString } = req.cookies;
-    authenticatedAccount({ sessionString })
-        .then(({ username }) => {
-            return res.json({ username })
+    authenticatedAccount({ sessionString: req.cookies.sessionString })
+        .then(() => {
+            res.json({
+                authInfo: {
+                    type: 'success',
+                    message: 'Authenticated success'
+                }
+            })
         })
         .catch(error => next(error))
 });
@@ -72,7 +86,12 @@ router.get('/logout', (req, res, next) => {
     })
         .then(() => {
             res.clearCookie('sessionString');
-            res.json({ message: 'Successful logout.' })
+            res.json({
+                authInfo: {
+                    type: 'success',
+                    message: 'Logout success!'
+                }
+            })
         })
         .catch(error => next(error));
 });

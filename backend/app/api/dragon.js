@@ -191,15 +191,13 @@ router.post('/mate', (req, res, next) => {
         .catch(error => next(error));
 });
 
-router.get('/:dragonId', (req, res, next) => {
-    const dragonId = req.params.dragonId;
-    getWholeDragon({ dragonId })
-        .then((dragon) => {
-            res.json({ dragon })
-        })
-        .catch(error => next(error))
-});
-
-
+// router.get('/:dragonId', (req, res, next) => {
+//     const dragonId = req.params.dragonId;
+//     getWholeDragon({ dragonId })
+//         .then((dragon) => {
+//             res.json({ dragon })
+//         })
+//         .catch(error => next(error))
+// });
 
 module.exports = router;

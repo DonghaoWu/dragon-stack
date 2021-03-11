@@ -5,15 +5,11 @@ class AccountTable {
     static storeAccount({ usernameHash, passwordHash }) {
         return new Promise((resolve, reject) => {
             pool.query(`INSERT INTO account("usernameHash", "passwordHash", balance) 
-                        VALUES($1, $2, $3) RETURNING id`,
+                        VALUES($1, $2, $3)`,
                 [usernameHash, passwordHash, STARTING_BALANCE],
                 (error, response) => {
-                    console.log(STARTING_BALANCE)
                     if (error) return reject(error);
-
-                    const accountId = response.rows[0].id;
-
-                    resolve({ accountId });
+                    resolve();
                 }
             )
         })

@@ -15,8 +15,8 @@ import {
 
 const initialState = {
     loggedIn: false,
-    username: '',
-    message: ''
+    authInfo: {},
+    errorMessage: ''
 }
 
 const accountReducer = (state = initialState, action) => {
@@ -24,20 +24,19 @@ const accountReducer = (state = initialState, action) => {
         case ACCOUNT_SIGNUP_BEGIN:
         case ACCOUNT_SIGNIN_BEGIN:
         case ACCOUNT_AUTHENTICATED_BEGIN:
-            return { ...state, loggedIn: false, message: '' };
+            return state;
         case ACCOUNT_SIGNUP_SUCCESS:
         case ACCOUNT_SIGNIN_SUCCESS:
-            return { ...state, loggedIn: true, message: '', username: action.payload };
         case ACCOUNT_AUTHENTICATED_SUCCESS:
-            return { ...state, loggedIn: true, message: '', username: action.payload };
+            return { ...state, loggedIn: true, errorMessage: '', authInfo: action.payload };
+        case ACCOUNT_LOGOUT_SUCCESS:
+            return { ...state, loggedIn: false, errorMessage: '', authInfo: action.payload };
         case ACCOUNT_SIGNUP_FAILURE:
         case ACCOUNT_SIGNIN_FAILURE:
-        case ACCOUNT_LOGOUT_SUCCESS:
-            return { ...state, loggedIn: false, message: action.payload };
         case ACCOUNT_AUTHENTICATED_FAILURE:
-            return { ...state, ...initialState };
+            return { ...state, loggedIn: false, errorMessage: action.payload, authInfo: {} };
         case ACCOUNT_LOGOUT_FAILURE:
-            return { ...state, message: action.payload };
+            return { ...state, errorMessage: action.payload };
         default:
             return state;
     }

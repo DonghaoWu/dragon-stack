@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchAccountDragons } from '../actions/accountDragonActions';
+import { fetchAccountDragons } from '../redux/actions/accountDragonActions';
 import AccountDragonRow from './AccountDragonRow';
 import { Link } from 'react-router-dom';
 

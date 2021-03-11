@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchPublicDragons } from '../actions/publicDragonActions';
 import { Link } from 'react-router-dom';
+
 import PublicDragonsRow from './PublicDragonsRow';
-import { fetchAccountDragons } from '../actions/accountDragonActions';
+
+import { fetchPublicDragons } from '../redux/actions/publicDragonActions';
+import { fetchAccountDragons } from '../redux/actions/accountDragonActions';
 
 class PublicDragons extends Component {
 

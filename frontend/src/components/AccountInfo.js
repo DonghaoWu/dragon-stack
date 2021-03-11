@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchAccountInfo } from '../actions/accountInfoActions';
+import { fetchAccountInfo } from '../redux/actions/accountInfoActions';
 import { Link } from 'react-router-dom';
 
 class AccountInfo extends Component {

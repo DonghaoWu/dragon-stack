@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import DragonAvatar from './DragonAvatar';
 import { connect } from 'react-redux';
-import { createDragon } from '../actions/dragonActions'
+import { createDragon } from '../redux/actions/dragonActions'
 
 const Dragon = ({ dragon, createDragon }) => {
     return (
