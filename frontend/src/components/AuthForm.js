@@ -48,8 +48,8 @@ class AuthForm extends Component {
                     </div>
                 </Form.Group>
                 {
-                    this.props.account.message ?
-                        <div>{this.props.account.message}</div>
+                    this.props.account.errorMessage ?
+                        <div>{this.props.account.errorMessage}</div>
                         :
                         null
                 }

@@ -17,7 +17,7 @@ class AccountDragons extends Component {
                 <h3>My Dragons List</h3>
                 <div className='dragons-container'>
                     {
-                        this.props.accountDragons.dragons.map(dragon => {
+                        this.props.accountDragons.accountDragons.map(dragon => {
                             return (
                                 <div key={dragon.dragonId}>
                                     <AccountDragonRow dragon={dragon} />

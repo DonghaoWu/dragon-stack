@@ -7,7 +7,7 @@ const initialState = {
     errorMessage: ''
 }
 
-const dragonReducer = (state = initialState, action) => {
+const newDragonReducer = (state = initialState, action) => {
     switch (action.type) {
         case DRAGON_CREATE_BEGIN:
         case ACCOUNT_LOGOUT_SUCCESS:// clear all state when logout.
@@ -21,4 +21,4 @@ const dragonReducer = (state = initialState, action) => {
     }
 }
 
-export default dragonReducer;
+export default newDragonReducer;

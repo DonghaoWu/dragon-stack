@@ -48,9 +48,29 @@ router.get('/account-dragons', (req, res, next) => {
 router.put('/update', (req, res, next) => {
     const { dragonId, nickname, isPublic, saleValue, sireValue } = req.body;
 
-    DragonTable.updateDragon({ dragonId, nickname, isPublic, saleValue, sireValue })
+    authenticatedAccount({ sessionString: req.cookies.sessionString })
+        .then(({ account }) => {
+            return AccountDragonTable.getAccountDragons({ accountId: account.id })
+        })
+        .then(({ accountDragonIds }) => {
+            let idsArray = accountDragonIds.map(accountDragonId => {
+                return accountDragonId.dragonId;
+            });
+            let dragonIsOwnedByAccount = (idsArray.includes(dragonId));
+            if (!dragonIsOwnedByAccount) {
+                throw new Error('You donnot own this dragon!');
+            }
+        })
         .then(() => {
-            res.json({ message: `successfully updated dragon.` })
+            return DragonTable.updateDragon({ dragonId, nickname, isPublic, saleValue, sireValue })
+        })
+        .then(() => {
+            res.json({
+                info: {
+                    type: 'success',
+                    message: 'Dragon updated success!'
+                }
+            })
         })
         .catch(error => next(error));
 });
@@ -88,7 +108,7 @@ router.post('/buy', (req, res, next) => {
             }
 
             buyerId = account.id;
-            console.log(AccountDragonTable, '=============>')
+            // console.log(AccountDragonTable, '=============>')
             return AccountDragonTable.getDragonAccount({ dragonId })
         })
         .then(({ accountId }) => {
@@ -123,7 +143,7 @@ router.post('/buy', (req, res, next) => {
 
 router.post('/mate', (req, res, next) => {
     const { matronDragonId, patronDragonId } = req.body;
-    console.log('========>', matronDragonId, patronDragonId);
+    // console.log('========>', matronDragonId, patronDragonId);
     if (matronDragonId === patronDragonId) {
         const error = new Error('Cannot breed with the same dragon!');
         return next(error);

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
 import { fetchAccountDragons } from '../redux/actions/accountDragonActions';
+import { updateDragon } from '../redux/actions/updateDragonActions';
 
 class AccountDragonRow extends Component {
     state = {
@@ -28,26 +29,16 @@ class AccountDragonRow extends Component {
     }
 
     saveChange = () => {
-        fetch(`/dragon/update`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(
-                {
-                    dragonId: this.props.dragon.dragonId,
-                    nickname: this.state.nickname,
-                    isPublic: this.state.isPublic,
-                    saleValue: this.state.saleValue,
-                    sireValue: this.state.sireValue
-                }
-            )
+        this.props.updateDragon({
+            dragonId: this.props.dragon.dragonId,
+            nickname: this.state.nickname,
+            isPublic: this.state.isPublic,
+            saleValue: this.state.saleValue,
+            sireValue: this.state.sireValue
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.type === 'error') {
-                    throw new Error(data.message);
-                }
-                else {
-                    return this.props.fetchAccountDragons();
+            .then(() => {
+                if (this.props.updateDragon.errorMessage) {
+                    alert(this.props.updateDragon.errorMessage);
                 }
             })
             .then(() => {
@@ -58,9 +49,6 @@ class AccountDragonRow extends Component {
                 Sale value: from [${this.state.currentSaleValue}] to [${this.state.saleValue}]
                 Public: from [${this.state.currentIsPublic}] to [${this.state.isPublic}]
                 `);
-            })
-            .catch(error => {
-                alert(error.message)
             })
     }
 
@@ -118,10 +106,17 @@ class AccountDragonRow extends Component {
     }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapStateToProps = state => {
     return {
-        fetchAccountDragons: () => dispatch(fetchAccountDragons)
+        updateDragon: state.updateDragon
     }
 }
 
-export default connect(null, mapDispatchToProps)(AccountDragonRow);
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchAccountDragons: () => dispatch(fetchAccountDragons),
+        updateDragon: ({ dragonId, nickname, isPublic, saleValue, sireValue }) => dispatch(updateDragon({ dragonId, nickname, isPublic, saleValue, sireValue }))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AccountDragonRow);

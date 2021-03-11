@@ -85,13 +85,14 @@ export const fetchAuthenticated = dispatch => {
     })
         .then(response => response.json())
         .then((data => {
+            // console.log('.......authenticate', data)
             if (data.type === 'error') {
                 return dispatch({
                     type: ACCOUNT_AUTHENTICATED_FAILURE,
                     payload: data.message
                 })
             }
-            else if(data.isAuthenticated){
+            else if (data.authInfo.type === 'success') {
                 return dispatch({
                     type: ACCOUNT_AUTHENTICATED_SUCCESS,
                     payload: data.authInfo

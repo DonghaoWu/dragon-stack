@@ -4,7 +4,7 @@ import DragonAvatar from './DragonAvatar';
 import { connect } from 'react-redux';
 import { createDragon } from '../redux/actions/dragonActions'
 
-const Dragon = ({ dragon, createDragon }) => {
+const Dragon = ({ newDragon, createDragon }) => {
     return (
         <div>
             <Button onClick={createDragon}>Create a new dragon in current generation</Button>
@@ -12,9 +12,9 @@ const Dragon = ({ dragon, createDragon }) => {
             <br />
             <div>
                 {
-                    dragon.createSuccess ?
-                        <div className='dragon-card'><DragonAvatar dragon={dragon} /></div>
-                        : <div>{dragon.message}</div>
+                    newDragon.createSuccess ?
+                        <div className='dragon-card'><DragonAvatar dragon={newDragon.dragon} /></div>
+                        : <div>{newDragon.errorMessage}</div>
                 }
             </div>
         </div>
@@ -23,7 +23,7 @@ const Dragon = ({ dragon, createDragon }) => {
 
 const mapStateToProps = state => {
     return {
-        dragon: state.dragon
+        newDragon: state.newDragon
     }
 }
 

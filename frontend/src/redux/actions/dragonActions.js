@@ -13,6 +13,7 @@ export const createDragon = dispatch => {
                 })
             }
             else {
+                // console.log('=====>', data)
                 return dispatch({
                     type: DRAGON_CREATE_SUCCESS,
                     payload: data.dragon
