@@ -12,8 +12,8 @@ router.get('/new', (req, res, next) => {
     let accountId, dragon;
     const { sessionString } = req.cookies;
     authenticatedAccount({ sessionString })
-        .then(({ currentAccountId }) => {
-            accountId = currentAccountId;
+        .then(({ account }) => {
+            accountId = account.id;
             dragon = req.app.locals.engine.generation.newDragon({ accountId });
             return DragonTable.storeDragon(dragon);
         })
@@ -27,20 +27,20 @@ router.get('/new', (req, res, next) => {
         .catch(error => next(error));;
 });
 
-router.get('/dragons', (req, res, next) => {
+router.get('/account-dragons', (req, res, next) => {
     authenticatedAccount({ sessionString: req.cookies.sessionString })
-        .then(({ currentAccountId }) => {
-            return AccountDragonTable.getAccountDragons({ accountId: currentAccountId })
+        .then(({ account }) => {
+            return AccountDragonTable.getAccountDragons({ accountId: account.id })
         })
-        .then(({ accountDragons }) => {
+        .then(({ accountDragonIds }) => {
             return Promise.all(
-                accountDragons.map(accountDragon => {
-                    return getWholeDragon({ dragonId: accountDragon.dragonId });
+                accountDragonIds.map(accountDragonId => {
+                    return getWholeDragon({ dragonId: accountDragonId.dragonId });
                 })
             );
         })
-        .then(dragons => {
-            return res.json({ dragons });
+        .then(accountDragons => {
+            return res.json({ accountDragons });
         })
         .catch(error => next(error));
 });

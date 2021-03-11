@@ -3996,17 +3996,17 @@ router.get('/public-dragons', (req, res, next) => {
 - types
 
 ```js
-export const PUBLIC_DRAGONS_FETCH_BEGIN = 'PUBLIC_DRAGONS_FETCH_BEGIN';
-export const PUBLIC_DRAGONS_FETCH_SUCCESS = 'PUBLIC_DRAGONS_FETCH_SUCCESS';
-export const PUBLIC_DRAGONS_FETCH_FAILURE = 'PUBLIC_DRAGONS_FETCH_FAILURE';
+export const PUBLIC_DRAGON_FETCH_BEGIN = 'PUBLIC_DRAGON_FETCH_BEGIN';
+export const PUBLIC_DRAGON_FETCH_SUCCESS = 'PUBLIC_DRAGON_FETCH_SUCCESS';
+export const PUBLIC_DRAGON_FETCH_FAILURE = 'PUBLIC_DRAGON_FETCH_FAILURE';
 ```
 
 - actions
 ```js
-import { PUBLIC_DRAGONS_FETCH_BEGIN, PUBLIC_DRAGONS_FETCH_SUCCESS, PUBLIC_DRAGONS_FETCH_FAILURE } from '../types/publicDragonsTypes';
+import { PUBLIC_DRAGON_FETCH_BEGIN, PUBLIC_DRAGON_FETCH_SUCCESS, PUBLIC_DRAGON_FETCH_FAILURE } from '../types/publicDragonsTypes';
 
 export const fetchPublicDragons = (dispatch) => {
-    dispatch({ type: PUBLIC_DRAGONS_FETCH_BEGIN });
+    dispatch({ type: PUBLIC_DRAGON_FETCH_BEGIN });
 
     return fetch('/dragon/public-dragons', {
         credentials: 'include'
@@ -4015,20 +4015,20 @@ export const fetchPublicDragons = (dispatch) => {
         .then((data => {
             if (data.type === 'error') {
                 return dispatch({
-                    type: PUBLIC_DRAGONS_FETCH_FAILURE,
+                    type: PUBLIC_DRAGON_FETCH_FAILURE,
                     payload: data.message
                 })
             }
             else {
                 return dispatch({
-                    type: PUBLIC_DRAGONS_FETCH_SUCCESS,
+                    type: PUBLIC_DRAGON_FETCH_SUCCESS,
                     payload: data.dragons
                 })
             }
         }))
         .catch(error => {
             return dispatch({
-                type: PUBLIC_DRAGONS_FETCH_FAILURE,
+                type: PUBLIC_DRAGON_FETCH_FAILURE,
                 payload: error.message
             })
         })
@@ -4037,7 +4037,7 @@ export const fetchPublicDragons = (dispatch) => {
 
 - reducer
 ```js
-import { PUBLIC_DRAGONS_FETCH_BEGIN, PUBLIC_DRAGONS_FETCH_FAILURE, PUBLIC_DRAGONS_FETCH_SUCCESS } from '../types/publicDragonsTypes';
+import { PUBLIC_DRAGON_FETCH_BEGIN, PUBLIC_DRAGON_FETCH_FAILURE, PUBLIC_DRAGON_FETCH_SUCCESS } from '../types/publicDragonsTypes';
 
 const initialState = {
     dragons: []
@@ -4045,11 +4045,11 @@ const initialState = {
 
 const publicDragonReducer = (state = initialState, action) => {
     switch (action.type) {
-        case PUBLIC_DRAGONS_FETCH_BEGIN:
+        case PUBLIC_DRAGON_FETCH_BEGIN:
             return { ...state }
-        case PUBLIC_DRAGONS_FETCH_FAILURE:
+        case PUBLIC_DRAGON_FETCH_FAILURE:
             return { ...state, message: action.payload }
-        case PUBLIC_DRAGONS_FETCH_SUCCESS:
+        case PUBLIC_DRAGON_FETCH_SUCCESS:
             return { ...state, dragons: action.payload }
         default:
             return state;
