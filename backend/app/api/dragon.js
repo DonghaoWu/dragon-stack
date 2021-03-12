@@ -81,7 +81,6 @@ router.get('/public-dragons', (req, res, next) => {
 
 router.post('/buy', (req, res, next) => {
     const { dragonId, saleValue } = req.body;
-
     let buyerId;
 
     DragonTable.getDragonWithoutTraits({ dragonId })
@@ -102,9 +101,7 @@ router.post('/buy', (req, res, next) => {
             if (account.balance < saleValue) {
                 throw new Error('Insufficient balance.')
             }
-
             buyerId = account.id;
-            // console.log(AccountDragonTable, '=============>')
             return AccountDragonTable.getDragonAccount({ dragonId })
         })
         .then(({ accountId }) => {
@@ -133,7 +130,14 @@ router.post('/buy', (req, res, next) => {
                 })
             ])
         })
-        .then(() => res.json({ message: 'Dragon is bought successully!' }))
+        .then(() => {
+            res.json({
+                info: {
+                    type: 'success',
+                    message: `Buy Dragon [Dragon id: ${dragonId}] success!`
+                }
+            })
+        })
         .catch(error => next(error));
 });
 
@@ -206,14 +210,5 @@ router.post('/mate', (req, res, next) => {
         .then(() => res.json({ message: 'Mate success!' }))
         .catch(error => next(error));
 });
-
-// router.get('/:dragonId', (req, res, next) => {
-//     const dragonId = req.params.dragonId;
-//     getWholeDragon({ dragonId })
-//         .then((dragon) => {
-//             res.json({ dragon })
-//         })
-//         .catch(error => next(error))
-// });
 
 module.exports = router;

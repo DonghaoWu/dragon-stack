@@ -80,3 +80,18 @@ body {
   right:30px;
   top:30px;
 }
+
+.dragon-buttons-container{
+  width:300px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dragon-list-button{
+  margin: 5px;
+}
+
+.header-container{
+  display: flex;
+  justify-content: center;
+}

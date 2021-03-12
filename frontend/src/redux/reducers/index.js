@@ -5,6 +5,7 @@ import accountDragonReducer from './accountDragonReducer';
 import accountInfoReducer from './accountInfoReducer';
 import publicDragonReducer from './publicDragonReducer';
 import updateDragonReducer from './updateDragonReducer';
+import buyDragonReducer from './buyDragonReducer';
 import { combineReducers } from 'redux';
 
 const rootReducer = combineReducers({
@@ -14,7 +15,8 @@ const rootReducer = combineReducers({
     accountDragons: accountDragonReducer,
     accountInfo: accountInfoReducer,
     publicDragons: publicDragonReducer,
-    updateDragon: updateDragonReducer
+    updateDragon: updateDragonReducer,
+    buyDragon: buyDragonReducer
 });
 
 export default rootReducer;

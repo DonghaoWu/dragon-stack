@@ -21,8 +21,10 @@ class Home extends Component {
                     <Generation />
                     <AccountInfo />
                     <br />
-                    <Link to='/account-dragons'>My Dragons List</Link>
-                    <Link to='/public-dragons'>Public Dragons</Link>
+                    <div className='dragon-buttons-container'>
+                        <Link to='/account-dragons' className='dragon-list-button'>My Dragons List</Link>
+                        <Link to='/public-dragons' className='dragon-list-button'>Public Dragons</Link>
+                    </div>
                     <br />
                     <Dragon />
                     <br />

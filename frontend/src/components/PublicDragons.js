@@ -18,7 +18,12 @@ class PublicDragons extends Component {
         return (
             <div>
                 <h3>Public Dragons</h3>
-                <Link to='/'>Back home</Link>
+                <div className='header-container'>
+                    <div className='dragon-buttons-container'>
+                        <Link to='/' className='dragon-list-button'>Home</Link>
+                        <Link to='/account-dragons' className='dragon-list-button'>Account Dragons list</Link>
+                    </div>
+                </div>
                 <div className='dragons-container'>
                     {
                         this.props.publicDragons.content.map(dragon => {

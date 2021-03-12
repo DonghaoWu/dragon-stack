@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
 import MatingOptions from './MatingOptions';
+import { withRouter } from "react-router-dom";
+
+import { buyDragon } from '../redux/actions/buyDragon';
 
 class PublicDragonsRow extends Component {
     state = {
@@ -13,26 +16,19 @@ class PublicDragonsRow extends Component {
     }
 
     buy = () => {
-        const { dragonId, saleValue } = this.props.dragon;
-        fetch(`dragon/buy`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(
-                {
-                    dragonId,
-                    saleValue
-                }
-            )
+        this.props.buyDragon({
+            dragonId: this.props.dragon.dragonId,
+            saleValue: this.props.dragon.saleValue
         })
-            .then(response => response.json())
-            .then(json => {
-                alert(json.message);
-                // if(json.type ==='error'){
-                //     history.push('/account-dragons');
-                // }
+            .then(() => {
+                if (this.props.buyDragonState.errorMessage) {
+                    alert(this.props.buyDragonState.errorMessage);
+                }
+                else {
+                    this.props.history.push('/account-dragons');
+                    alert(this.props.buyDragonState.content.message);
+                }
             })
-            .catch(error => alert(error.message));
     }
 
     render() {
@@ -59,4 +55,16 @@ class PublicDragonsRow extends Component {
     }
 }
 
-export default PublicDragonsRow;
+const mapStateToProps = state => {
+    return {
+        buyDragonState: state.buyDragon
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        buyDragon: ({ dragonId, saleValue }) => dispatch(buyDragon({ dragonId, saleValue }))
+    }
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PublicDragonsRow));
