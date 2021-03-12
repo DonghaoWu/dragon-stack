@@ -2,7 +2,8 @@ import { PUBLIC_DRAGON_FETCH_BEGIN, PUBLIC_DRAGON_FETCH_FAILURE, PUBLIC_DRAGON_F
 
 const initialState = {
     content: [],
-    errorMessage: ''
+    errorMessage: '',
+    fetchPublicDragonSuccess: false
 }
 
 const publicDragonReducer = (state = initialState, action) => {
@@ -10,7 +11,7 @@ const publicDragonReducer = (state = initialState, action) => {
         case PUBLIC_DRAGON_FETCH_FAILURE:
             return { ...initialState, errorMessage: action.payload }
         case PUBLIC_DRAGON_FETCH_SUCCESS:
-            return { ...state, content: action.payload, errorMessage: '' }
+            return { ...state, content: action.payload, errorMessage: '', fetchPublicDragonSuccess: true }
         case PUBLIC_DRAGON_FETCH_BEGIN:
         default:
             return state;

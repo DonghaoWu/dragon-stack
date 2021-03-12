@@ -2,7 +2,8 @@ import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETC
 
 const initialState = {
     content: {},
-    errorMessage: ''
+    errorMessage: '',
+    fetchUserInfoSuccess: false
 }
 
 const accountInfoReducer = (state = initialState, action) => {
@@ -10,7 +11,7 @@ const accountInfoReducer = (state = initialState, action) => {
         case ACCOUNT_INFO_FETCH_FAILURE:
             return { ...initialState, errorMessage: action.payload }
         case ACCOUNT_INFO_FETCH_SUCCESS:
-            return { ...state, content: action.payload, errorMessage: "" }
+            return { ...state, content: action.payload, errorMessage: "", fetchUserInfoSuccess: true }
         case ACCOUNT_INFO_FETCH_BEGIN:
         default:
             return state;

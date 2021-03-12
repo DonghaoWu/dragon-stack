@@ -2,14 +2,14 @@ import { GENERATION_FETCH_BEGIN, GENERATION_FETCH_SUCCESS, GENERATION_FETCH_FAIL
 
 const initialState = {
     content: {},
-    errorMessage: ''
+    errorMessage: '',
+    fetchGenerationSuccess: false
 }
 
 const generationReducer = (state = initialState, action) => {
     switch (action.type) {
-
         case GENERATION_FETCH_SUCCESS:
-            return { ...state, content: action.payload, errorMessage: '' };
+            return { ...state, content: action.payload, errorMessage: '', fetchGenerationSuccess: true };
         case GENERATION_FETCH_FAILURE:
             return { ...initialState, errorMessage: action.payload };
         case GENERATION_FETCH_BEGIN:

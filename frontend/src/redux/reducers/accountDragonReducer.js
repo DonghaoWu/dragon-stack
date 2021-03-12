@@ -2,8 +2,8 @@ import { ACCOUNT_DRAGON_FETCH_BEGIN, ACCOUNT_DRAGON_FETCH_FAILURE, ACCOUNT_DRAGO
 
 const initialState = {
     content: [],
+    errorMessage: '',
     fetchAccountDragonsSuccess: false,
-    errorMessage: ''
 }
 
 const accountDragonReducer = (state = initialState, action) => {
