@@ -13,7 +13,7 @@ const Dragon = ({ newDragon, createDragon }) => {
             <div>
                 {
                     newDragon.createSuccess ?
-                        <div className='dragon-card'><DragonAvatar dragon={newDragon.dragon} /></div>
+                        <div className='dragon-card'><DragonAvatar dragon={newDragon.content} /></div>
                         : <div>{newDragon.errorMessage}</div>
                 }
             </div>

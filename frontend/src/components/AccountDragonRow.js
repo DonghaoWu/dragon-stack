@@ -37,8 +37,8 @@ class AccountDragonRow extends Component {
             sireValue: this.state.sireValue
         })
             .then(() => {
-                if (this.props.updateDragon.errorMessage) {
-                    alert(this.props.updateDragon.errorMessage);
+                if (this.props.updateDragonState.errorMessage) {
+                    alert(this.props.updateDragonState.errorMessage);
                     return;
                 }
 
@@ -109,7 +109,7 @@ Public: from [${this.state.previousIsPublic}] to [${this.state.isPublic}]
 
 const mapStateToProps = state => {
     return {
-        updateDragon: state.updateDragon
+        updateDragonState: state.updateDragon
     }
 }
 

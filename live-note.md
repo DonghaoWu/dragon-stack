@@ -4936,6 +4936,7 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, null)(MatingOptions);
 ```
 
+- 当一个用户直接进入 public dragon - sire button 时，因为state 没有 accountDragon 的数据，所以不能显示 sire 选项，所以在 react 中有好几个 action 是要一起并发的，不然会造成部分数据缺失的情况。
 ```js
 import { fetchAccountDragons } from '../actions/accountDragonActions';
     componentDidMount() {

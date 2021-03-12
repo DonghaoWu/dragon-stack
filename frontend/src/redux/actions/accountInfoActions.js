@@ -3,7 +3,7 @@ import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETC
 export const fetchAccountInfo = dispatch => {
     dispatch({ type: ACCOUNT_INFO_FETCH_BEGIN });
 
-    return fetch('/account/info', {
+    return fetch('/account/user-info', {
         credentials: 'include'
     })
         .then(response => response.json())
@@ -17,7 +17,7 @@ export const fetchAccountInfo = dispatch => {
             else {
                 return dispatch({
                     type: ACCOUNT_INFO_FETCH_SUCCESS,
-                    payload: data.info
+                    payload: data.userInfo
                 })
             }
         }))

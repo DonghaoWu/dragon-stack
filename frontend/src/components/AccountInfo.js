@@ -13,8 +13,8 @@ class AccountInfo extends Component {
         return (
             <div>
                 <h4>Account Info</h4>
-                <div>Username: {this.props.accountInfo.info.username}</div>
-                <div>Balance: {this.props.accountInfo.info.balance}</div>
+                <div>Username: {this.props.accountInfo.content.username}</div>
+                <div>Balance: {this.props.accountInfo.content.balance}</div>
             </div>
         )
     }

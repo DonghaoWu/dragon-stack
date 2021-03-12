@@ -11,7 +11,7 @@ class PublicDragons extends Component {
 
     componentDidMount() {
         this.props.fetchPublicDragons();
-        // this.props.fetchAccountDragons();
+        this.props.fetchAccountDragons();
     }
 
     render() {
@@ -21,7 +21,7 @@ class PublicDragons extends Component {
                 <Link to='/'>Back home</Link>
                 <div className='dragons-container'>
                     {
-                        this.props.publicDragons.dragons.map(dragon => {
+                        this.props.publicDragons.content.map(dragon => {
                             return (
                                 <div key={dragon.dragonId}>
                                     <PublicDragonsRow dragon={dragon} />

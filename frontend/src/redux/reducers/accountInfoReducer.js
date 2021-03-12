@@ -1,18 +1,17 @@
 import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETCH_SUCCESS } from '../types/accountInfo';
 
 const initialState = {
-    info: {},
-    message: ''
+    content: {},
+    errorMessage: ''
 }
 
 const accountInfoReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ACCOUNT_INFO_FETCH_BEGIN:
-            return { ...state }
         case ACCOUNT_INFO_FETCH_FAILURE:
-            return { ...state, message: action.payload }
+            return { ...initialState, errorMessage: action.payload }
         case ACCOUNT_INFO_FETCH_SUCCESS:
-            return { ...state, info: action.payload }
+            return { ...state, content: action.payload, errorMessage: "" }
+        case ACCOUNT_INFO_FETCH_BEGIN:
         default:
             return state;
     }

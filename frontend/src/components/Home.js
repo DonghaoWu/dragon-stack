@@ -12,7 +12,8 @@ class Home extends Component {
         return (
             <div>
                 <div className='logout-button'>
-                    <span className='username'>Hello, {this.props.account.username}</span>
+                    <span className='username'>Hello, {this.props.accountInfo.content.username}</span>
+                    <span className='username'>Balance: {this.props.accountInfo.content.balance}</span>
                     <Button onClick={this.props.logout}>Log out</Button>
                 </div>
                 <div className='home-container'>
@@ -33,7 +34,7 @@ class Home extends Component {
 
 const mapStateToProps = state => {
     return {
-        account: state.account
+        accountInfo: state.accountInfo
     }
 }
 
