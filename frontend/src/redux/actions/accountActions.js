@@ -92,7 +92,7 @@ export const fetchAuthenticated = dispatch => {
                     payload: data.message
                 })
             }
-            else if (data.authInfo.type === 'success') {
+            else {
                 return dispatch({
                     type: ACCOUNT_AUTHENTICATED_SUCCESS,
                     payload: data.authInfo

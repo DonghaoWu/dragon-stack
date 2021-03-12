@@ -19,14 +19,13 @@ export const updateDragon = ({ dragonId, nickname, isPublic, saleValue, sireValu
     })
         .then(response => response.json())
         .then((data => {
-            // console.log(data);
-            if (!data.info) {
+            if (data.type === 'error') {
                 dispatch({
                     type: UPDATE_DRAGON_FAILURE,
                     payload: data.message
                 })
             }
-            else if (data.info.type === 'success') {
+            else {
                 dispatch({
                     type: UPDATE_DRAGON_SUCCESS,
                     payload: data.info

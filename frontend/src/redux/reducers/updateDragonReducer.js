@@ -2,7 +2,8 @@ import { UPDATE_DRAGON_BEGIN, UPDATE_DRAGON_FAILURE, UPDATE_DRAGON_SUCCESS } fro
 
 const initialState = {
     info: {},
-    errorMessage: ''
+    errorMessage: '',
+    updateDragonSuccess: false
 }
 
 const updateDragonReducer = (state = initialState, action) => {
@@ -10,9 +11,9 @@ const updateDragonReducer = (state = initialState, action) => {
         case UPDATE_DRAGON_BEGIN:
             return { ...state }
         case UPDATE_DRAGON_FAILURE:
-            return { ...initialState, errorMessage: action.payload }
+            return { ...initialState, errorMessage: action.payload, updateDragonSuccess: false }
         case UPDATE_DRAGON_SUCCESS:
-            return { ...state, info: action.payload, errorMessage: '' }
+            return { ...state, info: action.payload, errorMessage: '', updateDragonSuccess: true }
         default:
             return state;
     }

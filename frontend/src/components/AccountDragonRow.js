@@ -7,7 +7,7 @@ import { updateDragon } from '../redux/actions/updateDragonActions';
 class AccountDragonRow extends Component {
     state = {
         currentNickname: this.props.dragon.nickname,
-        currentSaleValue: this.props.dragon.saleVale,
+        currentSaleValue: this.props.dragon.saleValue,
         currentIsPublic: this.props.dragon.isPublic,
         nickname: this.props.dragon.nickname,
         isPublic: this.props.dragon.isPublic,
@@ -39,15 +39,16 @@ class AccountDragonRow extends Component {
             .then(() => {
                 if (this.props.updateDragon.errorMessage) {
                     alert(this.props.updateDragon.errorMessage);
+                    return;
                 }
-            })
-            .then(() => {
+
                 this.setState({ edit: false });
                 alert(
                     `Your dragon is successfull changed.
-                Nickname: from [${this.state.currentNickname}] to [${this.state.nickname}]
-                Sale value: from [${this.state.currentSaleValue}] to [${this.state.saleValue}]
-                Public: from [${this.state.currentIsPublic}] to [${this.state.isPublic}]
+
+Nickname: from [${this.state.currentNickname}] to [${this.state.nickname}]
+Sale value: from [${this.state.currentSaleValue}] to [${this.state.saleValue}]
+Public: from [${this.state.currentIsPublic}] to [${this.state.isPublic}]
                 `);
             })
     }

@@ -47,21 +47,17 @@ router.get('/account-dragons', (req, res, next) => {
 
 router.put('/update', (req, res, next) => {
     const { dragonId, nickname, isPublic, saleValue, sireValue } = req.body;
+    let sessionAccountId;
 
     authenticatedAccount({ sessionString: req.cookies.sessionString })
         .then(({ account }) => {
-            return AccountDragonTable.getAccountDragons({ accountId: account.id })
+            sessionAccountId = account.id;
+            return AccountDragonTable.getDragonAccount({ dragonId })
         })
-        .then(({ accountDragonIds }) => {
-            let idsArray = accountDragonIds.map(accountDragonId => {
-                return accountDragonId.dragonId;
-            });
-            let dragonIsOwnedByAccount = (idsArray.includes(dragonId));
-            if (!dragonIsOwnedByAccount) {
+        .then(({ accountId }) => {
+            if (sessionAccountId !== accountId) {
                 throw new Error('You donnot own this dragon!');
             }
-        })
-        .then(() => {
             return DragonTable.updateDragon({ dragonId, nickname, isPublic, saleValue, sireValue })
         })
         .then(() => {
