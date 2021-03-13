@@ -4,7 +4,7 @@ import DragonAvatar from './DragonAvatar';
 import MatingOptions from './MatingOptions';
 import { withRouter } from "react-router-dom";
 
-import { buyDragon } from '../redux/actions/buyDragon';
+import { buyDragon } from '../redux/actions/buyDragonActions';
 
 class PublicDragonsRow extends Component {
     state = {

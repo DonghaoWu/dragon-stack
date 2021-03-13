@@ -16,7 +16,6 @@ const propertyMap = {
 const DragonAvatar = ({ dragon }) => {
 
     const { dragonId, generationId, nickname, birthdate, traits } = dragon;
-    // console.log('<<<<<<',dragon)
 
     const dragonPropertyMap = {};
 

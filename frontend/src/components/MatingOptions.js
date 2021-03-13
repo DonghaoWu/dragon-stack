@@ -1,30 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { mateDragon } from '../redux/actions/mateDragonActions';
+import { withRouter } from "react-router-dom";
 
 class MatingOptions extends Component {
     mate = ({ matronDragonId, patronDragonId }) => () => {
-        fetch('/dragon/mate', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { "Content-type": "application/json" },
-            body: JSON.stringify(
-                {
-                    matronDragonId,
-                    patronDragonId
+        this.props.mateDragon({ matronDragonId, patronDragonId })
+            .then(() => {
+                if (this.props.mateDragonState.errorMessage) {
+                    alert(this.props.mateDragonState.errorMessage);
                 }
-            )
-        })
-            .then(response => {
-                return response.json()
+                else {
+                    this.props.history.push('/account-dragons');
+                    alert(this.props.mateDragonState.content.message);
+                }
             })
-            .then(json => {
-                alert(json.message);
-
-                // if(json.type !== 'error'){
-                //     history.push('/account-dragons');
-                // }
-            })
-            .catch(error => alert(error.message));
     }
 
     render() {
@@ -51,8 +41,15 @@ class MatingOptions extends Component {
 
 const mapStateToProps = state => {
     return {
-        accountDragons: state.accountDragons
+        accountDragons: state.accountDragons,
+        mateDragonState: state.mateDragon
     }
 }
 
-export default connect(mapStateToProps, null)(MatingOptions);
+const mapDispatchToProps = dispatch => {
+    return {
+        mateDragon: ({ matronDragonId, patronDragonId }) => dispatch(mateDragon({ matronDragonId, patronDragonId }))
+    }
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MatingOptions));

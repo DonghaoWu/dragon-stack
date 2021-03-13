@@ -143,7 +143,6 @@ router.post('/buy', (req, res, next) => {
 
 router.post('/mate', (req, res, next) => {
     const { matronDragonId, patronDragonId } = req.body;
-    // console.log('========>', matronDragonId, patronDragonId);
     if (matronDragonId === patronDragonId) {
         const error = new Error('Cannot breed with the same dragon!');
         return next(error);
@@ -154,7 +153,6 @@ router.post('/mate', (req, res, next) => {
 
     getWholeDragon({ dragonId: patronDragonId })
         .then((dragon) => {
-            // console.log(dragon,'1>>>>')
             if (!dragon.isPublic) {
                 throw new Error('Mate Dragon must be public.')
             }
@@ -162,8 +160,6 @@ router.post('/mate', (req, res, next) => {
             return getWholeDragon({ dragonId: matronDragonId })
         })
         .then((dragon) => {
-            // console.log(dragon,'2>>>>')
-
             matronDragon = dragon;
             return authenticatedAccount({ sessionString: req.cookies.sessionString })
         })
@@ -175,12 +171,9 @@ router.post('/mate', (req, res, next) => {
             }
 
             matronAccountId = account.id;
-            console.log('========>m', matronAccountId);
             return AccountDragonTable.getDragonAccount({ dragonId: patronDragonId })
         })
         .then(({ accountId }) => {
-            console.log('========>', accountId);
-
             patronAccountId = accountId;
 
             if (matronAccountId === patronAccountId) {
@@ -207,7 +200,14 @@ router.post('/mate', (req, res, next) => {
                 })
             ])
         })
-        .then(() => res.json({ message: 'Mate success!' }))
+        .then(() => {
+            res.json({
+                info: {
+                    type: 'success',
+                    message: `Mate Dragon [Matron Dragon Id: ${matronDragonId}] and [Patron Dragon Id: ${patronDragonId}] success!`
+                }
+            })
+        })
         .catch(error => next(error));
 });
 
