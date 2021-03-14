@@ -143,6 +143,7 @@ router.post('/buy', (req, res, next) => {
 
 router.post('/mate', (req, res, next) => {
     const { matronDragonId, patronDragonId } = req.body;
+    let babyDragon;
     if (matronDragonId === patronDragonId) {
         const error = new Error('Cannot breed with the same dragon!');
         return next(error);
@@ -181,10 +182,11 @@ router.post('/mate', (req, res, next) => {
             }
 
             const dragon = Breeder.breedDragon({ matron: matronDragon, patron: patronDragon });
-
+            babyDragon = dragon;
             return DragonTable.storeDragon(dragon);
         })
         .then(({ dragonId }) => {
+            babyDragon.dragonId = dragonId;
             Promise.all([
                 AccountTable.updateBalance({
                     accountId: matronAccountId,
@@ -205,7 +207,8 @@ router.post('/mate', (req, res, next) => {
                 info: {
                     type: 'success',
                     message: `Mate Dragon [Matron Dragon Id: ${matronDragonId}] and [Patron Dragon Id: ${patronDragonId}] success!`
-                }
+                },
+                babyDragon
             })
         })
         .catch(error => next(error));

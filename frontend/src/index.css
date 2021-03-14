@@ -95,3 +95,69 @@ body {
   display: flex;
   justify-content: center;
 }
+
+.infoModal{
+  z-index: 1; 
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.4); 
+
+  display: flex;
+  justify-content: center;
+}
+
+.infoModal .container {
+    width:90%;
+    height:100%;
+    background-color: white;
+
+    display: flex;
+    flex-direction: column;
+    border-radius: 30px;
+
+    max-width: 768px;
+    margin: 10.8rem auto 80px auto;
+}
+
+.infoModal .closeIcon {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 5%;
+    font-size: 2rem;
+    font-style: bold;
+}
+
+.infoModal .contentContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.infoModal .title{
+    color:purple;
+    font-size: 1.2rem;
+}
+
+.infoModal .text {
+    padding:0 5%;
+    font-size: 1rem;
+}
+
+.infoModal .modal-buttons{
+  margin-right: 23%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.infoModal .modal-value{
+  color:red;
+  font-size: 1.2rem;
+}
+
+.mate-dragons-container{
+  display: flex;
+}

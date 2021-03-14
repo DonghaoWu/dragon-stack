@@ -43,13 +43,13 @@ class AccountDragonRow extends Component {
                 }
 
                 this.setState({ edit: false });
-                alert(
-                    `Your dragon is successfull changed.
+//                 alert(
+//                     `Your dragon is successfull changed.
 
-Nickname: from [${this.state.previousNickname}] to [${this.state.nickname}]
-Sale value: from [${this.state.previousSaleValue}] to [${this.state.saleValue}]
-Public: from [${this.state.previousIsPublic}] to [${this.state.isPublic}]
-                `);
+// Nickname: from [${this.state.previousNickname}] to [${this.state.nickname}]
+// Sale value: from [${this.state.previousSaleValue}] to [${this.state.saleValue}]
+// Public: from [${this.state.previousIsPublic}] to [${this.state.isPublic}]
+//                 `);
             })
     }
 

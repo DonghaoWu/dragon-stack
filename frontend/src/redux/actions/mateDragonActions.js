@@ -1,8 +1,12 @@
 import { MATE_DRAGON_BEGIN, MATE_DRAGON_FAILURE, MATE_DRAGON_SUCCESS } from '../types/mateDragonTypes';
 import { fetchAccountDragons } from './accountDragonActions';
 
-export const mateDragon = ({ matronDragonId, patronDragonId }) => dispatch => {
+export const mateDragonBegin = () => dispatch => {
     dispatch({ type: MATE_DRAGON_BEGIN });
+}
+
+export const mateDragon = ({ matronDragonId, patronDragonId }) => dispatch => {
+    // dispatch({ type: MATE_DRAGON_BEGIN });
 
     return fetch(`/dragon/mate`, {
         method: 'POST',
@@ -25,9 +29,9 @@ export const mateDragon = ({ matronDragonId, patronDragonId }) => dispatch => {
             else {
                 dispatch({
                     type: MATE_DRAGON_SUCCESS,
-                    payload: data.info
+                    payload: data
                 })
-                dispatch(fetchAccountDragons);
+                // dispatch(fetchAccountDragons);
             }
         }))
         .catch(error => {

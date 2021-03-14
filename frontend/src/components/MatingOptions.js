@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { mateDragon } from '../redux/actions/mateDragonActions';
 import { withRouter } from "react-router-dom";
 
+import store from '../redux/store';
+
 class MatingOptions extends Component {
     mate = ({ matronDragonId, patronDragonId }) => () => {
         this.props.mateDragon({ matronDragonId, patronDragonId })
@@ -17,19 +19,23 @@ class MatingOptions extends Component {
             })
     }
 
+    handleSelectDragon = (index) => {
+        store.dispatch({
+            type: "SELECT_MATRON_DRAGON",
+            payload: this.props.accountDragons.content[index]
+        })
+    }
+
     render() {
         return (
             <div>
                 <h4>Pick one of your dragons to mate with.</h4>
                 {
-                    this.props.accountDragons.content.map(dragon => {
+                    this.props.accountDragons.content.map((dragon, index) => {
                         const { dragonId, generationId, nickname } = dragon;
                         return (
                             <span key={dragonId}>
-                                <button onClick={this.mate({
-                                    matronDragonId: dragonId,
-                                    patronDragonId: this.props.patronDragonId
-                                })}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
+                                <button onClick={() => this.handleSelectDragon(index)}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
                             </span>
                         )
                     })

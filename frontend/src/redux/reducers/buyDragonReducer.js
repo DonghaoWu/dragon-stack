@@ -8,11 +8,13 @@ const initialState = {
 
 const buyDragonReducer = (state = initialState, action) => {
     switch (action.type) {
+        case BUY_DRAGON_BEGIN:
+            return initialState;
         case BUY_DRAGON_FAILURE:
             return { ...initialState, errorMessage: action.payload }
         case BUY_DRAGON_SUCCESS:
             return { ...state, content: action.payload, errorMessage: '', buyDragonSuccess: true }
-        case BUY_DRAGON_BEGIN:
+
         default:
             return state;
     }

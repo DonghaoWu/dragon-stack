@@ -1,70 +1,74 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import DragonAvatar from './DragonAvatar';
 import MatingOptions from './MatingOptions';
-import { withRouter } from "react-router-dom";
+import { connect } from 'react-redux';
 
-import { buyDragon } from '../redux/actions/buyDragonActions';
+import Modal from './Modal';
+import BuyModal from './BuyModal';
+import MateModal from './MateModal';
+
+import { buyDragonBegin } from '../redux/actions/buyDragonActions';
+import { mateDragonBegin } from '../redux/actions/mateDragonActions';
 
 class PublicDragonsRow extends Component {
     state = {
-        displayOptions: false
+        buyModal: false,
+        mateModal: false
     };
 
-    toggleDisplayMatingOptions = () => {
-        this.setState({ displayOptions: !this.state.displayOptions })
+    handleBuyModal = () => {
+        this.setState({ buyModal: !this.state.buyModal })
     }
 
-    buy = () => {
-        this.props.buyDragon({
-            dragonId: this.props.dragon.dragonId,
-            saleValue: this.props.dragon.saleValue
-        })
-            .then(() => {
-                if (this.props.buyDragonState.errorMessage) {
-                    alert(this.props.buyDragonState.errorMessage);
-                }
-                else {
-                    this.props.history.push('/account-dragons');
-                    alert(this.props.buyDragonState.content.message);
-                }
-            })
+    handleMateModal = () => {
+        this.setState({ mateModal: !this.state.mateModal })
+    }
+
+    openModalAndBuyBegin = () => {
+        this.handleBuyModal();
+        this.props.buyDragonBegin();
+    }
+
+    openModalAndMateBegin = () => {
+        this.handleMateModal();
+        this.props.mateDragonBegin();
     }
 
     render() {
         return (
             <div>
+                {
+                    this.state.buyModal &&
+                    <Modal>
+                        <BuyModal handleBuyModal={this.handleBuyModal} dragon={this.props.dragon} />
+                    </Modal>
+                }
+                {
+                    this.state.mateModal &&
+                    <Modal>
+                        <MateModal handleMateModal={this.handleMateModal} dragon={this.props.dragon}/>
+                    </Modal>
+                }
                 <div className='dragon-card'>
                     <div>Sale value:{this.props.dragon.saleValue}</div>
                     <div>Sire value:{this.props.dragon.sireValue}</div>
                     <br />
                     <DragonAvatar dragon={this.props.dragon} />
                     <br />
-                    <button onClick={this.buy}>Buy</button>
-                    <button onClick={this.toggleDisplayMatingOptions}>Sire</button>
+                    <button onClick={this.openModalAndBuyBegin}>Buy</button>
+                    <button onClick={this.openModalAndMateBegin}>Sire</button>
                 </div>
-                {
-                    this.state.displayOptions
-                        ?
-                        <MatingOptions patronDragonId={this.props.dragon.dragonId} />
-                        :
-                        <div></div>
-                }
             </div>
         )
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        buyDragonState: state.buyDragon
-    }
-}
 
 const mapDispatchToProps = dispatch => {
     return {
-        buyDragon: ({ dragonId, saleValue }) => dispatch(buyDragon({ dragonId, saleValue }))
+        buyDragonBegin: () => dispatch(buyDragonBegin()),
+        mateDragonBegin:()=>dispatch(mateDragonBegin())
     }
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PublicDragonsRow));
+export default connect(null, mapDispatchToProps)(PublicDragonsRow);
