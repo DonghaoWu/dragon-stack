@@ -3,30 +3,11 @@ import { connect } from 'react-redux';
 import { mateDragon } from '../redux/actions/mateDragonActions';
 import { withRouter } from "react-router-dom";
 
-import store from '../redux/store';
+import { selectMatronDragon } from '../redux/actions/mateDragonActions'
 
 class MatingOptions extends Component {
-    mate = ({ matronDragonId, patronDragonId }) => () => {
-        this.props.mateDragon({ matronDragonId, patronDragonId })
-            .then(() => {
-                if (this.props.mateDragonState.errorMessage) {
-                    alert(this.props.mateDragonState.errorMessage);
-                }
-                else {
-                    this.props.history.push('/account-dragons');
-                    alert(this.props.mateDragonState.content.message);
-                }
-            })
-    }
-
-    handleSelectDragon = (index) => {
-        store.dispatch({
-            type: "SELECT_MATRON_DRAGON",
-            payload: this.props.accountDragons.content[index]
-        })
-    }
-
     render() {
+        const { accountDragons, selectMatronDragon } = this.props;
         return (
             <div>
                 <h4>Pick one of your dragons to mate with.</h4>
@@ -35,7 +16,7 @@ class MatingOptions extends Component {
                         const { dragonId, generationId, nickname } = dragon;
                         return (
                             <span key={dragonId}>
-                                <button onClick={() => this.handleSelectDragon(index)}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
+                                <button onClick={() => selectMatronDragon({ dragon: accountDragons.content[index] })}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
                             </span>
                         )
                     })
@@ -54,7 +35,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        mateDragon: ({ matronDragonId, patronDragonId }) => dispatch(mateDragon({ matronDragonId, patronDragonId }))
+        selectMatronDragon: ({ dragon }) => dispatch(selectMatronDragon({ dragon }))
     }
 }
 

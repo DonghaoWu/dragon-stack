@@ -22,28 +22,77 @@ body {
   margin-right: 15px;
 }
 
+/* dragon avatar */
+.dragon-image-container-main{
+  display: flex;
+  height: 330px;
+  justify-content: center;
+  width:500px;
+}
+
 .dragon-avatar-image-wrapper {
+  position: relative;
+  width: 400px;
+  height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.dragon-avatar-image-pattern {
-  position: absolute;
+.dragon-layout{
+  width:40%;
+  height: 40%;
 }
 
 .dragon-avatar-image-background {
   position: absolute;
 }
 
-.dragon-avatar-image {
-  z-index: 0;
+.dragon-avatar-image-pattern {
+  position: absolute;
 }
+
+.dragon-avatar-image {
+  z-index: 1;
+}
+
+.small{
+  height: 10%;
+  width: 10%;
+}
+
+.medium{
+  height: 10%;
+  width: 10%;
+}
+
+.large{
+  height: 10%;
+  width: 10%;
+}
+
+.enormous{
+  height: 80%;
+  width: 80%;
+}
+
+
+
+
+
 
 .dragons-container{
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+
+.dragon-image-container{
+  display: flex;
+  height: 330px;
+  justify-content: center;
+  width:350px;
 }
 
 .dragon-card{
@@ -57,12 +106,7 @@ body {
   align-items: center;
 }
 
-.dragon-image-container{
-  display: flex;
-  height: 330px;
-  justify-content: center;
-  width:350px;
-}
+
 
 .home-container{
   display: flex;

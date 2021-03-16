@@ -10,7 +10,7 @@ const propertyMap = {
     },
     build: { slender, stocky, sporty, skinny },
     pattern: { plain, striped, spotted, patchy },
-    size: { small: 80, medium: 160, large: 240, enormous: 320 }
+    size: { small: 80, medium: 160, large: 240, enormous: '80%' }
 }
 
 const DragonAvatar = ({ dragon }) => {
@@ -19,19 +19,22 @@ const DragonAvatar = ({ dragon }) => {
 
     const dragonPropertyMap = {};
 
+    let dragonSize = '';
+
     traits.forEach(trait => {
         const { traitType, traitValue } = trait;
         dragonPropertyMap[traitType] = propertyMap[traitType][traitValue];
+        if (traitType === 'size') dragonSize = traitValue;
     });
 
-    const sizing = { width: dragonPropertyMap.size, height: dragonPropertyMap.size }
+    // const sizing = { width: dragonPropertyMap.size, height: dragonPropertyMap.size }
 
     const dragonImage = () => {
         return (
             <div className='dragon-avatar-image-wrapper'>
-                <div className='dragon-avatar-image-background' style={{ backgroundColor: dragonPropertyMap.backgroundColor, ...sizing }}></div>
-                <img src={dragonPropertyMap.pattern} className='dragon-avatar-image-pattern' style={{ ...sizing }} />
-                <img src={dragonPropertyMap.build} className='dragon-avatar-image' style={{ ...sizing }} />
+                <div style={{ backgroundColor: dragonPropertyMap.backgroundColor, width: '25%', height: '25%' }} className={`dragon-avatar-image-background`}></div>
+                <img src={dragonPropertyMap.pattern} style={{ width: '25%', height: '25%' }} className={`dragon-avatar-image-pattern`} />
+                <img src={dragonPropertyMap.build} style={{ width: '25%', height: '25%' }} className={`dragon-avatar-image`} />
             </div>
         )
     }
@@ -42,7 +45,7 @@ const DragonAvatar = ({ dragon }) => {
 
     return (
         <div>
-            <div className='dragon-image-container'>
+            <div className='dragon-image-container-main'>
                 {image}
             </div>
             <span>Dragon ID: {dragonId}</span>

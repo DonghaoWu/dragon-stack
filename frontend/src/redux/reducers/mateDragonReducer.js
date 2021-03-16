@@ -1,16 +1,16 @@
-import { MATE_DRAGON_BEGIN, MATE_DRAGON_FAILURE, MATE_DRAGON_SUCCESS } from '../types/mateDragonTypes';
+import { MATE_DRAGON_BEGIN, MATE_DRAGON_FAILURE, MATE_DRAGON_SUCCESS, SELECT_MATRON_DRAGON } from '../types/mateDragonTypes';
 
 const initialState = {
     content: {},
     errorMessage: '',
     mateDragonSuccess: false,
-    matronDragon: {}
+    selectedMatronDragon: {}
 }
 
 const mateDragonReducer = (state = initialState, action) => {
     switch (action.type) {
-        case "SELECT_MATRON_DRAGON":
-            return { ...initialState, matronDragon: action.payload }
+        case SELECT_MATRON_DRAGON:
+            return { ...state, selectedMatronDragon: action.payload }
         case MATE_DRAGON_BEGIN:
             return initialState;
         case MATE_DRAGON_FAILURE:

@@ -24,12 +24,12 @@ class PublicDragonsRow extends Component {
         this.setState({ mateModal: !this.state.mateModal })
     }
 
-    openModalAndBuyBegin = () => {
+    openBuyModal = () => {
         this.handleBuyModal();
         this.props.buyDragonBegin();
     }
 
-    openModalAndMateBegin = () => {
+    openMateModal = () => {
         this.handleMateModal();
         this.props.mateDragonBegin();
     }
@@ -46,17 +46,16 @@ class PublicDragonsRow extends Component {
                 {
                     this.state.mateModal &&
                     <Modal>
-                        <MateModal handleMateModal={this.handleMateModal} dragon={this.props.dragon}/>
+                        <MateModal handleMateModal={this.handleMateModal} dragon={this.props.dragon} />
                     </Modal>
                 }
                 <div className='dragon-card'>
                     <div>Sale value:{this.props.dragon.saleValue}</div>
                     <div>Sire value:{this.props.dragon.sireValue}</div>
-                    <br />
                     <DragonAvatar dragon={this.props.dragon} />
                     <br />
-                    <button onClick={this.openModalAndBuyBegin}>Buy</button>
-                    <button onClick={this.openModalAndMateBegin}>Sire</button>
+                    <button onClick={this.openBuyModal}>Buy</button>
+                    <button onClick={this.openMateModal}>Sire</button>
                 </div>
             </div>
         )
@@ -67,7 +66,7 @@ class PublicDragonsRow extends Component {
 const mapDispatchToProps = dispatch => {
     return {
         buyDragonBegin: () => dispatch(buyDragonBegin()),
-        mateDragonBegin:()=>dispatch(mateDragonBegin())
+        mateDragonBegin: () => dispatch(mateDragonBegin())
     }
 }
 
