@@ -10,7 +10,9 @@ class MatingOptions extends Component {
         const { accountDragons, selectMatronDragon } = this.props;
         return (
             <div>
-                <h4>Pick one of your dragons to mate with.</h4>
+                <span>Pick one of your dragons to mate with.</span>
+                <br />
+                <br />
                 {
                     this.props.accountDragons.content.map((dragon, index) => {
                         const { dragonId, generationId, nickname } = dragon;

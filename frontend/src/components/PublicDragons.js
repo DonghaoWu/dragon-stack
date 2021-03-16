@@ -24,7 +24,7 @@ class PublicDragons extends Component {
                         <Link to='/account-dragons' className='dragon-list-button'>Account Dragons list</Link>
                     </div>
                 </div>
-                <div className='dragons-container'>
+                <div className='dragon-cards-container'>
                     {
                         this.props.publicDragons.content.map(dragon => {
                             return (

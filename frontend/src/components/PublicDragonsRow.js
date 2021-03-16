@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import DragonAvatar from './DragonAvatar';
 import MatingOptions from './MatingOptions';
 import { connect } from 'react-redux';
@@ -36,7 +36,7 @@ class PublicDragonsRow extends Component {
 
     render() {
         return (
-            <div>
+            <Fragment>
                 {
                     this.state.buyModal &&
                     <Modal>
@@ -50,14 +50,19 @@ class PublicDragonsRow extends Component {
                     </Modal>
                 }
                 <div className='dragon-card'>
-                    <div>Sale value:{this.props.dragon.saleValue}</div>
-                    <div>Sire value:{this.props.dragon.sireValue}</div>
                     <DragonAvatar dragon={this.props.dragon} />
-                    <br />
-                    <button onClick={this.openBuyModal}>Buy</button>
-                    <button onClick={this.openMateModal}>Sire</button>
+                    <div className='dragon-card-buttons'>
+                        <div className='dragon-description-button'>
+                            <div>Sale value:{this.props.dragon.saleValue}</div>
+                            <button onClick={this.openBuyModal}>Buy</button>
+                        </div>
+                        <div className='dragon-description-button'>
+                            <div>Sire value:{this.props.dragon.sireValue}</div>
+                            <button onClick={this.openMateModal}>Sire</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </Fragment>
         )
     }
 }

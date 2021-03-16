@@ -1,7 +1,11 @@
 body {
   text-align: center;
-  margin: 5%;
+  margin: 3%;
   font-size: 20px;
+}
+
+button{
+  font-size: 1.1rem;
 }
 
 .logout-button {
@@ -22,6 +26,54 @@ body {
   margin-right: 15px;
 }
 
+/* dragon cards container */
+.dragon-cards-container{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.dragon-card{
+  border:1px solid black;
+  margin:5px 5px;
+  padding: 1rem 0;
+  width:400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color:rgb(226, 184, 198);
+}
+
+.patron-dragon{
+  background-color: rgb(108, 108, 199)
+}
+
+.matron-dragon{
+  background-color: rgb(207, 121, 121)
+}
+
+.baby-dragon{
+  background-color: rgb(111, 182, 111)
+}
+
+.dragon-card-buttons{
+  margin-top: 0.5rem;
+  border-top: 1px solid white;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color:rgb(17, 26, 114);
+}
+
+.dragon-description-button{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: 5px 0;
+}
+
 /* dragon avatar */
 .dragon-avatar-container{
   display: flex;
@@ -29,13 +81,15 @@ body {
   width:80%;
 }
 
-.dragon-avatar-image-wrapper-main {
+.dragon-avatar-image-wrapper-normal {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 300px;
   width: auto;
+  border:1px solid white;
+  margin-bottom: 1rem;
 }
 
 .dragon-avatar-image-background {
@@ -55,29 +109,110 @@ body {
   justify-content: space-between;
 }
 
+/* Modal */
+.infoModal{
+  z-index: 1; 
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.4); 
 
-
-
-/* dragons container */
-.dragons-container{
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
 }
 
-.dragon-card{
-  border:1px solid black;
-  margin:5px 5px;
-  height: 700px;
-  width:400px;
+.infoModal .closeIcon {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 5%;
+    font-size: 2rem;
+    font-style: bold;
+}
+
+.infoModal .contentContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.infoModal .title{
+    color:purple;
+    font-size: 2rem;
+}
+
+.infoModal .text {
+    width:100%;
+    margin-right:110px;
+    padding:0 3%;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.infoModal .modal-buttons{
+    width:100%;
+    margin-right:110px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.infoModal .modal-button{
+  margin-left:1rem;
+}
+
+.infoModal .modal-value{
+  color:red;
+  font-size: 1.2rem;
+}
+
+/* buy modal */
+.infoModal .buy-modal-container {
+  width:500px;
+  height:730px;
+  background-color: white;
+
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  border-radius: 30px;
+
+  margin: 10.8rem auto 80px auto;
 }
 
+/* Mate modal */
+.infoModal .mate-modal-container {
+  width:80%;
+  height:75%;
 
+  background-color: white;
 
+  display: flex;
+  flex-direction: column;
+  border-radius: 30px;
+
+  margin: 10.8rem auto 80px auto;
+}
+
+.mate-dragons-container{
+  width:85%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.parent-dragons-container{
+  display: flex;
+  border:1px solid black;
+}
+
+.modal-mate-dragon{
+  display:flex;
+  flex-direction: column;
+}
+
+/* others */
 .home-container{
   display: flex;
   flex-direction: column;
@@ -108,70 +243,4 @@ body {
 .header-container{
   display: flex;
   justify-content: center;
-}
-
-.infoModal{
-  z-index: 1; 
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  background-color: rgb(0,0,0); 
-  background-color: rgba(0,0,0,0.4); 
-
-  display: flex;
-  justify-content: center;
-}
-
-.infoModal .container {
-    width:90%;
-    height:100%;
-    background-color: white;
-
-    display: flex;
-    flex-direction: column;
-    border-radius: 30px;
-
-    max-width: 768px;
-    margin: 10.8rem auto 80px auto;
-}
-
-.infoModal .closeIcon {
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 5%;
-    font-size: 2rem;
-    font-style: bold;
-}
-
-.infoModal .contentContainer{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.infoModal .title{
-    color:purple;
-    font-size: 1.2rem;
-}
-
-.infoModal .text {
-    padding:0 5%;
-    font-size: 1rem;
-}
-
-.infoModal .modal-buttons{
-  margin-right: 23%;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.infoModal .modal-value{
-  color:red;
-  font-size: 1.2rem;
-}
-
-.mate-dragons-container{
-  display: flex;
 }

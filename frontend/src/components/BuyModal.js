@@ -50,7 +50,7 @@ class BuyModal extends React.Component {
         const { handleBuyModal, buyDragonState, dragon } = this.props;
         return (
             <div className='infoModal'>
-                <div ref={node => this.node = node} className='container'>
+                <div ref={node => this.node = node} className='buy-modal-container'>
                     <div className='closeIcon' >
                         <div onClick={handleBuyModal}>&times;</div>
                     </div>
@@ -58,17 +58,16 @@ class BuyModal extends React.Component {
                         buyDragonState.buyDragonSuccess ?
                             <div>
                                 <div className='contentContainer'>
-                                    <div className='title'>Success!!!</div>
-
+                                    <div className='title'>Congratulation!!!</div>
                                     <div className='dragon-card'>
                                         <DragonAvatar dragon={dragon} />
                                     </div>
                                     <p className='text'>
-                                        Buy dragon <span className='modal-value'>[DragonId: {dragon.dragonId}]</span> success!
+                                        <span>Buy dragon <span className='modal-value'>[DragonId: {dragon.dragonId}]</span> success!</span>
                                     </p>
                                     <div className='modal-buttons'>
-                                        <button onClick={this.checkAccountDragons}>Check my account dragons</button>
-                                        <button onClick={handleBuyModal}>Finish</button>
+                                        <button className='modal-button' onClick={this.checkAccountDragons}>Check my account dragons</button>
+                                        <button className='modal-button' onClick={handleBuyModal}>Finish</button>
                                     </div>
                                 </div>
                             </div>
@@ -76,16 +75,15 @@ class BuyModal extends React.Component {
                             <div>
                                 <div className='contentContainer'>
                                     <div className='title'>Confirm Page</div>
-
                                     <div className='dragon-card'>
                                         <DragonAvatar dragon={dragon} />
                                     </div>
                                     <p className='text'>
-                                        You will spend <span className='modal-value'>{dragon.saleValue}</span> value to buy this dragon.
+                                        <span>You will spend <span className='modal-value'>{dragon.saleValue}</span> value to buy this dragon.</span>
                                     </p>
                                     <div className='modal-buttons'>
-                                        <button onClick={this.buy}>Buy</button>
-                                        <button onClick={handleBuyModal}>Cancel</button>
+                                        <button className='modal-button' onClick={this.buy}>Buy</button>
+                                        <button className='modal-button' onClick={handleBuyModal}>Cancel</button>
                                     </div>
                                 </div>
                             </div>

@@ -14,13 +14,12 @@ const propertyMap = {
     size: { small: '30%', medium: '50%', large: '70%', enormous: '90%' }
 }
 
-const DragonAvatar = (props) => {
-
-    const { dragonId, generationId, nickname, birthdate, traits } = props.dragon;
+const DragonAvatar = ({ dragon }) => {
+    const { dragonId, generationId, nickname, birthdate, traits } = dragon;
 
     const dragonPropertyMap = {};
 
-    const imageWrapper = props.imageWrapper || 'dragon-avatar-image-wrapper-main'
+    const imageWrapper = 'dragon-avatar-image-wrapper-normal'
 
     traits.forEach(trait => {
         const { traitType, traitValue } = trait;
@@ -46,11 +45,10 @@ const DragonAvatar = (props) => {
     return (
         <div className='dragon-avatar-container'>
             {image}
+            <div className='dragon-description'><span className='description-title'>Nickname:</span><span className='description-value'> {nickname}</span></div>
             <div className='dragon-description'><span className='description-title'>Dragon ID:</span><span className='description-value'> {dragonId}</span></div>
             <div className='dragon-description'><span className='description-title'>Generation ID:</span><span className='description-value'> {generationId}</span></div>
-            <div className='dragon-description'><span className='description-title'>Nickname:</span><span className='description-value'> {nickname}</span></div>
             <div className='dragon-description'><span className='description-title'>Birthdate: </span><span className='description-value'><Moment format="YYYY/MM/DD">{birthdate}</Moment></span></div>
-
             {
                 traits.map((trait, index) => {
                     return (
