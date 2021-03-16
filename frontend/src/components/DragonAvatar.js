@@ -1,4 +1,5 @@
 import React from 'react';
+import Moment from 'react-moment';
 import { skinny, sporty, spotted, slender, patchy, plain, stocky, striped } from '../assets/index.js';
 
 const propertyMap = {
@@ -10,59 +11,51 @@ const propertyMap = {
     },
     build: { slender, stocky, sporty, skinny },
     pattern: { plain, striped, spotted, patchy },
-    size: { small: 80, medium: 160, large: 240, enormous: '80%' }
+    size: { small: '30%', medium: '50%', large: '70%', enormous: '90%' }
 }
 
-const DragonAvatar = ({ dragon }) => {
+const DragonAvatar = (props) => {
 
-    const { dragonId, generationId, nickname, birthdate, traits } = dragon;
+    const { dragonId, generationId, nickname, birthdate, traits } = props.dragon;
 
     const dragonPropertyMap = {};
 
-    let dragonSize = '';
+    const imageWrapper = props.imageWrapper || 'dragon-avatar-image-wrapper-main'
 
     traits.forEach(trait => {
         const { traitType, traitValue } = trait;
         dragonPropertyMap[traitType] = propertyMap[traitType][traitValue];
-        if (traitType === 'size') dragonSize = traitValue;
     });
 
-    // const sizing = { width: dragonPropertyMap.size, height: dragonPropertyMap.size }
+    const sizing = { width: dragonPropertyMap.size, height: dragonPropertyMap.size }
 
     const dragonImage = () => {
         return (
-            <div className='dragon-avatar-image-wrapper'>
-                <div style={{ backgroundColor: dragonPropertyMap.backgroundColor, width: '25%', height: '25%' }} className={`dragon-avatar-image-background`}></div>
-                <img src={dragonPropertyMap.pattern} style={{ width: '25%', height: '25%' }} className={`dragon-avatar-image-pattern`} />
-                <img src={dragonPropertyMap.build} style={{ width: '25%', height: '25%' }} className={`dragon-avatar-image`} />
+            <div className={`${imageWrapper}`}>
+                <div style={{ backgroundColor: dragonPropertyMap.backgroundColor, ...sizing }} className={`dragon-avatar-image-background`}></div>
+                <img src={dragonPropertyMap.pattern} style={{ ...sizing }} className={`dragon-avatar-image-pattern`} />
+                <img src={dragonPropertyMap.build} style={{ ...sizing }} className={`dragon-avatar-image`} />
             </div>
         )
     }
 
     let image = dragonImage();
 
-    if (!dragon.dragonId) return <div></div>
+    if (!dragonId) return <div></div>
 
     return (
-        <div>
-            <div className='dragon-image-container-main'>
-                {image}
-            </div>
-            <span>Dragon ID: {dragonId}</span>
-            <br />
-            <span>Generation ID: {generationId}</span>
-            <br />
-            <span>Nickname: {nickname}</span>
-            <br />
-            <span>Birthdate: {birthdate}</span>
-            <br />
+        <div className='dragon-avatar-container'>
+            {image}
+            <div className='dragon-description'><span className='description-title'>Dragon ID:</span><span className='description-value'> {dragonId}</span></div>
+            <div className='dragon-description'><span className='description-title'>Generation ID:</span><span className='description-value'> {generationId}</span></div>
+            <div className='dragon-description'><span className='description-title'>Nickname:</span><span className='description-value'> {nickname}</span></div>
+            <div className='dragon-description'><span className='description-title'>Birthdate: </span><span className='description-value'><Moment format="YYYY/MM/DD">{birthdate}</Moment></span></div>
 
             {
                 traits.map((trait, index) => {
                     return (
                         <div key={index}>
-                            <span>{`${trait.traitType}: ${trait.traitValue}`}</span>
-                            <br />
+                            <div className='dragon-description'><span className='description-title'>{`${trait.traitType}:`} </span><span className='description-value'>{`${trait.traitValue}`}</span></div>
                         </div>
                     )
                 })
