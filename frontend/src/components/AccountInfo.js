@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { fetchAccountInfo } from '../redux/actions/accountInfoActions';
 import { Link } from 'react-router-dom';
+import { createDragon } from '../redux/actions/dragonActions';
+import { Button } from 'react-bootstrap';
+
 
 class AccountInfo extends Component {
 
@@ -11,10 +14,14 @@ class AccountInfo extends Component {
 
     render() {
         return (
-            <div>
-                <h4>Account Info</h4>
-                <div>Username: {this.props.accountInfo.content.username}</div>
-                <div>Balance: {this.props.accountInfo.content.balance}</div>
+            <div className='account-info-container'>
+                <div>
+                    <h2>Account Info:</h2>
+                    <div>Username: {this.props.accountInfo.content.username}</div>
+                    <div>Balance: {this.props.accountInfo.content.balance}</div>
+                    <br />
+                    <Button onClick={this.props.createDragon}>Create a new dragon in current generation</Button>
+                </div>
             </div>
         )
     }
@@ -28,7 +35,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        fetchAccountInfo: () => dispatch(fetchAccountInfo)
+        fetchAccountInfo: () => dispatch(fetchAccountInfo),
+        createDragon: () => dispatch(createDragon)
     }
 }
 

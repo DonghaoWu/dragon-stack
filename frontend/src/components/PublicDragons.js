@@ -16,14 +16,8 @@ class PublicDragons extends Component {
 
     render() {
         return (
-            <div>
-                <h3>Public Dragons</h3>
-                <div className='header-container'>
-                    <div className='dragon-buttons-container'>
-                        <Link to='/' className='dragon-list-button'>Home</Link>
-                        <Link to='/account-dragons' className='dragon-list-button'>Account Dragons list</Link>
-                    </div>
-                </div>
+            <div className='account-public-container'>
+                <h3>Public Dragons List</h3>
                 <div className='dragon-cards-container'>
                     {
                         this.props.publicDragons.content.map(dragon => {

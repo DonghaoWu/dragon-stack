@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { generationActionCreator, fetchGeneration } from '../redux/actions/generationActions'
+import { generationActionCreator, fetchGeneration } from '../redux/actions/generationActions';
+import Dragon from './Dragon';
+import Moment from 'react-moment';
 
 const Generation = ({ generation, fetchGeneration }) => {
     useEffect(() => {
@@ -19,15 +21,18 @@ const Generation = ({ generation, fetchGeneration }) => {
     }
 
     return (
-        <div>
+        <div className='generation-info-container'>
             {
                 (generation.errorMessage) ?
                     <div>{generation.errorMessage}</div>
                     :
-                    <div>
-                        <h3>Generation Id: {generation.content.generationId}</h3>
-                        <h4>Expires on: {new Date(generation.content.expiration).toString()}</h4>
-                        <h4>Time now: {new Date().toString()}</h4>
+                    <div className='generation-dragon'>
+                        <div className='generation-info'>
+                            <h5>Current Generation: {generation.content.generationId}</h5>
+                            <h5>Next Generation: <Moment format="YYYY/MM/DD hh:mm:ss">{new Date(generation.content.expiration).toString()}</Moment></h5>
+                            <h5>Time now: <Moment format="YYYY/MM/DD hh:mm:ss">{new Date().toString()}</Moment></h5>
+                        </div>
+                        <Dragon />
                     </div>
             }
         </div>

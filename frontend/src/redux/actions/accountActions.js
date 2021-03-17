@@ -13,6 +13,8 @@ import {
     ACCOUNT_AUTHENTICATED_FAILURE
 } from '../types/accountTypes';
 
+import { fetchAccountInfo } from './accountInfoActions'
+
 export const signup = ({ username, password }) => dispatch => {
     dispatch({ type: ACCOUNT_SIGNUP_BEGIN });
 
@@ -35,6 +37,7 @@ export const signup = ({ username, password }) => dispatch => {
                     type: ACCOUNT_SIGNUP_SUCCESS,
                     payload: data.authInfo
                 })
+                dispatch(fetchAccountInfo);
             }
         }))
         .catch(error => {
@@ -67,6 +70,7 @@ export const login = ({ username, password }) => dispatch => {
                     type: ACCOUNT_SIGNIN_SUCCESS,
                     payload: data.authInfo
                 })
+                dispatch(fetchAccountInfo);
             }
         }))
         .catch(error => {
@@ -93,10 +97,11 @@ export const fetchAuthenticated = dispatch => {
                 })
             }
             else {
-                return dispatch({
+                dispatch({
                     type: ACCOUNT_AUTHENTICATED_SUCCESS,
                     payload: data.authInfo
                 })
+                dispatch(fetchAccountInfo);
             }
         }))
         .catch(error => {
