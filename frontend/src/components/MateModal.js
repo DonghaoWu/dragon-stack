@@ -9,6 +9,8 @@ import { mateDragon } from '../redux/actions/mateDragonActions';
 import DragonAvatar from './DragonAvatar';
 import MatingOptions from './MatingOptions';
 
+import { Button } from 'react-bootstrap';
+
 class MateModal extends React.Component {
     constructor(props) {
         super(props);
@@ -51,8 +53,6 @@ class MateModal extends React.Component {
 
     render() {
         const { handleMateModal, dragon, mateDragonState } = this.props;
-        console.log(this.state.displayMatingOption);
-        console.log(mateDragonState)
         return (
             <div className='infoModal'>
                 <div ref={node => this.node = node} className='mate-modal-container'>
@@ -106,17 +106,17 @@ class MateModal extends React.Component {
                                                         You will spend <span className='modal-value'>{dragon.sireValue}</span> value to mate this dragon.
                                                     </p>
                                                     <div className='modal-mate-buttons'>
-                                                        <button className='modal-button' onClick={this.mate({
+                                                        <Button className='modal-button' onClick={this.mate({
                                                             patronDragonId: dragon.dragonId,
                                                             matronDragonId: mateDragonState.selectedMatronDragon.dragonId
-                                                        })}>Mate</button>
-                                                        <button className='modal-button' onClick={handleMateModal}>Cancel</button>
+                                                        })}>Mate</Button>
+                                                        <Button className='modal-button' onClick={handleMateModal}>Cancel</Button>
                                                     </div>
                                                 </div>
                                                 :
                                                 <div className='modal-buttons'>
-                                                    <button className='modal-button' onClick={this.handleDisplayOption}>Select another matron dragon</button>
-                                                    <button className='modal-button' onClick={handleMateModal}>Finish</button>
+                                                    <Button className='modal-button' onClick={this.handleDisplayOption}>Select another matron dragon</Button>
+                                                    <Button className='modal-button' onClick={handleMateModal}>Finish</Button>
                                                 </div>
                                         }
                                     </div>
@@ -131,17 +131,17 @@ class MateModal extends React.Component {
                                                         You will spend <span className='modal-value'>{dragon.sireValue}</span> value to mate this dragon.
                                                     </p>
                                                     <div className='modal-mate-buttons'>
-                                                        <button className='modal-button' onClick={this.mate({
+                                                        <Button className='modal-button' onClick={this.mate({
                                                             patronDragonId: dragon.dragonId,
                                                             matronDragonId: mateDragonState.selectedMatronDragon.dragonId
-                                                        })}>Mate</button>
-                                                        <button className='modal-button' onClick={handleMateModal}>Cancel</button>
+                                                        })}>Mate</Button>
+                                                        <Button className='modal-button' onClick={handleMateModal}>Cancel</Button>
                                                     </div>
                                                 </div>
                                                 :
                                                 <div className='modal-buttons'>
-                                                    <button className='modal-button' onClick={this.handleDisplayOption}>Select a matron dragon</button>
-                                                    <button className='modal-button' onClick={handleMateModal}>Cancel</button>
+                                                    <Button className='modal-button' onClick={this.handleDisplayOption}>Select a matron dragon</Button>
+                                                    <Button className='modal-button' onClick={handleMateModal}>Cancel</Button>
                                                 </div>
                                         }
                                     </div>

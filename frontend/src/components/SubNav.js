@@ -20,10 +20,10 @@ const SubNav = () => {
                     <Link to="/">Create A Dragon</Link>
                 </Nav.Item>
                 <Nav.Item>
-                    <Link to="/account-dragons" eventKey='/account-dragons'>My Dragons</Link>
+                    <Link to="/account-dragons">My Dragons</Link>
                 </Nav.Item>
                 <Nav.Item>
-                    <Link to="/public-dragons" eventKey='/public-dragons'>Public Dragons</Link>
+                    <Link to="/public-dragons">Public Dragons</Link>
                 </Nav.Item>
             </Nav>
         </div>

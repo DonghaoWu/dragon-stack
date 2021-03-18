@@ -35,6 +35,7 @@ class PublicDragonsRow extends Component {
     }
 
     render() {
+        console.log(this.props.accountInfo.content.accountId)
         return (
             <Fragment>
                 {
@@ -49,21 +50,44 @@ class PublicDragonsRow extends Component {
                         <MateModal handleMateModal={this.handleMateModal} dragon={this.props.dragon} />
                     </Modal>
                 }
-                <div className='dragon-card'>
-                    <DragonAvatar dragon={this.props.dragon} />
-                    <div className='public-dragon-card-buttons'>
-                        <div className='public-dragon-card-button'>
-                            <div>Sale value:{this.props.dragon.saleValue}</div>
-                            <button onClick={this.openBuyModal}>Buy</button>
+                {
+                    this.props.accountInfo.content.accountId === this.props.dragon.accountId ?
+                        <div className='dragon-card'>
+                            <DragonAvatar dragon={this.props.dragon} />
+                            <div className='public-dragon-card-buttons'>
+                                <div className='public-dragon-card-button'>
+                                    <div>Sale value:{this.props.dragon.saleValue}</div>
+                                    <button disabled>Buy</button>
+                                </div>
+                                <div className='public-dragon-card-button'>
+                                    <div>Sire value:{this.props.dragon.sireValue}</div>
+                                    <button disabled>Sire</button>
+                                </div>
+                            </div>
                         </div>
-                        <div className='public-dragon-card-button'>
-                            <div>Sire value:{this.props.dragon.sireValue}</div>
-                            <button onClick={this.openMateModal}>Sire</button>
+                        :
+                        <div className='dragon-card dragon-card-other'>
+                            <DragonAvatar dragon={this.props.dragon} />
+                            <div className='public-dragon-card-buttons'>
+                                <div className='public-dragon-card-button'>
+                                    <div>Sale value:{this.props.dragon.saleValue}</div>
+                                    <button onClick={this.openBuyModal}>Buy</button>
+                                </div>
+                                <div className='public-dragon-card-button'>
+                                    <div>Sire value:{this.props.dragon.sireValue}</div>
+                                    <button onClick={this.openMateModal}>Sire</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                }
             </Fragment>
         )
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        accountInfo: state.accountInfo
     }
 }
 
@@ -75,4 +99,4 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-export default connect(null, mapDispatchToProps)(PublicDragonsRow);
+export default connect(mapStateToProps, mapDispatchToProps)(PublicDragonsRow);

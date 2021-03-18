@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { withRouter } from "react-router-dom";
 import { buyDragon } from '../redux/actions/buyDragonActions';
 import { fetchPublicDragons } from '../redux/actions/publicDragonActions';
+import { fetchAccountInfo } from '../redux/actions/accountInfoActions'
 
 import DragonAvatar from './DragonAvatar';
 
@@ -38,6 +39,7 @@ class BuyModal extends React.Component {
                 }
                 else {
                     alert(this.props.buyDragonState.content.message);
+                    this.props.fetchAccountInfo();
                 }
             })
     }
@@ -75,7 +77,7 @@ class BuyModal extends React.Component {
                             <div>
                                 <div className='contentContainer'>
                                     <div className='title'>Confirm Page</div>
-                                    <div className='dragon-card'>
+                                    <div className='dragon-card dragon-card-other'>
                                         <DragonAvatar dragon={dragon} />
                                     </div>
                                     <p className='text'>
@@ -103,7 +105,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         buyDragon: ({ dragonId, saleValue }) => dispatch(buyDragon({ dragonId, saleValue })),
-        fetchPublicDragons: () => dispatch(fetchPublicDragons)
+        fetchPublicDragons: () => dispatch(fetchPublicDragons),
+        fetchAccountInfo: () => dispatch(fetchAccountInfo)
     }
 }
 

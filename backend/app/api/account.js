@@ -99,7 +99,7 @@ router.get('/logout', (req, res, next) => {
 router.get('/user-info', (req, res, next) => {
     authenticatedAccount({ sessionString: req.cookies.sessionString })
         .then(({ account, username }) => {
-            res.json({ userInfo: { balance: account.balance, username } });
+            res.json({ userInfo: { balance: account.balance, username, accountId: account.id } });
         })
         .catch(error => next(error));
 })

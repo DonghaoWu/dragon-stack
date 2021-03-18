@@ -5,6 +5,8 @@ import { Provider } from 'react-redux';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import store from './redux/store';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+
 
 import App from './App';
 
@@ -18,7 +20,9 @@ store.dispatch(fetchAuthenticated)
     ReactDOM.render(
       <React.StrictMode>
         <Provider store={store}>
-          <App />
+          <Router>
+            <App />
+          </Router>
         </Provider>
       </React.StrictMode>,
       document.getElementById('root')

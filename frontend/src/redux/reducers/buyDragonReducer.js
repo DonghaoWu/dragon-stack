@@ -1,4 +1,5 @@
-import { BUY_DRAGON_BEGIN, BUY_DRAGON_FAILURE, BUY_DRAGON_SUCCESS } from '../types/buyDragonActions';
+import { BUY_DRAGON_BEGIN, BUY_DRAGON_FAILURE, BUY_DRAGON_SUCCESS } from '../types/buyDragonTypes';
+import { ACCOUNT_LOGOUT_SUCCESS } from '../types/accountTypes';
 
 const initialState = {
     content: {},
@@ -14,7 +15,8 @@ const buyDragonReducer = (state = initialState, action) => {
             return { ...initialState, errorMessage: action.payload }
         case BUY_DRAGON_SUCCESS:
             return { ...state, content: action.payload, errorMessage: '', buyDragonSuccess: true }
-
+        case ACCOUNT_LOGOUT_SUCCESS:
+            return initialState;
         default:
             return state;
     }

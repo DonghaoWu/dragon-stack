@@ -1,4 +1,5 @@
 import { ACCOUNT_DRAGON_FETCH_BEGIN, ACCOUNT_DRAGON_FETCH_FAILURE, ACCOUNT_DRAGON_FETCH_SUCCESS } from '../types/accountDragonTypes';
+import { ACCOUNT_LOGOUT_SUCCESS } from '../types/accountTypes';
 
 const initialState = {
     content: [],
@@ -14,6 +15,8 @@ const accountDragonReducer = (state = initialState, action) => {
             return { ...initialState, errorMessage: action.payload }
         case ACCOUNT_DRAGON_FETCH_SUCCESS:
             return { ...state, content: action.payload, errorMessage: '', fetchAccountDragonsSuccess: true }
+        case ACCOUNT_LOGOUT_SUCCESS:
+            return initialState;
         default:
             return state;
     }

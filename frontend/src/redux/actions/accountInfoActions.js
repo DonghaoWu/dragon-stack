@@ -1,4 +1,4 @@
-import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETCH_SUCCESS } from '../types/accountInfo';
+import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETCH_SUCCESS } from '../types/accountInfoTypes';
 
 export const fetchAccountInfo = dispatch => {
     dispatch({ type: ACCOUNT_INFO_FETCH_BEGIN });

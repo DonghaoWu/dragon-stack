@@ -8,7 +8,8 @@ import { Link } from 'react-router-dom';
 import Dragon from './Dragon';
 import AccountInfo from './AccountInfo';
 import store from '../redux/store';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import AuthForm from './AuthForm'
 
 
 import PublicDragons from './PublicDragons';
@@ -16,8 +17,9 @@ import AccountDragons from './AccountDragons';
 import MyProfile from './MyProfile';
 
 const AuthRoute = (props) => {
+    let history = useHistory();
     if (!store.getState().account.loggedIn) {
-        return <Redirect to={{ pathname: '/' }} />
+        history.push("/");
     }
     const { component, path } = props;
 
@@ -27,14 +29,12 @@ const AuthRoute = (props) => {
 const MainContent = ({ logout, accountInfo }) => {
     return (
         <div className='main-content'>
-            <Router>
-                <SubNav />
-                <Switch>
-                    <AuthRoute exact path='/' component={MyProfile} />
-                    <AuthRoute path='/account-dragons' component={AccountDragons} />
-                    <AuthRoute exact path='/public-dragons' component={PublicDragons} />
-                </Switch>
-            </Router>
+            <SubNav />
+            <Switch>
+                <AuthRoute exact path='/' component={MyProfile} />
+                <AuthRoute exact path='/account-dragons' component={AccountDragons} />
+                <AuthRoute exact path='/public-dragons' component={PublicDragons} />
+            </Switch>
         </div>
     )
 }

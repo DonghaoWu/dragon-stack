@@ -26,33 +26,46 @@ class AuthForm extends Component {
 
     render() {
         return (
-            <div>
-                <h2>Dragon Stack</h2>
-                <Form.Group>
-                    <Form.Control
-                        type='text'
-                        value={this.state.username}
-                        placeholder='username'
-                        onChange={this.updateUsername}
-                    />
-                    <Form.Control
-                        type='password'
-                        value={this.state.password}
-                        placeholder='password'
-                        onChange={this.updatePassword}
-                    />
+            <div className='auth-form-container'>
+                <div className='auth-form'>
+                    <h2>Dragon Stack</h2>
+                    <Form.Group className='auth-form-content'>
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control
+                            type='text'
+                            value={this.state.username}
+                            placeholder='username'
+                            onChange={this.updateUsername}
+                        />
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control
+                            type='password'
+                            value={this.state.password}
+                            placeholder='password'
+                            onChange={this.updatePassword}
+                        />
+                        <div className='auth-form-buttons'>
+                            <Button className='auth-form-button' onClick={this.login}>Log In</Button>
+                            <Button className='auth-form-button' onClick={this.signup}>Sign up</Button>
+                        </div>
+                    </Form.Group>
                     <div>
-                        <Button onClick={this.login}>Log In</Button>
-                        <span> / </span>
-                        <Button onClick={this.signup}>Sign up</Button>
+                        {
+                            this.props.account.errorMessage ?
+                                <div>
+                                    {
+                                        this.props.account.errorMessage === 'Invalid session.' ?
+                                            <div></div>
+                                            :
+                                            <div> {this.props.account.errorMessage}</div>
+                                    }
+                                </div>
+                                :
+                                null
+
+                        }
                     </div>
-                </Form.Group>
-                {
-                    this.props.account.errorMessage ?
-                        <div>{this.props.account.errorMessage}</div>
-                        :
-                        null
-                }
+                </div>
             </div>
         )
     }

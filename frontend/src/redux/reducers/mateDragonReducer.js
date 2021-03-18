@@ -1,4 +1,5 @@
 import { MATE_DRAGON_BEGIN, MATE_DRAGON_FAILURE, MATE_DRAGON_SUCCESS, SELECT_MATRON_DRAGON } from '../types/mateDragonTypes';
+import { ACCOUNT_LOGOUT_SUCCESS } from '../types/accountTypes';
 
 const initialState = {
     content: {},
@@ -17,6 +18,8 @@ const mateDragonReducer = (state = initialState, action) => {
             return { ...initialState, errorMessage: action.payload }
         case MATE_DRAGON_SUCCESS:
             return { ...state, content: action.payload, errorMessage: '', mateDragonSuccess: true }
+        case ACCOUNT_LOGOUT_SUCCESS:
+            return initialState;
         default:
             return state;
     }

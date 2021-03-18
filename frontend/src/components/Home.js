@@ -6,9 +6,9 @@ import FilterSideBar from './FilterSideBar';
 class Home extends Component {
     render() {
         return (
-            <div>
+            <div className='home-container'>
                 <Navbar />
-                <div className='my-container'>
+                <div className='my-content-container'>
                     <FilterSideBar />
                     <MainContent />
                 </div>

@@ -1,4 +1,5 @@
-import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETCH_SUCCESS } from '../types/accountInfo';
+import { ACCOUNT_INFO_FETCH_BEGIN, ACCOUNT_INFO_FETCH_FAILURE, ACCOUNT_INFO_FETCH_SUCCESS } from '../types/accountInfoTypes';
+import { ACCOUNT_LOGOUT_SUCCESS } from '../types/accountTypes';
 
 const initialState = {
     content: {},
@@ -12,6 +13,8 @@ const accountInfoReducer = (state = initialState, action) => {
             return { ...initialState, errorMessage: action.payload }
         case ACCOUNT_INFO_FETCH_SUCCESS:
             return { ...state, content: action.payload, errorMessage: "", fetchUserInfoSuccess: true }
+        case ACCOUNT_LOGOUT_SUCCESS:
+            return initialState;
         case ACCOUNT_INFO_FETCH_BEGIN:
         default:
             return state;
