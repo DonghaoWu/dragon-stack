@@ -45,19 +45,21 @@ const DragonAvatar = ({ dragon }) => {
     return (
         <div className='dragon-avatar-container'>
             {image}
-            <div className='dragon-description'><span className='description-title'>Nickname:</span><span className='description-value'> {nickname}</span></div>
-            <div className='dragon-description'><span className='description-title'>Dragon ID:</span><span className='description-value'> {dragonId}</span></div>
-            <div className='dragon-description'><span className='description-title'>Generation ID:</span><span className='description-value'> {generationId}</span></div>
-            <div className='dragon-description'><span className='description-title'>Birthdate: </span><span className='description-value'><Moment format="YYYY/MM/DD">{birthdate}</Moment></span></div>
-            {
-                traits.map((trait, index) => {
-                    return (
-                        <div key={index}>
-                            <div className='dragon-description'><span className='description-title'>{`${trait.traitType}:`} </span><span className='description-value'>{`${trait.traitValue}`}</span></div>
-                        </div>
-                    )
-                })
-            }
+            <div className='dragon-decriptions-container'>
+                <div className='dragon-description'><span className='description-title'>Nickname:</span><span className='description-value'> {nickname}</span></div>
+                <div className='dragon-description'><span className='description-title'>Dragon ID:</span><span className='description-value'> {dragonId}</span></div>
+                <div className='dragon-description'><span className='description-title'>Generation ID:</span><span className='description-value'> {generationId}</span></div>
+                <div className='dragon-description'><span className='description-title'>Birthdate: </span><span className='description-value'><Moment format="YYYY/MM/DD">{birthdate}</Moment></span></div>
+                {
+                    traits.map((trait, index) => {
+                        return (
+                            <div key={index}>
+                                <div className='dragon-description'><span className='description-title'>{`${trait.traitType}:`} </span><span className='description-value'>{`${trait.traitValue}`}</span></div>
+                            </div>
+                        )
+                    })
+                }
+            </div>
         </div>
     )
 }

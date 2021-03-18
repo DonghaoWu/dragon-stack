@@ -4,7 +4,7 @@ import DragonAvatar from './DragonAvatar';
 import { fetchAccountDragons } from '../redux/actions/accountDragonActions';
 import { updateDragon } from '../redux/actions/updateDragonActions';
 
-class AccountDragonRow extends Component {
+class AccountDragonRow2 extends Component {
     state = {
         previousNickname: this.props.dragon.nickname,
         previousSaleValue: this.props.dragon.saleValue,
@@ -57,20 +57,23 @@ class AccountDragonRow extends Component {
         return (
             <div className='dragon-card'>
                 <div className='edit-fields'>
-                    <span className='edit-row'>
-                        <label>Nickname:</label>
-                        <input
-                            type='text'
-                            name='nickname'
-                            value={this.state.nickname}
-                            onChange={this.handleInputChange}
-                            disabled={!this.state.edit}
-                        />
+                    <span>Nickname:{' '}
+                        {
+                            this.state.edit ?
+                                <input
+                                    type='text'
+                                    name='nickname'
+                                    value={this.state.nickname}
+                                    onChange={this.handleInputChange}
+                                    disabled={!this.state.edit}
+                                />
+                                :
+                                null
+                    }
+
                     </span>
-                    <span className='edit-row'>
-                        <label>Sale Value:</label>
+                    <span>Sale Value:{' '}
                         <input
-                            label='Sale Value'
                             type='number'
                             name='saleValue'
                             value={this.state.saleValue}
@@ -78,8 +81,7 @@ class AccountDragonRow extends Component {
                             disabled={!this.state.edit}
                         />
                     </span>
-                    <span className='edit-row'>
-                        <label>Sale Value:</label>
+                    <span>Sire Value:{' '}
                         <input
                             type='number'
                             name='sireValue'
@@ -124,4 +126,4 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AccountDragonRow);
+export default connect(mapStateToProps, mapDispatchToProps)(AccountDragonRow2);

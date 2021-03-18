@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { fetchAccountDragons } from '../redux/actions/accountDragonActions';
 import AccountDragonRow from './AccountDragonRow';
+import AccountDragonRow2 from './AD2';
 import { Link } from 'react-router-dom';
 
 class AccountDragons extends Component {
@@ -13,7 +14,7 @@ class AccountDragons extends Component {
     render() {
         return (
             <div className='account-public-container'>
-                <h3>My Dragons List</h3>
+                <h2 className='account-public-title'>My Dragons List</h2>
                 <div className='dragon-cards-container'>
                     {
                         this.props.accountDragons.content.map(dragon => {

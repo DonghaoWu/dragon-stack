@@ -51,12 +51,12 @@ class PublicDragonsRow extends Component {
                 }
                 <div className='dragon-card'>
                     <DragonAvatar dragon={this.props.dragon} />
-                    <div className='dragon-card-buttons'>
-                        <div className='dragon-description-button'>
+                    <div className='public-dragon-card-buttons'>
+                        <div className='public-dragon-card-button'>
                             <div>Sale value:{this.props.dragon.saleValue}</div>
                             <button onClick={this.openBuyModal}>Buy</button>
                         </div>
-                        <div className='dragon-description-button'>
+                        <div className='public-dragon-card-button'>
                             <div>Sire value:{this.props.dragon.sireValue}</div>
                             <button onClick={this.openMateModal}>Sire</button>
                         </div>

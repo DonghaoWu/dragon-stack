@@ -9,14 +9,12 @@ import AccountInfo from './AccountInfo';
 class MyProfile extends Component {
     render() {
         return (
-            <div>
-                <div className='profile-container'>
-                    <AccountInfo />
-                    <Generation />
-                    <br />
-                    <br />
-                    <br />
-                </div>
+            <div className='profile-container'>
+                <AccountInfo />
+                <Generation />
+                <br />
+                <br />
+                <br />
             </div>
         )
     }
