@@ -19,7 +19,7 @@ const DragonAvatar = ({ dragon }) => {
 
     const dragonPropertyMap = {};
 
-    const imageWrapper = 'dragon-avatar-image-wrapper-normal'
+    const imageWrapper = 'dragon-card-avatar'
 
     traits.forEach(trait => {
         const { traitType, traitValue } = trait;
@@ -43,9 +43,9 @@ const DragonAvatar = ({ dragon }) => {
     if (!dragonId) return <div></div>
 
     return (
-        <div className='dragon-avatar-container'>
+        <div className='dragon-card-content'>
             {image}
-            <div className='dragon-decriptions-container'>
+            <div className='dragon-card-descriptions'>
                 <div className='dragon-description'><span className='description-title'>Nickname:</span><span className='description-value'> {nickname}</span></div>
                 <div className='dragon-description'><span className='description-title'>Dragon ID:</span><span className='description-value'> {dragonId}</span></div>
                 <div className='dragon-description'><span className='description-title'>Generation ID:</span><span className='description-value'> {generationId}</span></div>
@@ -53,9 +53,7 @@ const DragonAvatar = ({ dragon }) => {
                 {
                     traits.map((trait, index) => {
                         return (
-                            <div key={index}>
-                                <div className='dragon-description'><span className='description-title'>{`${trait.traitType}:`} </span><span className='description-value'>{`${trait.traitValue}`}</span></div>
-                            </div>
+                            <div key={index} className='dragon-description'><span className='description-title'>{`${trait.traitType}:`} </span><span className='description-value'>{`${trait.traitValue}`}</span></div>
                         )
                     })
                 }

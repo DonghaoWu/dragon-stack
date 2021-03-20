@@ -65,7 +65,7 @@ class PublicDragonsRow extends Component {
                             </div>
                         </div>
                         :
-                        <div className='dragon-card dragon-card-other'>
+                        <div className='dragon-card dragon-card-otherOwner'>
                             <DragonAvatar dragon={this.props.dragon} />
                             <div className='public-dragon-card-buttons'>
                                 <div className='public-dragon-card-button'>

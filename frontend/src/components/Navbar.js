@@ -5,11 +5,11 @@ import { logout } from '../redux/actions/accountActions';
 
 const Navbar = ({ logout, accountInfo }) => {
     return (
-        <div className='my-nav-bar'>
-            <h2 className='my-nav-bar-title'>Dragon-stack</h2>
-            <div className='logout-button'>
-                <span className='username'>Hello, {accountInfo.content.username}</span>
-                <span className='username'>Balance: {accountInfo.content.balance}</span>
+        <div className='my-navbar'>
+            <h2 className='my-navbar-title'>Dragon-stack</h2>
+            <div className='my-navbar-user'>
+                <span className='my-navbar-userInfo'>Hello, {accountInfo.content.username}</span>
+                <span className='my-navbar-userInfo'>Balance: {accountInfo.content.balance}</span>
                 <Button onClick={logout}>Log out</Button>
             </div>
         </div>

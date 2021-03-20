@@ -8,7 +8,7 @@ class Home extends Component {
         return (
             <div className='home-container'>
                 <Navbar />
-                <div className='my-content-container'>
+                <div className='my-content'>
                     <FilterSideBar />
                     <MainContent />
                 </div>

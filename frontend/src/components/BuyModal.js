@@ -77,7 +77,7 @@ class BuyModal extends React.Component {
                             <div>
                                 <div className='contentContainer'>
                                     <div className='title'>Confirm Page</div>
-                                    <div className='dragon-card dragon-card-other'>
+                                    <div className='dragon-card dragon-card-otherOwner'>
                                         <DragonAvatar dragon={dragon} />
                                     </div>
                                     <p className='text'>

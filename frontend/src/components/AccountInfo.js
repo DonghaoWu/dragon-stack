@@ -14,7 +14,7 @@ class AccountInfo extends Component {
 
     render() {
         return (
-            <div className='account-info-container'>
+            <div className='accountInfo-container'>
                 <div>
                     <h2>Account Info:</h2>
                     <div>Username: {this.props.accountInfo.content.username}</div>

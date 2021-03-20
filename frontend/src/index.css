@@ -1,51 +1,41 @@
+/* Global setting */
 body {
   text-align: center;
   margin: 3%;
   font-size: 20px;
-
-  /* display: flex;
-  justify-content: center;
-  align-items: center; */
 }
 
 button{
   font-size: 1.1rem;
 }
 
-.username{
-  margin-right: 50px;
-}
-
-.account-dragon-row-input {
-  width: 100px;
-  height: 20px;
-  margin-right: 15px;
-}
+/* ------------------------ */
 
 /* auth form */
-.auth-form-container{
+.authForm-container{
   position: absolute;
   top:0rem;
   left:0rem;
   right:0rem;
   bottom: 0rem;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
   background-image: url('./assets/dragon.png');
   background-position: center; /* Center the image */
   background-repeat: no-repeat; /* Do not repeat the image */
   background-size: cover;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.auth-form{
-  width:512px;
+.auth-form-content{
+  min-width:512px;
   border:1px solid grey;
   background-color: grey;
   color:white;
-
+  padding:1rem;
+  border-radius: 5%;
 
   display:flex;
   flex-direction: column;
@@ -53,12 +43,12 @@ button{
   justify-content: center;
 }
 
-.auth-form-content{
-  width:90%;
+.auth-form-inputField{
+  width:85%;
 }
 
 .auth-form-buttons{
-  margin-top: 2rem;
+  margin: 2rem 1rem 0.5rem 1rem;
   display: flex;
   justify-content: center;
 }
@@ -67,9 +57,274 @@ button{
   margin:0 1rem;
 }
 
+
+/* ------------------------ */
 /* home-container */
 .home-container{
+  /* min-width:1024px; */
+  display: flex;
+  flex-direction: column;
+}
 
+/* ------------------------ */
+/* Navbar */
+.my-navbar{
+  z-index: 2;
+  position: fixed;
+  height:5rem;
+  width:100%;
+  background-color:rgb(235, 150, 70);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color:white;
+}
+
+.my-navbar-title{
+  margin-left: 3rem;
+}
+
+.my-navbar-user {
+  display: flex;
+  align-items: center;
+  margin-right: 3rem;
+}
+
+.my-navbar-userInfo{
+  margin-right: 3rem;
+  font-size: 1.3rem;
+}
+
+/* ------------------------ */
+/* main-container */
+.my-content{
+  position: absolute;
+  top:5rem;
+  left:0.5rem;
+  right:1rem;
+  display: flex;
+  min-height: 93%;
+  min-width:1024px;
+}
+
+/* filter side bar */
+.filter-side-bar{
+  width:16%;
+  background-color: aliceblue;
+  min-width:260px;
+  padding-top: 5rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* main content */
+.main-content{
+  margin: 0 1.5rem;
+  width:80%;
+}
+
+/* main content sub nav */
+.sub-nav-container{
+  height:2rem;
+  font-size: 1.8rem;
+  margin:1rem 1rem 3rem 1rem;
+}
+
+/* main content Profile page */
+.profile-container{
+  display: flex;
+  height:90%;
+}
+
+.accountInfo-container{
+  margin: 5rem 2rem 1rem 1rem;
+  padding: 1.5rem;
+  width:40%;
+  height:35%;
+  font-size: 1.5rem;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  border-right: 1px solid lightgrey;
+}
+
+.generation-container{
+  margin: 5rem 1rem 1rem 1rem;
+  padding: 1.5rem;
+  width:55%;
+}
+
+.generation-content{
+  width:90%;
+}
+
+.generation-info-container{
+  width:100%;
+  margin-bottom: 3rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.generation-dragon-container{
+  width:100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.new-dragon-warning{
+  color:red;
+  font-size: 1.3rem
+}
+
+
+/* ------------------------ */
+/* ------------------------ */
+/* Dragon Card */
+.dragon-card{
+  border:1px solid black;
+  margin:1rem;
+  padding: 0.5rem;
+  width:400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color:rgb(226, 184, 198);
+}
+
+.dragon-card-otherOwner{
+  background-color:rgb(192, 184, 226);
+}
+
+.patron-dragon{
+  background-color: rgb(108, 108, 199)
+}
+
+.matron-dragon{
+  background-color: rgb(207, 121, 121)
+}
+
+.baby-dragon{
+  background-color: rgb(111, 182, 111)
+}
+
+/* Dragon avatar container*/
+.dragon-card-content{
+  width:85%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dragon-card-avatar {
+  position: relative;
+  height: 300px;
+  border:1px solid white;
+  margin-bottom: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dragon-avatar-image-background {
+  position: absolute;
+}
+
+.dragon-avatar-image-pattern {
+  position: absolute;
+}
+
+.dragon-avatar-image {
+  z-index: 1;
+}
+
+.dragon-card-descriptions{
+  font-size: 1.2rem;
+  width:95%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dragon-description{
+  width:100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ------------------------ */
+/* ------------------------ */
+
+
+/* main content Account Dragons page */
+.account-public-container{
+  height:90%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.account-public-title{
+  padding-bottom: 1rem;
+  border-bottom: 1px solid grey;
+}
+
+.dragon-cards-container{
+  width:100%;
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* ------------------------ */
+/* ------------------------ */
+
+/* 3/20 18:45 pm */
+.edit-fields{
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-row{
+  display: flex;
+  justify-content: space-between;
+}
+
+.account-dragon-row-input {
+  width: 100px;
+  height: 20px;
+  margin-right: 15px;
+}
+
+.public-dragon-card-buttons{
+  margin-top: 0.5rem;
+  border-top: 1px solid white;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color:rgb(17, 26, 114);
+}
+
+.public-dragon-card-button{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: 5px 0;
 }
 
 
@@ -193,210 +448,3 @@ button{
   justify-content: center;
 }
 
-/* Navbar */
-
-.my-nav-bar{
-  z-index: 2;
-  position: fixed;
-  height:5rem;
-  width:100%;
-  min-width: 512px;
-  background-color:rgb(235, 150, 70);
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color:white;
-}
-
-.my-nav-bar-title{
-  margin-left: 3rem;
-}
-
-.logout-button {
-  display: flex;
-  align-items: center;
-  margin-right: 3rem;
-}
-
-/* main-container */
-.my-content-container{
-  position: absolute;
-  top:5rem;
-  left:0.5rem;
-  right:1rem;
-  display: flex;
-  min-height: 93%;
-}
-
-/* filter side bar */
-.filter-side-bar{
-  width:16%;
-  background-color: aliceblue;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-/* main content */
-.main-content{
-  margin: 0 2rem;
-  width:80%;
-}
-
-/* main content sub nav */
-.sub-nav-container{
-  height:2rem;
-  font-size: 1.8rem;
-  margin:1rem 1rem 4rem 1rem;
-}
-
-/* main content profile page */
-.profile-container{
-  height:90%;
-  display: flex;
-}
-
-.account-info-container{
-  margin-top: 5rem;
-  width:40%;
-  height:30%;
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  border-right: 1px solid lightgrey;
-}
-
-.generation-info-container{
-  margin-top: 5.5rem;
-  width:50%;
-}
-
-.generation-dragon{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.generation-info{
-  margin-bottom: 3rem;
-}
-
-.new-dragon-warning{
-  color:red;
-  font-size: 1.3rem
-}
-
-/* main content account dragons page */
-.account-public-container{
-  height:90%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.account-public-title{
-  padding-bottom: 1rem;
-  border-bottom: 1px solid grey;
-}
-
-.edit-fields{
-  display: flex;
-  flex-direction: column;
-}
-
-.edit-row{
-  display: flex;
-  justify-content: space-between;
-}
-
-/* dragon cards container */
-.dragon-cards-container{
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-}
-
-.dragon-card{
-  border:1px solid black;
-  margin:5px 5px;
-  padding: 1rem 0;
-  width:400px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  background-color:rgb(226, 184, 198);
-}
-
-.dragon-card-other{
-  background-color:rgb(192, 184, 226);
-}
-
-.patron-dragon{
-  background-color: rgb(108, 108, 199)
-}
-
-.matron-dragon{
-  background-color: rgb(207, 121, 121)
-}
-
-.baby-dragon{
-  background-color: rgb(111, 182, 111)
-}
-
-.public-dragon-card-buttons{
-  margin-top: 0.5rem;
-  border-top: 1px solid white;
-  width: 80%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  color:rgb(17, 26, 114);
-}
-
-.public-dragon-card-button{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin: 5px 0;
-}
-
-/* dragon avatar */
-.dragon-avatar-container{
-  display: flex;
-  flex-direction: column;
-  width:80%;
-}
-
-.dragon-avatar-image-wrapper-normal {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  width: auto;
-  border:1px solid white;
-  margin-bottom: 1rem;
-}
-
-.dragon-avatar-image-background {
-  position: absolute;
-}
-
-.dragon-avatar-image-pattern {
-  position: absolute;
-}
-
-.dragon-avatar-image {
-  z-index: 1;
-}
-
-.dragon-description{
-  display: flex;
-  justify-content: space-between;
-}

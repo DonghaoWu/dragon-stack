@@ -26,10 +26,10 @@ class AuthForm extends Component {
 
     render() {
         return (
-            <div className='auth-form-container'>
-                <div className='auth-form'>
+            <div className='authForm-container'>
+                <div className='auth-form-content'>
                     <h2>Dragon Stack</h2>
-                    <Form.Group className='auth-form-content'>
+                    <Form.Group className='auth-form-inputField'>
                         <Form.Label>Username</Form.Label>
                         <Form.Control
                             type='text'
