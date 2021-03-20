@@ -35,7 +35,6 @@ class PublicDragonsRow extends Component {
     }
 
     render() {
-        console.log(this.props.accountInfo.content.accountId)
         return (
             <Fragment>
                 {

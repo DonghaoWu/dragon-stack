@@ -26,7 +26,6 @@ const getWholeDragon = ({ dragonId, accountId }) => {
 }
 
 const getPublicDragons = () => {
-    // console.log('=====>, here')
     return new Promise((resolve, reject) => {
         pool.query(
             `SELECT dragon.id, "accountId"
@@ -36,12 +35,10 @@ const getPublicDragons = () => {
             WHERE "isPublic" = TRUE`,
             (error, response) => {
                 if (error) {
-                    // console.log(error);
                     reject(error);
                 }
                 else {
                     const publicDragonRows = response.rows;
-                    // console.log(publicDragonRows, '========>')
                     Promise.all(
                         publicDragonRows.map(({ id, accountId }) => {
                             return getWholeDragon({ dragonId: id, accountId })
@@ -51,7 +48,6 @@ const getPublicDragons = () => {
                             resolve({ dragons })
                         })
                         .catch(error => {
-                            // console.log(error);
                             reject(error)
                         });
                 }
