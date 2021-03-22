@@ -112,7 +112,7 @@ button{
 .filter-side-bar{
   width:16%;
   background-color: aliceblue;
-  min-width:260px;
+  min-width:100px;
   padding-top: 5rem;
 
   display: flex;
@@ -141,7 +141,7 @@ button{
 }
 
 .accountInfo-container{
-  margin: 5rem 2rem 1rem 1rem;
+  margin: 5rem 1rem 1rem 1rem;
   padding: 1.5rem;
   width:40%;
   height:35%;
@@ -191,9 +191,10 @@ button{
 /* Dragon Card */
 .dragon-card{
   border:1px solid black;
-  margin:1rem;
+  margin:1rem 0.5rem;
   padding: 0.5rem;
-  width:400px;
+  width:370px;
+
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -219,7 +220,7 @@ button{
 
 /* Dragon avatar container*/
 .dragon-card-content{
-  width:85%;
+  width:90%;
 
   display: flex;
   flex-direction: column;
@@ -286,7 +287,7 @@ button{
   width:100%;
   margin-top: 1.5rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
 }
 
