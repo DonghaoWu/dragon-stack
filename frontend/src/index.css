@@ -284,10 +284,11 @@ button{
 }
 
 .dragon-cards-container{
-  width:100%;
+  width:95%;
+  
   margin-top: 1.5rem;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
