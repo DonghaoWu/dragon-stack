@@ -1,0 +1,42 @@
+/* Public Dragon Page Buy modal */
+.infoModal .buy-modal-container {
+    width:30%;
+    min-width:500px;
+    min-height:790px;
+  
+    border-radius: 30px;
+    background-color: white;
+  
+    display: flex;
+    flex-direction: column;
+}
+
+.infoModal .title{
+  color:purple;
+  font-size: 2rem;
+}
+
+.infoModal .text {
+  width:100%;
+  padding:0 3%;
+  font-size: 1.2rem;
+
+  display: flex;
+  justify-content: center;
+}
+
+.infoModal .modal-buttons{
+    width:360px;
+
+    display: flex;
+    justify-content: flex-end;
+}
+
+.infoModal .modal-button{
+  margin:0.5rem;
+}
+
+.infoModal .modal-value{
+  color:red;
+  font-size: 1.2rem;
+}

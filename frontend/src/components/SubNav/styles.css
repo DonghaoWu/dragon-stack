@@ -1,0 +1,9 @@
+/* Sub nav container */
+.sub-nav-container{
+    font-size: 1.8rem;
+    margin:1rem;
+    border-bottom: 1px solid lightgray;
+
+    display: flex;
+    justify-content: space-around;
+}

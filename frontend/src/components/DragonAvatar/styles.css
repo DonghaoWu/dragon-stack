@@ -1,0 +1,46 @@
+/* Dragon avatar container*/
+.dragon-card-content{
+    width:90%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dragon-card-avatar {
+    position: relative;
+    height: 300px;
+    border:1px solid white;
+    margin-bottom: 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dragon-avatar-image-background {
+    position: absolute;
+}
+
+.dragon-avatar-image-pattern {
+    position: absolute;
+}
+
+.dragon-avatar-image {
+    z-index: 1;
+}
+
+.dragon-card-descriptions{
+    font-size: 1.2rem;
+    width:95%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dragon-description{
+    width:100%;
+    display: flex;
+    justify-content: space-between;
+}

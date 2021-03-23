@@ -1,0 +1,23 @@
+.public-dragon-card-buttons{
+    margin-top: 0.5rem;
+    border-top: 1px solid white;
+    width: 85%;
+  
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    color:rgb(17, 26, 114);
+  }
+  
+  .public-dragon-card-button{
+    margin: 2px 0;
+    font-size: 1.2rem;
+  
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .public-dragon-card-button button{
+    margin: 5px 0;
+  }

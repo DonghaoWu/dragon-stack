@@ -1,0 +1,9 @@
+.edit-fields{
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-row{
+    display: flex;
+    justify-content: space-between;
+}

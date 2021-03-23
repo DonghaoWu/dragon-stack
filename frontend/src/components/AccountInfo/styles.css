@@ -1,0 +1,13 @@
+/* ------------------------ */
+.accountInfo-container{
+    margin: 5rem 1rem 1rem 1rem;
+    padding: 1.5rem;
+    width:40%;
+    height:35%;
+    font-size: 1.5rem;
+  
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    border-right: 1px solid lightgrey;
+}
