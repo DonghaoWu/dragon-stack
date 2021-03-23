@@ -306,16 +306,11 @@ button{
   justify-content: space-between;
 }
 
-.account-dragon-row-input {
-  width: 100px;
-  height: 20px;
-  margin-right: 15px;
-}
-
 .public-dragon-card-buttons{
   margin-top: 0.5rem;
   border-top: 1px solid white;
-  width: 80%;
+  width: 85%;
+
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -323,12 +318,19 @@ button{
 }
 
 .public-dragon-card-button{
+  margin: 2px 0;
+  font-size: 1.2rem;
+
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+}
+
+.public-dragon-card-button button{
   margin: 5px 0;
 }
 
+/* ------------------------ */
 
 /* Modal */
 .infoModal{
@@ -338,19 +340,20 @@ button{
   width: 100%;
   top: 0;
   left: 0;
-  background-color: rgb(0,0,0); 
   background-color: rgba(0,0,0,0.4); 
 
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .infoModal .closeIcon {
-    display: flex;
-    justify-content: flex-end;
     padding-right: 5%;
     font-size: 2rem;
     font-style: bold;
+    
+    display: flex;
+    justify-content: flex-end;
 }
 
 .infoModal .contentContainer{
@@ -366,22 +369,22 @@ button{
 
 .infoModal .text {
     width:100%;
-    margin-right:110px;
     padding:0 3%;
     font-size: 1.2rem;
+
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .infoModal .modal-buttons{
-    width:100%;
-    margin-right:110px;
+    width:360px;
+
     display: flex;
     justify-content: flex-end;
 }
 
 .infoModal .modal-button{
-  margin-left:1rem;
+  margin:0.5rem;
 }
 
 .infoModal .modal-value{
@@ -389,43 +392,54 @@ button{
   font-size: 1.2rem;
 }
 
-/* buy modal */
+/* Public Dragon Page Buy modal */
 .infoModal .buy-modal-container {
-  width:500px;
-  height:730px;
+  width:30%;
+  min-width:500px;
+  min-height:790px;
+
+  border-radius: 30px;
   background-color: white;
 
   display: flex;
   flex-direction: column;
-  border-radius: 30px;
-
-  margin: 10.8rem auto 80px auto;
 }
 
-/* Mate modal */
+/* Public Dragon Page Mate modal */
 .infoModal .mate-modal-container {
-  width:80%;
-  height:75%;
+  width:70%;
+  min-width:900px;
+  min-height:850px;
 
   background-color: white;
 
   display: flex;
   flex-direction: column;
   border-radius: 30px;
-
-  margin: 10.8rem auto 80px auto;
 }
 
 .mate-dragons-container{
   width:85%;
+  margin-bottom: 2.5rem;
+
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
 }
 
 .parent-dragons-container{
+  border:1px solid lightgrey;
+  border-radius: 30px;
+  padding:1rem;
+
   display: flex;
-  border:1px solid black;
+}
+
+.baby-dragon-container{
+  border:1px solid lightgrey;
+  border-radius: 30px;
+  padding:1rem;
+
+  display: flex;
 }
 
 .modal-mate-dragon{
@@ -434,19 +448,42 @@ button{
   align-items: center;
 }
 
-/* others */
-.home-buttons-container{
-  width:300px;
+.mate-description-container{
+  width:100%;
+  min-width: 600px;
+
+  display:flex;
+  justify-content: center;
+}
+
+.description-container{
+  width:80%;
+
+  display: flex;
+  justify-content: center;
+}
+
+.description-content{
+  width:90%;
+  
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.description-text{
+  margin:0 1rem;
+}
+
+.description-options-buttons{
+  border-left: 1px solid lightgrey;
+  padding-left: 5rem;
+
   display: flex;
   justify-content: space-between;
 }
 
-.dragon-list-button{
-  margin: 5px;
-}
-
-.header-container{
-  display: flex;
-  justify-content: center;
+.description-buttons{
+  margin-left:2rem;
 }
 

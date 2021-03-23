@@ -58,37 +58,34 @@ class BuyModal extends React.Component {
                     </div>
                     {
                         buyDragonState.buyDragonSuccess ?
-                            <div>
-                                <div className='contentContainer'>
-                                    <div className='title'>Congratulation!!!</div>
-                                    <div className='dragon-card'>
-                                        <DragonAvatar dragon={dragon} />
-                                    </div>
-                                    <p className='text'>
-                                        <span>Buy dragon <span className='modal-value'>[DragonId: {dragon.dragonId}]</span> success!</span>
-                                    </p>
-                                    <div className='modal-buttons'>
-                                        <button className='modal-button' onClick={this.checkAccountDragons}>Check my account dragons</button>
-                                        <button className='modal-button' onClick={handleBuyModal}>Finish</button>
-                                    </div>
+                            <div className='contentContainer'>
+                                <div className='title'>Congratulation!!!</div>
+                                <div className='dragon-card'>
+                                    <DragonAvatar dragon={dragon} />
+                                </div>
+                                <p className='text'>
+                                    <span>Buy dragon <span className='modal-value'>[DragonId: {dragon.dragonId}]</span> success!</span>
+                                </p>
+                                <div className='modal-buttons'>
+                                    <button className='modal-button' onClick={this.checkAccountDragons}>Check my account dragons</button>
+                                    <button className='modal-button' onClick={handleBuyModal}>Finish</button>
                                 </div>
                             </div>
                             :
-                            <div>
-                                <div className='contentContainer'>
-                                    <div className='title'>Confirm Page</div>
-                                    <div className='dragon-card dragon-card-otherOwner'>
-                                        <DragonAvatar dragon={dragon} />
-                                    </div>
-                                    <p className='text'>
-                                        <span>You will spend <span className='modal-value'>{dragon.saleValue}</span> value to buy this dragon.</span>
-                                    </p>
-                                    <div className='modal-buttons'>
-                                        <button className='modal-button' onClick={this.buy}>Buy</button>
-                                        <button className='modal-button' onClick={handleBuyModal}>Cancel</button>
-                                    </div>
+                            <div className='contentContainer'>
+                                <div className='title'>Confirm Page</div>
+                                <div className='dragon-card dragon-card-otherOwner'>
+                                    <DragonAvatar dragon={dragon} />
+                                </div>
+                                <p className='text'>
+                                    <span>You will spend <span className='modal-value'>{dragon.saleValue}</span> value to buy this dragon.</span>
+                                </p>
+                                <div className='modal-buttons'>
+                                    <button className='modal-button' onClick={this.buy}>Buy</button>
+                                    <button className='modal-button' onClick={handleBuyModal}>Cancel</button>
                                 </div>
                             </div>
+
                     }
                 </div>
             </div>

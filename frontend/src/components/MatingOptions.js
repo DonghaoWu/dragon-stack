@@ -6,23 +6,32 @@ import { withRouter } from "react-router-dom";
 import { selectMatronDragon } from '../redux/actions/mateDragonActions'
 
 class MatingOptions extends Component {
+
+    handleChange = (e) => {
+        if (e.target.value === 'Select') {
+            this.props.selectMatronDragon({ dragon: {} });
+            return;
+        }
+        this.props.selectMatronDragon({ dragon: this.props.accountDragons.content[e.target.value] });
+    }
+
     render() {
         const { accountDragons, selectMatronDragon } = this.props;
         return (
             <div>
                 <span>Pick one of your dragons to mate with.</span>
                 <br />
-                <br />
-                {
-                    this.props.accountDragons.content.map((dragon, index) => {
-                        const { dragonId, generationId, nickname } = dragon;
-                        return (
-                            <span key={dragonId}>
-                                <button onClick={() => selectMatronDragon({ dragon: accountDragons.content[index] })}>G:{generationId}.I:{dragonId}.N:{nickname}</button>
-                            </span>
-                        )
-                    })
-                }
+                <select name='matron-dragons' className="matron-dragons-select" onChange={this.handleChange}>
+                    <option>Select</option>
+                    {
+                        this.props.accountDragons.content.map((dragon, index) => {
+                            const { dragonId, generationId, nickname, sireValue } = dragon;
+                            return (
+                                <option key={dragonId} value={index}> GID: {generationId}, ID:{dragonId}, Nickname:{nickname}</option>
+                            )
+                        })
+                    }
+                </select>
             </div>
         )
     }

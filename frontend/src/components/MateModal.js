@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragement } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router-dom";
 
@@ -84,33 +84,38 @@ class MateModal extends React.Component {
                             </div>
                             {
                                 mateDragonState.content.babyDragon ?
-                                    <div className='modal-mate-dragon'>
-                                        <div className='modal-sub-title'>Your new baby Dragon</div>
-                                        <div className='dragon-card baby-dragon'>
-                                            <DragonAvatar dragon={mateDragonState.content.babyDragon} />
+                                    <div className='baby-dragon-container'>
+                                        <div className='modal-mate-dragon'>
+                                            <div className='modal-sub-title'>Your new baby Dragon</div>
+                                            <div className='dragon-card baby-dragon'>
+                                                <DragonAvatar dragon={mateDragonState.content.babyDragon} />
+                                            </div>
                                         </div>
                                     </div>
                                     : <div></div>
                             }
                         </div>
-                        <div>
+                        <div className='mate-description-container'>
                             {
                                 mateDragonState.selectedMatronDragon.dragonId ?
-                                    <div>
+                                    <div className='description-container'>
                                         {
                                             this.state.displayMatingOption
                                                 ?
-                                                <div>
-                                                    <MatingOptions patronDragonId={dragon.dragonId} />
-                                                    <p className='modal-mate-text'>
-                                                        You will spend <span className='modal-value'>{dragon.sireValue}</span> value to mate this dragon.
+                                                <div className='description-content'>
+                                                    <p className='description-text'>
+                                                        <span>You will spend <span className='modal-value'>{dragon.sireValue}</span> value to mate this dragon.</span>
                                                     </p>
-                                                    <div className='modal-mate-buttons'>
-                                                        <Button className='modal-button' onClick={this.mate({
-                                                            patronDragonId: dragon.dragonId,
-                                                            matronDragonId: mateDragonState.selectedMatronDragon.dragonId
-                                                        })}>Mate</Button>
-                                                        <Button className='modal-button' onClick={handleMateModal}>Cancel</Button>
+
+                                                    <div className='description-options-buttons'>
+                                                        <MatingOptions patronDragonId={dragon.dragonId} />
+                                                        <div className='description-buttons'>
+                                                            <Button className='modal-button' onClick={this.mate({
+                                                                patronDragonId: dragon.dragonId,
+                                                                matronDragonId: mateDragonState.selectedMatronDragon.dragonId
+                                                            })}>Mate</Button>
+                                                            <Button className='modal-button' onClick={handleMateModal}>Cancel</Button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 :
@@ -121,21 +126,24 @@ class MateModal extends React.Component {
                                         }
                                     </div>
                                     :
-                                    <div>
+                                    <div className='description-container'>
                                         {
                                             this.state.displayMatingOption
                                                 ?
-                                                <div>
-                                                    <MatingOptions patronDragonId={dragon.dragonId} />
-                                                    <p className='modal-mate-text'>
-                                                        You will spend <span className='modal-value'>{dragon.sireValue}</span> value to mate this dragon.
+                                                <div className='description-content'>
+                                                    <p className='description-text'>
+                                                        <span>You will spend <span className='modal-value'>{dragon.sireValue}</span> value to mate this dragon.</span>
                                                     </p>
-                                                    <div className='modal-mate-buttons'>
-                                                        <Button className='modal-button' onClick={this.mate({
-                                                            patronDragonId: dragon.dragonId,
-                                                            matronDragonId: mateDragonState.selectedMatronDragon.dragonId
-                                                        })}>Mate</Button>
-                                                        <Button className='modal-button' onClick={handleMateModal}>Cancel</Button>
+
+                                                    <div className='description-options-buttons'>
+                                                        <MatingOptions patronDragonId={dragon.dragonId} />
+                                                        <div className='description-buttons'>
+                                                            <Button className='modal-button' onClick={this.mate({
+                                                                patronDragonId: dragon.dragonId,
+                                                                matronDragonId: mateDragonState.selectedMatronDragon.dragonId
+                                                            })}>Mate</Button>
+                                                            <Button className='modal-button' onClick={handleMateModal}>Cancel</Button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 :
