@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { fetchAccountDragons } from '../../redux/actions/accountDragonActions';
 import { updateDragon } from '../../redux/actions/updateDragonActions';
 
 import DragonAvatar from '../DragonAvatar/index';
@@ -44,8 +43,8 @@ class AccountDragonRow extends Component {
                     alert(this.props.updateDragonState.errorMessage);
                     return;
                 }
-
                 this.setState({ edit: false });
+                alert(`[DragonID: ${this.props.dragon.dragonId}] Updated success!`)
             })
     }
 
@@ -115,7 +114,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        fetchAccountDragons: () => dispatch(fetchAccountDragons),
         updateDragon: ({ dragonId, nickname, isPublic, saleValue, sireValue }) => dispatch(updateDragon({ dragonId, nickname, isPublic, saleValue, sireValue }))
     }
 }

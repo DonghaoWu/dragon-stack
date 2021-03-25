@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-import Home from './components/Home/index.js';
-import AuthForm from './components/AuthForm/index.js';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
+import Home from './components/Home/index.js';
+import AuthForm from './components/AuthForm/index.js';
 
-const App = (props) => {
+const App = ({ account }) => {
   let history = useHistory();
-  if (!props.account.loggedIn) {
+  if (!account.loggedIn) {
     history.push("/");
   }
 
   return (
-    props.account.loggedIn ? <Home /> : <AuthForm />
+    account.loggedIn ? <Home /> : <AuthForm />
   )
 }
 

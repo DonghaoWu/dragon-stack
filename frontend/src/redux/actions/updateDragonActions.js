@@ -30,9 +30,11 @@ export const updateDragon = ({ dragonId, nickname, isPublic, saleValue, sireValu
                     type: UPDATE_DRAGON_SUCCESS,
                     payload: data.info
                 })
-                dispatch(fetchAccountDragons);
             }
         }))
+        .then(() => {
+            dispatch(fetchAccountDragons);
+        })
         .catch(error => {
             dispatch({
                 type: UPDATE_DRAGON_FAILURE,

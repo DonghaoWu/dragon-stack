@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
+import { Button } from 'react-bootstrap';
 
 import { logout } from '../../redux/actions/accountActions';
 
@@ -31,4 +31,4 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-export default (connect(mapStateToProps, mapDispatchToProps)(Navbar));
+export default connect(mapStateToProps, mapDispatchToProps)(Navbar);

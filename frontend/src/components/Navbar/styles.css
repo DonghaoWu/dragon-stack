@@ -10,19 +10,19 @@
     align-items: center;
     justify-content: space-between;
     color:white;
-  }
-  
-  .my-navbar-title{
+}
+
+.my-navbar-title{
     margin-left: 3rem;
-  }
-  
-  .my-navbar-user {
+}
+
+.my-navbar-user {
     display: flex;
     align-items: center;
     margin-right: 3rem;
-  }
-  
-  .my-navbar-userInfo{
+}
+
+.my-navbar-userInfo{
     margin-right: 3rem;
     font-size: 1.3rem;
-  }
+}

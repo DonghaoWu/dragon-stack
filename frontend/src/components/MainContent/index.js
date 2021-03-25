@@ -1,9 +1,9 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { BrowserRouter as Router, Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import { Link, BrowserRouter as Router, Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
 
+import AuthForm from '../AuthForm/index';
 import SubNav from '../SubNav/index';
 import MyProfile from '../MyProfile/index';
 import AccountDragons from '../AccountDragons/index';
@@ -12,18 +12,18 @@ import PublicDragons from '../PublicDragons/index';
 import store from '../../redux/store';
 import './styles.css';
 
-
 const AuthRoute = (props) => {
     let history = useHistory();
     if (!store.getState().account.loggedIn) {
         history.push("/");
+        return <AuthForm />;
     }
-    const { component, path } = props;
 
+    const { component, path } = props;
     return <Route path={path} component={component} />
 }
 
-const MainContent = ({ accountInfo }) => {
+const MainContent = () => {
     return (
         <div className='main-content'>
             <SubNav />

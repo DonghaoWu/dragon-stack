@@ -1,9 +1,38 @@
 /* Sub nav container */
 .sub-nav-container{
-    font-size: 1.8rem;
+    width:95%;
     margin:1rem;
+    font-size: 1.5rem;
+    padding: 0.5rem 0.5rem;
     border-bottom: 1px solid lightgray;
 
     display: flex;
     justify-content: space-around;
+    align-items: center;
+}
+
+.seletedTag{
+    color: white;
+    background-color:#047BFE;
+
+    padding:0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.seletedTag:hover{
+    text-decoration: none;
+    color: white;
+}
+
+.unSelectedTag{
+    padding:0.5rem 1rem;
+}
+
+.unSelectedTag:hover{
+    color: white;
+    background-color:#047BFE;
+
+    padding:0.5rem 1rem;
+    border-radius: 20px;
+    text-decoration: none;
 }

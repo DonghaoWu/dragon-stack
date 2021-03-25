@@ -21,8 +21,9 @@ class AccountInfo extends Component {
                     <div>Username: {this.props.accountInfo.content.username}</div>
                     <div>Balance: {this.props.accountInfo.content.balance}</div>
                     <br />
-                    <Button onClick={this.props.createDragon}>Create a new dragon in current generation</Button>
+                    <Button onClick={this.props.createDragon}>Create a new dragon</Button>
                 </div>
+                <div className='accountInfo-border-right'></div>
             </div>
         )
     }

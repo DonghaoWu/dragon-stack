@@ -1,6 +1,5 @@
 /* Global setting */
 body {
-  margin: 3%;
   font-size: 20px;
 }
 
@@ -10,6 +9,7 @@ button{
 
 /* main content Account & Public Dragons page */
 .account-public-container{
+  width:95%;
   margin:0.5rem;
   padding: 0.5rem;
 
@@ -30,6 +30,7 @@ button{
   margin-top: 1.5rem;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 /* Dragon Card */
@@ -40,7 +41,6 @@ button{
   padding: 0.5rem;
   width:370px;
 
-  flex:0 0 33.33%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
