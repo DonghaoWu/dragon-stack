@@ -8,9 +8,6 @@ import './styles.css';
 
 class AccountDragonRow extends Component {
     state = {
-        previousNickname: this.props.dragon.nickname,
-        previousSaleValue: this.props.dragon.saleValue,
-        previousIsPublic: this.props.dragon.isPublic,
         nickname: this.props.dragon.nickname,
         isPublic: this.props.dragon.isPublic,
         saleValue: this.props.dragon.saleValue,
