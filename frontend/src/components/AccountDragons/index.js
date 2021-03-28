@@ -12,9 +12,7 @@ import './styles.css';
 
 class AccountDragons extends Component {
     componentDidMount() {
-        // this.props.fetchPublicDragons();
         this.props.fetchAccountDragons();
-        // this.props.fetchAccountInfo();
     }
 
     render() {
