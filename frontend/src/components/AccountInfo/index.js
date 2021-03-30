@@ -16,11 +16,12 @@ class AccountInfo extends Component {
     render() {
         return (
             <div className='accountInfo-container'>
-                <div>
-                    <h2>Account Info:</h2>
-                    <div>Username: {this.props.accountInfo.content.username}</div>
-                    <div>Balance: {this.props.accountInfo.content.balance}</div>
-                    <br />
+                <div className='accountInfo-content'>
+                    <div className='accountInfo-description'>
+                        <h2>Account Info:</h2>
+                        <div>Username: {this.props.accountInfo.content.username}</div>
+                        <div>Balance: {this.props.accountInfo.content.balance}</div>
+                    </div>
                     <Button onClick={this.props.createDragon}>Create a new dragon</Button>
                 </div>
                 <div className='accountInfo-border-right'></div>

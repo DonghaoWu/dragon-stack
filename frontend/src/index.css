@@ -47,6 +47,10 @@ button{
   align-items: center;
 }
 
+.dragon-card-otherOwner{
+  background-color:rgb(147, 197, 186);
+}
+
 /* Modal */
 .infoModal{
   z-index: 1; 

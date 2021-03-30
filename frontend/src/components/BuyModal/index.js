@@ -10,20 +10,16 @@ import DragonAvatar from '../DragonAvatar/index';
 import './styles.css';
 
 class BuyModal extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     componentDidMount() {
-        document.addEventListener('mousedown', this.handleClickOutside, false);
+        document.addEventListener('mousedown', this.handleModalClick, false);
     }
 
     componentWillUnmount() {
         this.props.fetchPublicDragons();
-        document.removeEventListener('mousedown', this.handleClickOutside, false);
+        document.removeEventListener('mousedown', this.handleModalClick, false);
     }
 
-    handleClickOutside = (event) => {
+    handleModalClick = (event) => {
         const { handleBuyModal } = this.props;
         if (this.node.contains(event.target)) return;
         return handleBuyModal();
@@ -41,7 +37,6 @@ class BuyModal extends React.Component {
                 else {
                     alert(this.props.buyDragonState.content.message);
                     this.props.fetchAccountInfo();
-                    this.props.fetchPublicDragons();
                 }
             })
     }
@@ -70,7 +65,7 @@ class BuyModal extends React.Component {
                                 </p>
                                 <div className='modal-buttons'>
                                     <button className='modal-button' onClick={this.checkAccountDragons}>Check my account dragons</button>
-                                    <button className='modal-button' onClick={handleBuyModal}>Finish</button>
+                                    <button className='modal-button' onClick={handleBuyModal}>Close</button>
                                 </div>
                             </div>
                             :

@@ -2,7 +2,7 @@ import { BUY_DRAGON_BEGIN, BUY_DRAGON_FAILURE, BUY_DRAGON_SUCCESS } from '../typ
 import { fetchAccountDragons } from './accountDragonActions';
 import { fetchPublicDragons } from './publicDragonActions';
 
-export const buyDragonBegin = () => dispatch => {
+export const clearBuyState = () => dispatch => {
     dispatch({ type: BUY_DRAGON_BEGIN });
 }
 
@@ -32,8 +32,6 @@ export const buyDragon = ({ dragonId, saleValue }) => dispatch => {
                     type: BUY_DRAGON_SUCCESS,
                     payload: data.info
                 })
-                // dispatch(fetchAccountDragons);
-                // dispatch(fetchPublicDragons);
             }
         }))
         .catch(error => {

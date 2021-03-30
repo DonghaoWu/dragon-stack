@@ -6,8 +6,8 @@ import BuyModal from '../BuyModal/index';
 import MateModal from '../MateModal/index';
 import DragonAvatar from '../DragonAvatar/index';
 
-import { buyDragonBegin } from '../../redux/actions/buyDragonActions';
-import { mateDragonBegin } from '../../redux/actions/mateDragonActions';
+import { clearBuyState } from '../../redux/actions/buyDragonActions';
+import { clearMateState } from '../../redux/actions/mateDragonActions';
 
 import './styles.css';
 
@@ -18,21 +18,13 @@ class PublicDragonsRow extends Component {
     };
 
     handleBuyModal = () => {
-        this.setState({ buyModal: !this.state.buyModal })
+        this.setState({ buyModal: !this.state.buyModal });
+        this.props.clearBuyState();
     }
 
     handleMateModal = () => {
-        this.setState({ mateModal: !this.state.mateModal })
-    }
-
-    openBuyModal = () => {
-        this.handleBuyModal();
-        this.props.buyDragonBegin();
-    }
-
-    openMateModal = () => {
-        this.handleMateModal();
-        this.props.mateDragonBegin();
+        this.setState({ mateModal: !this.state.mateModal });
+        this.props.clearMateState();
     }
 
     render() {
@@ -71,11 +63,11 @@ class PublicDragonsRow extends Component {
                             <div className='public-dragon-card-buttons'>
                                 <div className='public-dragon-card-button'>
                                     <div>Sale value:{this.props.dragon.saleValue}</div>
-                                    <button onClick={this.openBuyModal}>Buy</button>
+                                    <button onClick={this.handleBuyModal}>Buy</button>
                                 </div>
                                 <div className='public-dragon-card-button'>
                                     <div>Sire value:{this.props.dragon.sireValue}</div>
-                                    <button onClick={this.openMateModal}>Sire</button>
+                                    <button onClick={this.handleMateModal}>Sire</button>
                                 </div>
                             </div>
                         </div>
@@ -94,8 +86,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        buyDragonBegin: () => dispatch(buyDragonBegin()),
-        mateDragonBegin: () => dispatch(mateDragonBegin())
+        clearBuyState: () => dispatch(clearBuyState()),
+        clearMateState: () => dispatch(clearMateState())
     }
 }
 

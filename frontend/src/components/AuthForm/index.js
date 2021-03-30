@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { signup, login } from '../../redux/actions/accountActions';
 import { connect } from 'react-redux';
+
+import { signup, login } from '../../redux/actions/accountActions';
+
 import './styles.css';
 
 class AuthForm extends Component {
     state = { username: '', password: '' };
 
-    updateUsername = e => {
-        this.setState({ username: e.target.value })
-    };
-
-    updatePassword = e => {
-        this.setState({ password: e.target.value })
-    };
+    handleInput = e => {
+        this.setState({ [e.target.name]: e.target.value })
+    }
 
     signup = () => {
         const { username, password } = this.state;
@@ -34,16 +32,18 @@ class AuthForm extends Component {
                         <Form.Label>Username</Form.Label>
                         <Form.Control
                             type='text'
+                            name='username'
                             value={this.state.username}
                             placeholder='username'
-                            onChange={this.updateUsername}
+                            onChange={this.handleInput}
                         />
                         <Form.Label>Password</Form.Label>
                         <Form.Control
                             type='password'
+                            name='password'
                             value={this.state.password}
                             placeholder='password'
-                            onChange={this.updatePassword}
+                            onChange={this.handleInput}
                         />
                         <div className='auth-form-buttons'>
                             <Button className='auth-form-button' onClick={this.login}>Log In</Button>

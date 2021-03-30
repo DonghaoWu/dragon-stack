@@ -9,7 +9,7 @@ export const selectMatronDragon = ({ dragon }) => dispatch => {
     })
 }
 
-export const mateDragonBegin = () => dispatch => {
+export const clearMateState = () => dispatch => {
     dispatch({ type: MATE_DRAGON_BEGIN });
 }
 
