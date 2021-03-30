@@ -26,7 +26,6 @@ const AuthRoute = (props) => {
 const MainContent = () => {
     return (
         <div className='main-content'>
-            <SubNav />
             <Switch>
                 <AuthRoute exact path='/' component={MyProfile} />
                 <AuthRoute exact path='/account-dragons' component={AccountDragons} />
