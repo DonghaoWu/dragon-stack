@@ -9,19 +9,9 @@ import Dragon from '../Dragon/index';
 
 const Generation = ({ generation, fetchGeneration }) => {
     useEffect(() => {
-        fetchNextGeneration();
-        return () => clearTimeout(timer);
-    }, [generation.content.generationId])
-
-    const [timer, setTimer] = useState(null);
-
-    const fetchNextGeneration = () => {
-        fetchGeneration();
-
-        setTimer(setTimeout(() => {
-            fetchNextGeneration();
-        }, 3000))
-    }
+        const interval = setInterval(() => fetchGeneration(), 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div className='generation-container'>
@@ -45,73 +35,6 @@ const Generation = ({ generation, fetchGeneration }) => {
         </div>
     )
 }
-
-// class Generation extends Component {
-//     //     useEffect(() => {
-//     //         fetchNextGeneration();
-//     //         return () => clearTimeout(timer);
-//     //     }, [generation.content.generationId])
-
-//     // const [timer, setTimer] = useState(null);
-
-//     // const fetchNextGeneration = () => {
-//     //     fetchGeneration();
-
-//     //     setTimer(setTimeout(() => {
-//     //         fetchNextGeneration();
-//     //     }, 3000))
-//     // }
-
-//     constructor() {
-//         super();
-//         this.state = {
-//             timer: null
-//         }
-//     }
-
-//     componentDidMount() {
-//         this.fetchNextGeneration();
-//     }
-
-//     componentWillUnmount() {
-//         this.setState({ timer: null })
-//     }
-
-//     fetchNextGeneration = () => {
-//         this.props.fetchGeneration();
-
-//         this.setState({
-//             timer: setTimeout(() => {
-//                 this.fetchNextGeneration();
-//             }, 3000)
-//         })
-//     }
-
-//     render() {
-//         return (
-//             <div className='generation-container'>
-//                 {
-//                     (this.props.generation.errorMessage) ?
-//                         <div>{this.props.generation.errorMessage}</div>
-//                         :
-//                         <div className='generation-content'>
-//                             <div className='generation-info-container'>
-//                                 <div className='generation-info'>
-//                                     <h5>Current Generation: {this.props.generation.content.generationId}</h5>
-//                                     <h5>Next Generation: <Moment format="YYYY/MM/DD hh:mm:ss">{new Date(this.props.generation.content.expiration).toString()}</Moment></h5>
-//                                     <h5>Time now: <Moment format="YYYY/MM/DD hh:mm:ss">{new Date().toString()}</Moment></h5>
-//                                 </div>
-//                             </div>
-//                             <div className='generation-dragon-container'>
-//                                 <Dragon />
-//                             </div>
-//                         </div>
-//                 }
-//             </div>
-//         )
-//     }
-
-// }
 
 const mapStateToProps = state => {
     return {

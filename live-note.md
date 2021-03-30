@@ -5199,3 +5199,9 @@ Full-stack: Implement browser integration tests!
     - 这个行为需要包含在 componentWillUnmount 之中
     - 解除 eventListener
     - 清除 buy state。
+
+
+
+
+3/30:
+- 解决了 Generation 中的自动 fetch 问题。
