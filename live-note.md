@@ -5180,25 +5180,26 @@ Full-stack: Implement browser integration tests!
     - 加载 public state，也就是重新 fetch，对应  `fetchPublicDragons`
     - 
 
-2. 当一个用户按下 buy Botton 时，需要的动作：
+2. `关于 open buy modal：`当一个用户按下 buy Botton 时，需要的动作：
 
     - 加载需要购买的 dragon，
     - 清除旧有的 state
     - 改变 state， 打开 modal
     - 打开 modal 后，开始侦测 mousedown 动作，如果有的话，就调用 `handleModalClick` 函数。
 
-3. 当一个用户购买了 dragon 之后，需要的动作：
+3. `关于 close buy modal：`无论用户在 buy modal 是否完成了 buy 动作，当要关闭 modal 时，需要的动作是：
+    - 更新 public dragon state，即调用 `fetchPublicDragons`
+    - 这个行为需要包含在 componentWillUnmount 之中
+    - 解除 eventListener
+    - 清除 buy state。
+
+4. 当一个用户购买了 dragon 之后，需要的动作：
 
     - 修改 accountInfo state
     - dragon 颜色改变， buyDragonState.buyDragonSuccess === true
     - 出现两个按钮，check my draogns / close
 
-4. 无论用户在 buy modal 是否完成了 buy 动作，当要关闭 modal 时，需要的动作是：
 
-    - 更新 public dragon state，即调用 `fetchPublicDragons`
-    - 这个行为需要包含在 componentWillUnmount 之中
-    - 解除 eventListener
-    - 清除 buy state。
 
 
 
