@@ -5206,3 +5206,6 @@ Full-stack: Implement browser integration tests!
 
 3/30:
 - 解决了 Generation 中的自动 fetch 问题。
+
+4/2:
+- working on mate dragon modal.
