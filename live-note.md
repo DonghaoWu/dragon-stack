@@ -5212,3 +5212,7 @@ Full-stack: Implement browser integration tests!
 
 4/3:
 - working on mate dragon modal.
+
+4/4:
+- `redux thunk 中，dispatch 之前加入 return 就可以使 async chainble.`
+- [https://blog.jscrambler.com/async-dispatch-chaining-with-redux-thunk/](https://blog.jscrambler.com/async-dispatch-chaining-with-redux-thunk/)
