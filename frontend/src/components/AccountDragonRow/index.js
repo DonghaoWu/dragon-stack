@@ -41,7 +41,6 @@ class AccountDragonRow extends Component {
                     return;
                 }
                 this.setState({ edit: false });
-                // alert(`[DragonID: ${this.props.dragon.dragonId}] Updated success!`)
             })
     }
 

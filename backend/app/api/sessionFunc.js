@@ -40,7 +40,12 @@ const setSessionCookie = ({ sessionString, res }) => {
 
 const authenticatedAccount = ({ sessionString }) => {
     return new Promise((resolve, reject) => {
-        if (!sessionString || !Session.verify(sessionString)) {
+        if (!sessionString) {
+            const error = new Error('Please log in or sign up.');
+            error.statusCode = 400;
+            return reject(error);
+        }
+        else if (!Session.verify(sessionString)) {
             const error = new Error('Invalid session.');
             error.statusCode = 400;
             return reject(error);
@@ -49,6 +54,11 @@ const authenticatedAccount = ({ sessionString }) => {
             const { username, id } = Session.parse(sessionString);
             AccountTable.getAccount({ usernameHash: hash(username) })
                 .then(({ account }) => {
+                    if (!account) {
+                        const error = new Error('Please log in or sign up.');
+                        error.statusCode = 440;
+                        reject(error);
+                    }
                     const isAuthenticated = account.sessionId === id;
                     if (isAuthenticated) {
                         resolve({ username, account, isAuthenticated })

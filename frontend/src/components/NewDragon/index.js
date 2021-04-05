@@ -5,7 +5,7 @@ import DragonAvatar from '../DragonAvatar/index';
 
 import './styles.css';
 
-const Dragon = ({ newDragon }) => {
+const NewDragon = ({ newDragon }) => {
     return (
         <div>
             {
@@ -23,4 +23,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps, null)(Dragon);
+export default connect(mapStateToProps, null)(NewDragon);

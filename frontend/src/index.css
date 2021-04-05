@@ -51,6 +51,10 @@ button{
   background-color:rgb(147, 197, 186);
 }
 
+.baby-dragon{
+  background-color: rgb(192, 173, 230)
+}
+
 /* Modal */
 .infoModal{
   z-index: 1; 
@@ -96,15 +100,11 @@ button{
 
 .seletedTag{
   color: white;
+  text-decoration: none;
   background-color:#047BFE;
 
   padding:0.5rem 1rem;
   border-radius: 20px;
-}
-
-.seletedTag:hover{
-  text-decoration: none;
-  color: white;
 }
 
 .unSelectedTag{

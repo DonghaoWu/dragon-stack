@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import PublicDragonsRow from '../PublicDragonRow/index';
 
 import { fetchPublicDragons } from '../../redux/actions/publicDragonActions';
-import { fetchAccountDragons } from '../../redux/actions/accountDragonActions';
 import { fetchAccountInfo } from '../../redux/actions/accountInfoActions';
 
 import './styles.css';
@@ -14,6 +13,7 @@ class PublicDragons extends Component {
 
     componentDidMount() {
         this.props.fetchPublicDragons();
+        this.props.fetchAccountInfo();
     }
 
     render() {
@@ -52,7 +52,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         fetchPublicDragons: () => dispatch(fetchPublicDragons),
-        fetchAccountDragons: () => dispatch(fetchAccountDragons),
         fetchAccountInfo: () => dispatch(fetchAccountInfo)
     }
 }

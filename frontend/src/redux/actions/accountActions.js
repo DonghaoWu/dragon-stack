@@ -13,7 +13,9 @@ import {
     ACCOUNT_AUTHENTICATED_FAILURE
 } from '../types/accountTypes';
 
-import { fetchAccountInfo } from './accountInfoActions'
+import { fetchAccountInfo } from './accountInfoActions';
+import { fetchAccountDragons } from './accountDragonActions';
+import { fetchPublicDragons } from './publicDragonActions';
 
 export const signup = ({ username, password }) => dispatch => {
     dispatch({ type: ACCOUNT_SIGNUP_BEGIN });
@@ -37,7 +39,6 @@ export const signup = ({ username, password }) => dispatch => {
                     type: ACCOUNT_SIGNUP_SUCCESS,
                     payload: data.authInfo
                 })
-                dispatch(fetchAccountInfo);
             }
         }))
         .catch(error => {
@@ -70,11 +71,10 @@ export const login = ({ username, password }) => dispatch => {
                     type: ACCOUNT_SIGNIN_SUCCESS,
                     payload: data.authInfo
                 })
-                dispatch(fetchAccountInfo);
             }
         }))
         .catch(error => {
-            dispatch({
+            return dispatch({
                 type: ACCOUNT_SIGNIN_FAILURE,
                 payload: error.message
             })
@@ -87,7 +87,14 @@ export const fetchAuthenticated = dispatch => {
     return fetch('/account/authenticated', {
         credentials: 'include'
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 500) {
+                const error = new Error('Unable to connect server.');
+                error.statusCode = 500;
+                throw (error);
+            }
+            else return response.json()
+        })
         .then((data => {
             if (data.type === 'error') {
                 return dispatch({
@@ -101,6 +108,8 @@ export const fetchAuthenticated = dispatch => {
                     payload: data.authInfo
                 })
                 dispatch(fetchAccountInfo);
+                dispatch(fetchAccountDragons);
+                return dispatch(fetchPublicDragons);
             }
         }))
         .catch(error => {
@@ -119,20 +128,20 @@ export const logout = dispatch => {
         .then(response => response.json())
         .then((data => {
             if (data.type === 'error') {
-                dispatch({
+                return dispatch({
                     type: ACCOUNT_LOGOUT_FAILURE,
                     payload: data.message
                 })
             }
             else {
-                dispatch({
+                return dispatch({
                     type: ACCOUNT_LOGOUT_SUCCESS,
                     payload: data.authInfo
                 })
             }
         }))
         .catch(error => {
-            dispatch({
+            return dispatch({
                 type: ACCOUNT_LOGOUT_FAILURE,
                 payload: error.message
             })

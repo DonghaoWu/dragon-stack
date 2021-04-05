@@ -5216,3 +5216,46 @@ Full-stack: Implement browser integration tests!
 4/4:
 - `redux thunk 中，dispatch 之前加入 return 就可以使 async chainble.`
 - [https://blog.jscrambler.com/async-dispatch-chaining-with-redux-thunk/](https://blog.jscrambler.com/async-dispatch-chaining-with-redux-thunk/)
+
+4/5:
+- Unexpected token P in JSON at position 0
+- response.json() 语句出错，一般是 response.status === 500, solution
+
+```js
+export const fetchAuthenticated = dispatch => {
+    dispatch({ type: ACCOUNT_AUTHENTICATED_BEGIN });
+
+    return fetch('/account/authenticated', {
+        credentials: 'include'
+    })
+        .then(response => {
+            if (response.status === 500) {
+                const error = new Error('Unable to connect server.');
+                error.statusCode = 500;
+                throw (error);
+            }
+            else return response.json()
+        })
+        .then((data => {
+            if (data.type === 'error') {
+                return dispatch({
+                    type: ACCOUNT_AUTHENTICATED_FAILURE,
+                    payload: data.message
+                })
+            }
+            else {
+                dispatch({
+                    type: ACCOUNT_AUTHENTICATED_SUCCESS,
+                    payload: data.authInfo
+                })
+                dispatch(fetchAccountInfo);
+            }
+        }))
+        .catch(error => {
+            return dispatch({
+                type: ACCOUNT_AUTHENTICATED_FAILURE,
+                payload: error.message
+            })
+        })
+}
+```

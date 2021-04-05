@@ -35,8 +35,8 @@ class BuyModal extends React.Component {
                     alert(this.props.buyDragonState.errorMessage);
                 }
                 else {
-                    alert(this.props.buyDragonState.content.message);
                     this.props.fetchAccountInfo();
+                    alert(this.props.buyDragonState.content.message);
                 }
             })
     }

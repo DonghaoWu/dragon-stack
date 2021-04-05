@@ -21,7 +21,7 @@ export const fetchAccountDragons = dispatch => {
             }
         }))
         .catch(error => {
-            dispatch({
+            return dispatch({
                 type: ACCOUNT_DRAGON_FETCH_FAILURE,
                 payload: error.message
             })

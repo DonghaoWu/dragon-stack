@@ -1,15 +1,15 @@
-import React, { useState, useEffect, Component } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import Moment from 'react-moment';
 
 import { generationActionCreator, fetchGeneration } from '../../redux/actions/generationActions';
 import './styles.css';
 
-import Dragon from '../Dragon/index';
+import NewDragon from '../NewDragon/index';
 
 const Generation = ({ generation, fetchGeneration }) => {
     useEffect(() => {
-        const interval = setInterval(() => fetchGeneration(), 3000);
+        const interval = setInterval(() => fetchGeneration(), 1000);
         return () => clearInterval(interval);
     }, []);
 
@@ -28,7 +28,7 @@ const Generation = ({ generation, fetchGeneration }) => {
                             </div>
                         </div>
                         <div className='generation-dragon-container'>
-                            <Dragon />
+                            <NewDragon />
                         </div>
                     </div>
             }

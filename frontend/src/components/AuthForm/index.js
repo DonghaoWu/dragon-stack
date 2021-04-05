@@ -53,14 +53,7 @@ class AuthForm extends Component {
                     <div>
                         {
                             this.props.account.errorMessage ?
-                                <div>
-                                    {
-                                        this.props.account.errorMessage === 'Invalid session.' ?
-                                            <div></div>
-                                            :
-                                            <div> {this.props.account.errorMessage}</div>
-                                    }
-                                </div>
+                                <div> {this.props.account.errorMessage}</div>
                                 :
                                 null
 

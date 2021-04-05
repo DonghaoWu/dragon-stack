@@ -65,7 +65,7 @@ class MateModal extends React.Component {
                             <div className='parent-dragons-container'>
                                 <div className='modal-mate-dragon'>
                                     <div className='modal-sub-title'>Your Selected Patron Dragon</div>
-                                    <div className='dragon-card patron-dragon'>
+                                    <div className='dragon-card dragon-card-otherOwner'>
                                         <DragonAvatar dragon={dragon} />
                                     </div>
                                 </div>
@@ -79,7 +79,7 @@ class MateModal extends React.Component {
                                                 </div>
                                             </div>
                                             :
-                                            <div></div>
+                                            null
                                     }
                                 </div>
                             </div>
@@ -93,7 +93,7 @@ class MateModal extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                    : <div></div>
+                                    : null
                             }
                         </div>
                         <div className='mate-description-container'>

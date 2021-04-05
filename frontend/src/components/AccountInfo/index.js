@@ -5,6 +5,7 @@ import { Button } from 'react-bootstrap';
 
 import { fetchAccountInfo } from '../../redux/actions/accountInfoActions';
 import { createDragon } from '../../redux/actions/dragonActions';
+
 import './styles.css';
 
 class AccountInfo extends Component {

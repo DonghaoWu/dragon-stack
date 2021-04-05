@@ -11,9 +11,6 @@ import './index.css';
 import store from './redux/store';
 
 import { fetchAuthenticated } from './redux/actions/accountActions';
-import { fetchPublicDragons } from './redux/actions/publicDragonActions';
-
-store.dispatch(fetchPublicDragons);
 
 store.dispatch(fetchAuthenticated)
   .then(() => {
