@@ -53,7 +53,7 @@ class MateModal extends React.Component {
     }
 
     render() {
-        const { handleMateModal, dragon, mateDragonState } = this.props;
+        const { dragon, handleMateModal, mateDragonState } = this.props;
         return (
             <div className='infoModal'>
                 <div ref={node => this.node = node} className='mate-modal-container'>
@@ -93,9 +93,11 @@ class MateModal extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                    : null
+                                    : 
+                                    null
                             }
                         </div>
+                        
                         <div className='mate-description-container'>
                             {
                                 mateDragonState.selectedMatronDragon.dragonId ?
