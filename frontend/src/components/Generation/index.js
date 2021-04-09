@@ -23,8 +23,8 @@ const Generation = ({ generation, fetchGeneration }) => {
                         <div className='generation-info-container'>
                             <div className='generation-info'>
                                 <h5>Current Generation: {generation.content.generationId}</h5>
-                                <h5>Next Generation: <Moment format="YYYY/MM/DD hh:mm:ss">{new Date(generation.content.expiration).toString()}</Moment></h5>
                                 <h5>Time now: <Moment format="YYYY/MM/DD hh:mm:ss">{new Date().toString()}</Moment></h5>
+                                <h5>Next Generation: <Moment format="YYYY/MM/DD hh:mm:ss">{new Date(generation.content.expiration).toString()}</Moment></h5>
                             </div>
                         </div>
                         <div className='generation-dragon-container'>

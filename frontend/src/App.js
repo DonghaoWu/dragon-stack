@@ -7,12 +7,14 @@ import AuthForm from './components/AuthForm/index.js';
 
 const App = ({ account }) => {
   let history = useHistory();
+  
   if (!account.loggedIn) {
     history.push("/");
+    return <AuthForm />
   }
 
   return (
-    account.loggedIn ? <Home /> : <AuthForm />
+    <Home />
   )
 }
 
