@@ -1,10 +1,7 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Link, BrowserRouter as Router, Route, Switch, Redirect, useHistory } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Route, Switch, useHistory } from 'react-router-dom';
 
 import AuthForm from '../AuthForm/index';
-import SubNav from '../SubNav/index';
 import MyProfile from '../MyProfile/index';
 import AccountDragons from '../AccountDragons/index';
 import PublicDragons from '../PublicDragons/index';

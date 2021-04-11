@@ -56,7 +56,6 @@ class AuthForm extends Component {
                                 <div> {this.props.account.errorMessage}</div>
                                 :
                                 null
-
                         }
                     </div>
                 </div>
