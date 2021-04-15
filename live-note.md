@@ -227,13 +227,13 @@
     $ npm i pg
     ```
 
-11. create a new file 'databasePool.js', and 'databaseConfiguration.js'
+11. create a new file 'databaseConnection.js', and 'databaseConfiguration.js'
 
 12. node-postgres pool verifycation.
 
 13. 任意文件调用 nodemon
     ```bash
-    $ ./node_modules/nodemon/bin/nodemon.js databasePool.js
+    $ ./node_modules/nodemon/bin/nodemon.js databaseConnection.js
     ```
 
 14. 使用 pg 操作 postgresql
@@ -268,7 +268,7 @@
 15. 新建一个文件，用来使用 pool.query 把数据加进 database 中。在这里需要加一个备注，在文件中，实际上是把一个函数 class 化，所以使用到关键词 static
 
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../databaseConnection');
 
 class GenerationTable {
     static storeGeneration(generation) {
@@ -287,7 +287,7 @@ module.exports = GenerationTable;
 - 而如果想只要函数，也是可以的，写成：
 
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../databaseConnection');
 
 const storeGeneration = (generation) =>{
     pool.query('INSERT INTO generation(expiration) VALUES($1)',
@@ -313,7 +313,7 @@ module.exports = storeGeneration;
 18. 在 generationTable 中引入 promise， 原因：query 的返回是一个 async 过程，不是马上就能回传数据的。
 
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../databaseConnection');
 
 class GenerationTable {
     static storeGeneration(generation) {
@@ -480,7 +480,7 @@ psql -U noah dragonstackdb < ./bin/sql/trait.sql
 3. insert all traits into database
 
 ```js
-const pool = require("../databasePool");
+const pool = require("../databaseConnection");
 const TRAITS = require("../data/traits.json");
 
 TRAITS.forEach(TRAIT => {
@@ -515,7 +515,7 @@ node ./bin/insertTraits.js
 28. trait table and get trait id, 使用 pool.query 查询特定 trait 的 id
 
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../databaseConnection');
 
 class TraitTable {
     static getTraitId({ traitType, traitValue }) {
@@ -607,7 +607,7 @@ select * from dragon Inner join dragonTrait On dragon.id = dragonTrait."dragonId
 - get dragon with traits
 
 ```js
-const pool = require("../../databasePool");
+const pool = require("../../databaseConnection");
 const DragonTable = require("./table");
 const DragonTraitTable = require('../dragonTrait/table')
 const Dragon = require('./index');
@@ -664,7 +664,7 @@ module.exports = getDragonWithTraits;
 
     - 在调用类中进行写入 table 动作：
     ```js
-    const pool = require('../../databasePool');
+    const pool = require('../../databaseConnection');
 
     class GenerationTable {
         static storeGeneration(generation) {
@@ -896,7 +896,7 @@ DragonTable.storeDragon(dragon)
         3. 在把数据写入 table：insertTraits.js
 
         ```js
-        const pool = require("../databasePool");
+        const pool = require("../databaseConnection");
         const TRAITS = require("../data/traits.json");
 
         TRAITS.forEach(TRAIT => {
@@ -1774,7 +1774,7 @@ CREATE TABLE account(
 2. 执行 sql 文件，confugure_db.sh
 3. 设定 query function
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../databaseConnection');
 
 class AccountTable {
     static storeAccount(user) {
@@ -1900,7 +1900,7 @@ CREATE TABLE account(
 
 - 转变输入数据：
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../databaseConnection');
 
 class AccountTable {
     static storeAccount({ usernameHash, passwordHash }) {
@@ -1953,7 +1953,7 @@ module.exports = router;
 8. 防止重复用户名：
 
 ```js
-const pool = require('../../databasePool');
+const pool = require('../../databaseConnection');
 
 class AccountTable {
     static storeAccount({ usernameHash, passwordHash }) {
@@ -2715,7 +2715,7 @@ echo "dragonstackdb configured!"
 3. add an insert function in the table
 
 ```js
-const pool = require('../../../databasePool');
+const pool = require('../../../databaseConnection');
 
 class AccountDragonTable {
     static storeAccountDragon({ accountId, dragonId }) {
@@ -4491,7 +4491,7 @@ module.exports = Dragon;
 - table
 
 ```js
-const pool = require('../../../databasePool');
+const pool = require('../../../databaseConnection');
 const DragonTraitTable = require('../dragonTrait/table');
 const Dragon = require('./index');
 

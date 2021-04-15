@@ -1,6 +1,4 @@
 import { MATE_DRAGON_BEGIN, MATE_DRAGON_FAILURE, MATE_DRAGON_SUCCESS } from '../types/mateDragonTypes';
-import { fetchAccountDragons } from './accountDragonActions';
-
 
 export const selectMatronDragon = ({ dragon }) => dispatch => {
     dispatch({

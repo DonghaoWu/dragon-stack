@@ -1,6 +1,4 @@
 import { BUY_DRAGON_BEGIN, BUY_DRAGON_FAILURE, BUY_DRAGON_SUCCESS } from '../types/buyDragonTypes';
-import { fetchAccountDragons } from './accountDragonActions';
-import { fetchPublicDragons } from './publicDragonActions';
 
 export const clearBuyState = () => dispatch => {
     dispatch({ type: BUY_DRAGON_BEGIN });

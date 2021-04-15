@@ -1,4 +1,4 @@
-const pool = require("../databasePool");
+const db = require("../databaseConnection");
 const TRAITS = require("../data/traits.json");
 
 TRAITS.forEach(TRAIT => {
@@ -6,7 +6,7 @@ TRAITS.forEach(TRAIT => {
     const traitValues = TRAIT.values;
 
     traitValues.forEach(traitValue => {
-        pool.query(
+        db.query(
             `INSERT INTO trait("traitType", "traitValue") VALUES($1, $2) RETURNING id`,
             [traitType, traitValue],
             (error, response) => {

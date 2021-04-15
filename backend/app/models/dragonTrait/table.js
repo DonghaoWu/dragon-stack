@@ -1,4 +1,4 @@
-const pool = require('../../../databasePool');
+const db = require('../../../databaseConnection');
 const TraitTable = require('../trait/table');
 
 class DragonTraitTable {
@@ -6,7 +6,7 @@ class DragonTraitTable {
         return new Promise((resolve, reject) => {
             TraitTable.getTraitId({ traitType, traitValue })
                 .then(({ traitId }) => {
-                    pool.query(
+                    db.query(
                         `INSERT INTO dragonTrait("traitId", "dragonId") VALUES($1, $2)`,
                         [traitId, dragonId],
                         (error, response) => {
@@ -21,7 +21,7 @@ class DragonTraitTable {
 
     static getDragonTraits({ dragonId }) {
         return new Promise((resolve, reject) => {
-            pool.query(
+            db.query(
                 `
                 SELECT "traitType", "traitValue"
                 FROM trait

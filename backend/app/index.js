@@ -1,7 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const path = require('path');
 
 const dragonRouter = require('./api/dragon');
 const generationRouter = require('./api/generation');
@@ -32,5 +34,12 @@ app.use((err, req, res, next) => {
 })
 
 engine.start();
+
+if(process.env.NODE_ENV === 'production'){
+    app.use(express.static(path.join(__dirname, '../../frontend/build')));
+    app.use((req,res)=>{
+        res.sendFile(path.join(__dirname,'../../frontend/build/index.html'))
+    })
+}
 
 module.exports = app;

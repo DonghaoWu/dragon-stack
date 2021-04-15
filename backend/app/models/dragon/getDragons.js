@@ -1,4 +1,4 @@
-const pool = require("../../../databasePool");
+const db = require("../../../databaseConnection");
 const DragonTable = require("./table");
 const DragonTraitTable = require('../dragonTrait/table');
 const Dragon = require('./index');
@@ -27,7 +27,7 @@ const getWholeDragon = ({ dragonId, accountId }) => {
 
 const getPublicDragons = () => {
     return new Promise((resolve, reject) => {
-        pool.query(
+        db.query(
             `SELECT dragon.id, "accountId"
             FROM dragon
             INNER JOIN accountDragon

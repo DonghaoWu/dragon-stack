@@ -34,8 +34,8 @@ const DragonAvatar = ({ dragon }) => {
         return (
             <div className={`${imageWrapper}`}>
                 <div style={{ backgroundColor: dragonPropertyMap.backgroundColor, ...sizing }} className={`dragon-avatar-image-background`}></div>
-                <img src={dragonPropertyMap.pattern} style={{ ...sizing }} className={`dragon-avatar-image-pattern`} />
-                <img src={dragonPropertyMap.build} style={{ ...sizing }} className={`dragon-avatar-image`} />
+                <img src={dragonPropertyMap.pattern} style={{ ...sizing }} className={`dragon-avatar-image-pattern`} alt='' />
+                <img src={dragonPropertyMap.build} style={{ ...sizing }} className={`dragon-avatar-image`} alt='' />
             </div>
         )
     }

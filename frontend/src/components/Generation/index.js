@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import Moment from 'react-moment';
 
-import { generationActionCreator, fetchGeneration } from '../../redux/actions/generationActions';
+import { fetchGeneration } from '../../redux/actions/generationActions';
 import './styles.css';
 
 import NewDragon from '../NewDragon/index';
@@ -11,7 +11,7 @@ const Generation = ({ generation, fetchGeneration }) => {
     useEffect(() => {
         const interval = setInterval(() => fetchGeneration(), 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [fetchGeneration]);
 
     return (
         <div className='generation-container'>

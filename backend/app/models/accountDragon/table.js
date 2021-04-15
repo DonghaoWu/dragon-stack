@@ -1,9 +1,9 @@
-const pool = require('../../../databasePool');
+const db = require('../../../databaseConnection');
 
 class AccountDragonTable {
     static storeAccountDragon({ accountId, dragonId }) {
         return new Promise((resolve, reject) => {
-            pool.query(
+            db.query(
                 `INSERT INTO accountDragon("accountId", "dragonId") VALUES($1, $2)`,
                 [accountId, dragonId],
                 (error, response) => {
@@ -16,7 +16,7 @@ class AccountDragonTable {
     }
     static getAccountDragons({ accountId }) {
         return new Promise((resolve, reject) => {
-            pool.query(
+            db.query(
                 'SELECT "dragonId" FROM accountDragon WHERE "accountId" = $1',
                 [accountId],
                 (error, response) => {
@@ -28,7 +28,7 @@ class AccountDragonTable {
     }
     static getDragonAccount({ dragonId }) {
         return new Promise((resolve, reject) => {
-            pool.query(
+            db.query(
                 `SELECT "accountId" FROM accountDragon WHERE "dragonId" = $1`,
                 [dragonId],
                 (error, response) => {
@@ -42,7 +42,7 @@ class AccountDragonTable {
 
     static updateDragonAccount({ dragonId, accountId }) {
         return new Promise((resolve, reject) => {
-            pool.query(
+            db.query(
                 `UPDATE accountDragon SET "accountId" = $1 WHERE "dragonId" = $2`,
                 [accountId, dragonId],
                 (error, response) => {
