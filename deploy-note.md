@@ -251,23 +251,23 @@ export default store;
 ```bash
 $ heroku login 
 
-$ heroku create dragon-stack-test
+$ heroku create dragon-stack-2021
 
-$ heroku addons:create heroku-postgresql:hobby-dev --name=dragon-db-test 
+$ heroku addons:create heroku-postgresql:hobby-dev --name=dragon-stack-db
 
-$ heroku addons:attach dragon-db-test --app=dragon-stack-test
+$ heroku addons:attach dragon-stack-db --app=dragon-stack-2021
 ```
 
-4. add env var in heroku ui
+5. add env var in heroku ui
 
 ```bash
 STRING_HASH_SECRET = 'hello'
 ```
 
-5. 
+6. 
 ```bash
 git remote -v
-heroku git:remote -a dragon-stack-test
+heroku git:remote -a dragon-stack-2021
 git add .
 git commit -m'ready for deploy'
 git push heroku main
@@ -276,18 +276,18 @@ heroku ps:scale web=1
 heroku open
 ```
 
-6. 
+----------------------------- *Side note* ---------------------------
+
+1. 本地开启 heroku bash
 ```bash
 # heroku run bash
 ```
 
-7. 所以，如果你在你的脚本的顶部＃！/ bin / bash，那么你告诉你的系统使用bash作为默认的shell。
+2. 所以，如果你在你的脚本的顶部＃！/ bin / bash，那么你告诉你的系统使用bash作为默认的shell。
 
-8. const port = process.env.PORT || 5000;
+3. heroku ps:scale web=0 , 关闭 heroku server。
 
-9. heroku ps:scale web=0
-
-10. connect heroku in Node.js 
+4. connect heroku in Node.js 
 
 - npm i pg
 ```js
